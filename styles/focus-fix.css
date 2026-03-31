@@ -1,0 +1,54 @@
+/* ═══════════════════════════════════════════════════════
+   FOCUS FIX — Pro Susu Banking
+   Removes the default browser focus ring for mouse/touch
+   interactions while preserving it for keyboard navigation
+   (accessibility best practice — WCAG 2.1 compliant).
+   ─────────────────────────────────────────────────────────
+   HOW IT WORKS:
+   - By default outlines are suppressed for all elements.
+   - When the user presses Tab or arrow keys, the <body>
+     gets the class "kb-nav" via focus-fix.js, which
+     re-enables a custom gold focus ring.
+   - On any mouse click or touch, "kb-nav" is removed.
+════════════════════════════════════════════════════════ */
+
+/* ── 1. Remove default outline everywhere ─────────────── */
+*,
+*::before,
+*::after {
+  outline: none !important;
+}
+
+/* ── 2. Restore a styled ring ONLY during keyboard nav ── */
+body.kb-nav *:focus,
+body.kb-nav *:focus-visible {
+  outline: 2px solid rgba(201, 168, 76, 0.7) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+
+/* ── 3. Inputs / selects always get a visible ring ─────── */
+/* (so users always know which field is active)             */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: var(--gold, #c9a84c) !important;
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.18) !important;
+}
+
+/* ── 4. Suppress the blue highlight on mobile tap ─────── */
+a,
+button,
+[role="button"],
+.nav-item,
+.sub-tab,
+.type-chip,
+.calc-key,
+.theme-toggle,
+.modal-close,
+.topbar-btn,
+.calc-stab,
+.calc-subtab {
+  -webkit-tap-highlight-color: transparent;
+}

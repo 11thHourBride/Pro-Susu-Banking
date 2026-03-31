@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Susu Banking</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="styles/general.css">
+<link rel="stylesheet" href="styles/buttons.css">
+<link rel="stylesheet" href="styles/modals.css">
+<link rel="stylesheet" href="styles/utilities.css">
+<link rel="stylesheet" href="styles/settings.css">
+<link rel="stylesheet" href="styles/teller.css">
+<link rel="stylesheet" href="styles/reports.css">
+<link rel="stylesheet" href="styles/users.css">
+<link rel="stylesheet" href="styles/loaders.css">
+<link rel="stylesheet" href="styles/calculator.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- LOGIN OVERLAY                                       -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="login-overlay" style="position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:stretch;min-height:100vh">
+
+  <!-- ── LEFT PANEL — Branding ── -->
+  <div class="login-left" style="flex:1;background:linear-gradient(135deg,#04091a 0%,#081428 50%,#0a1c38 100%);
+    padding:48px 52px;display:flex;flex-direction:column;justify-content:space-between;
+    position:relative;overflow:hidden;min-width:0">
+
+    <!-- Background decorations (absolute, not flex children) -->
+    <div style="position:absolute;top:-80px;right:-80px;width:320px;height:320px;
+      border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.08) 0%,transparent 70%);
+      pointer-events:none"></div>
+    <div style="position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;
+      border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.05) 0%,transparent 70%);
+      pointer-events:none"></div>
+
+    <!-- Main content block -->
+    <div>
+
+      <!-- Logo row -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:52px">
+        <div id="login-logo-display" style="width:48px;height:48px;border-radius:12px;
+          background:linear-gradient(135deg,rgba(201,168,76,.3),rgba(201,168,76,.1));
+          border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;
+          justify-content:center;font-size:1.5rem">🏦</div>
+        <div>
+          <div id="login-company-name"
+            style="font-family:'Playfair Display',serif;font-size:1.05rem;
+              font-weight:700;color:var(--gold-light,#e8c96a);letter-spacing:.5px">
+            Pro Susu Banking
+          </div>
+          <div id="login-company-tagline"
+            style="font-size:.7rem;color:rgba(201,168,76,.6);letter-spacing:.5px">
+            Management System
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero headline -->
+      <div style="margin-bottom:28px">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:3px;
+          color:rgba(201,168,76,.6);margin-bottom:12px;font-weight:600">
+          🇬🇭 Ghana's Trusted Susu Platform
+        </div>
+        <h1 style="font-family:'Playfair Display',serif;font-size:2.2rem;
+          font-weight:700;color:#ffffff;line-height:1.25;margin:0 0 14px">
+          Welcome to<br>
+          <span style="background:linear-gradient(90deg,#c9a84c,#e8c96a,#c9a84c);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+            background-clip:text">Pro Susu Banking</span>
+        </h1>
+        <p style="font-size:.88rem;color:rgba(255,255,255,.55);line-height:1.7;
+          max-width:340px;margin:0">
+          The complete collection management system built exclusively
+          for Ghanaian susu banking operations. Banking made
+          <em style="color:rgba(201,168,76,.8)">simple</em> &amp;
+          <em style="color:rgba(201,168,76,.8)">secure</em>.
+        </p>
+      </div>
+
+      <!-- Feature chips -->
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:360px">
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.1);border-radius:10px">
+          <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">💼</span>
+          <div>
+            <div style="font-size:.79rem;font-weight:600;color:rgba(255,255,255,.85);margin-bottom:2px">Loan Management</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);line-height:1.4">Track disbursements, repayments &amp; penalties</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.1);border-radius:10px">
+          <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">👥</span>
+          <div>
+            <div style="font-size:.79rem;font-weight:600;color:rgba(255,255,255,.85);margin-bottom:2px">Customer Accounts</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);line-height:1.4">Susu, Lending Deposit &amp; Savings accounts</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.1);border-radius:10px">
+          <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">📊</span>
+          <div>
+            <div style="font-size:.79rem;font-weight:600;color:rgba(255,255,255,.85);margin-bottom:2px">Reports &amp; Analytics</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);line-height:1.4">Daily, monthly &amp; annual performance charts</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.1);border-radius:10px">
+          <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">📦</span>
+          <div>
+            <div style="font-size:.79rem;font-weight:600;color:rgba(255,255,255,.85);margin-bottom:2px">Collection Sheets</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);line-height:1.4">Auto-generated from finalized entries</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.1);border-radius:10px">
+          <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">🏦</span>
+          <div>
+            <div style="font-size:.79rem;font-weight:600;color:rgba(255,255,255,.85);margin-bottom:2px">Teller Operations</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);line-height:1.4">Float, collections, withdrawals &amp; close of day</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.1);border-radius:10px">
+          <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">🔒</span>
+          <div>
+            <div style="font-size:.79rem;font-weight:600;color:rgba(255,255,255,.85);margin-bottom:2px">Secure &amp; Reliable</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.4);line-height:1.4">Role-based access, activity logs &amp; backups</div>
+          </div>
+        </div>
+
+      </div>
+      <!-- /Feature chips -->
+
+    </div>
+    <!-- /Main content block -->
+
+  </div>
+  <!-- ── END LEFT PANEL ── -->
+
+  <!-- ── RIGHT PANEL — Login form ── -->
+  <div class="login-right" style="width:420px;flex-shrink:0;background:#04091a;
+    display:flex;flex-direction:column;justify-content:center;padding:48px 44px;
+    position:relative;border-left:1px solid rgba(201,168,76,.1)">
+
+    <!-- Top-right decoration -->
+    <div style="position:absolute;top:0;right:0;width:160px;height:160px;
+      background:radial-gradient(circle at top right,rgba(201,168,76,.06),transparent 70%);
+      pointer-events:none"></div>
+
+    <!-- Form header -->
+    <div style="margin-bottom:36px">
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:3px;
+        color:rgba(201,168,76,.5);margin-bottom:10px">Secure Access</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.65rem;
+        font-weight:700;color:#fff;margin:0 0 8px">Sign In</h2>
+      <p style="font-size:.82rem;color:rgba(255,255,255,.4);margin:0">
+        Enter your credentials to access your workspace
+      </p>
+    </div>
+
+    <!-- Error message -->
+    <div id="login-error" style="display:none;padding:10px 14px;
+      background:rgba(232,93,93,.1);border:1px solid rgba(232,93,93,.3);
+      border-radius:8px;font-size:.82rem;color:#e85d5d;margin-bottom:16px">
+      Invalid username or password. Please try again.
+    </div>
+
+    <!-- Username field -->
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:.74rem;font-weight:600;
+        text-transform:uppercase;letter-spacing:1px;
+        color:rgba(201,168,76,.7);margin-bottom:7px">Username</label>
+      <div style="position:relative">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);
+          font-size:.95rem;opacity:.5">👤</span>
+        <input type="text" id="login-user"
+          placeholder="Enter your username"
+          autocomplete="username"
+          onkeydown="if(event.key==='Enter')doLogin()"
+          style="width:100%;padding:13px 14px 13px 40px;
+            background:rgba(255,255,255,.05);
+            border:1px solid rgba(201,168,76,.2);border-radius:10px;
+            color:#fff;font-size:.88rem;outline:none;box-sizing:border-box;
+            transition:border-color .2s"
+          onfocus="this.style.borderColor='rgba(201,168,76,.6)'"
+          onblur="this.style.borderColor='rgba(201,168,76,.2)'">
+      </div>
+    </div>
+
+    <!-- Password field -->
+    <div style="margin-bottom:28px">
+      <label style="display:block;font-size:.74rem;font-weight:600;
+        text-transform:uppercase;letter-spacing:1px;
+        color:rgba(201,168,76,.7);margin-bottom:7px">Password</label>
+      <div style="position:relative">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);
+          font-size:.95rem;opacity:.5">🔑</span>
+        <input type="password" id="login-pass"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()"
+          style="width:100%;padding:13px 14px 13px 40px;
+            background:rgba(255,255,255,.05);
+            border:1px solid rgba(201,168,76,.2);border-radius:10px;
+            color:#fff;font-size:.88rem;outline:none;box-sizing:border-box;
+            transition:border-color .2s"
+          onfocus="this.style.borderColor='rgba(201,168,76,.6)'"
+          onblur="this.style.borderColor='rgba(201,168,76,.2)'">
+      </div>
+    </div>
+
+    <!-- Sign-in button -->
+    <button onclick="doLogin()"
+      style="width:100%;padding:14px;background:linear-gradient(135deg,#c9a84c,#a8851c);
+        border:none;border-radius:10px;color:#08142a;font-size:.92rem;font-weight:700;
+        cursor:pointer;letter-spacing:.5px;transition:all .2s;
+        box-shadow:0 4px 20px rgba(201,168,76,.25)"
+      onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 28px rgba(201,168,76,.4)'"
+      onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(201,168,76,.25)'">
+      🔓 Sign In to Dashboard
+    </button>
+
+    <!-- Divider -->
+    <div style="display:flex;align-items:center;gap:12px;margin:24px 0">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+      <span style="font-size:.7rem;color:rgba(255,255,255,.25)">SYSTEM INFO</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+    </div>
+
+    <!-- System status -->
+    <div style="padding:12px 16px;background:rgba(46,204,138,.06);
+      border:1px solid rgba(46,204,138,.15);border-radius:10px;
+      font-size:.75rem;color:rgba(255,255,255,.5);
+      display:flex;align-items:center;gap:10px">
+      <div style="width:8px;height:8px;border-radius:50%;background:#2ecc8a;
+        animation:pulse 2s infinite;flex-shrink:0"></div>
+      <div>
+        <span style="color:rgba(46,204,138,.9);font-weight:600">System Online</span>
+        &nbsp;·&nbsp; Pro Susu Banking v2.0
+        &nbsp;·&nbsp; Default: admin / admin123
+      </div>
+    </div>
+
+    <!-- Bottom note -->
+    <div style="margin-top:auto;padding-top:32px;font-size:.68rem;
+      color:rgba(255,255,255,.2);text-align:center;line-height:1.6">
+      🔒 Secured &nbsp;·&nbsp; 🇬🇭 Built for Ghana &nbsp;·&nbsp;
+      © 2026 Pro Susu Banking
+    </div>
+
+  </div>
+  <!-- ── END RIGHT PANEL ── -->
+
+</div>
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- END LOGIN OVERLAY                                   -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- APP                                                 -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="app" id="app-shell" style="display:none">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🏦</div>
+    <div class="brand-name" id="sb-company-name">Pro Susu Banking</div>
+    <div class="brand-sub">Management System</div>
+    <div class="sb-user" style="cursor:pointer" onclick="openProfileEdit()"
+      title="Click to edit your profile">
+      <div class="sb-avatar" id="sb-avatar">A</div>
+      <div style="flex:1">
+        <div class="sb-uname" id="sb-uname">Administrator</div>
+        <div class="sb-role" id="sb-role">Admin</div>
+      </div>
+      <span style="font-size:.65rem;opacity:.4;flex-shrink:0">✏️</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <a class="nav-item active" onclick="showView('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</a>
+    <a class="nav-item" onclick="showView('teller',this);populateAgentSelectors()"><span class="nav-icon">🏧</span>Teller</a>
+    <a class="nav-item" onclick="showView('entries',this)"><span class="nav-icon">📝</span>Entries</a>
+    <a class="nav-item" id="nav-agent-entries" onclick="showView('agent-entries',this);renderAgentEntriesPage()"><span class="nav-icon">📤</span>My Collections</a>
+    <div class="nav-section">Management</div>
+    <a class="nav-item" onclick="showView('agents',this)"><span class="nav-icon">🧑</span>Agents</a>
+    <a class="nav-item" onclick="showView('customers',this)"><span class="nav-icon">👥</span>Customers</a>
+    <a class="nav-item" onclick="showView('loans',this)"><span class="nav-icon">💼</span>Loans</a>
+    <a class="nav-item" onclick="showView('investments',this)"><span class="nav-icon">📈</span>Investments</a>
+    <a class="nav-item" onclick="showView('transfers',this)"><span class="nav-icon">🔄</span>Transfers</a>
+    <a class="nav-item" onclick="showView('cards',this)"><span class="nav-icon">💳</span>Card Replacement</a>
+    <div class="nav-section">Operations</div>
+    <a class="nav-item" onclick="showView('collaborations',this)"><span class="nav-icon">🤝</span>Collaborations</a>
+    <a class="nav-item" onclick="showView('sheets',this)"><span class="nav-icon">📋</span>Collection Sheets</a>
+    <a class="nav-item" onclick="showView('accounting',this)"><span class="nav-icon">📒</span>Accounting</a>
+    <div class="nav-section">Admin</div>
+    <a class="nav-item" onclick="showView('reports',this)"><span class="nav-icon">📊</span>Reports</a>
+    <a class="nav-item" id="nav-payroll" onclick="showView('payroll',this)"><span class="nav-icon">💵</span>Payroll</a>
+    <a class="nav-item" onclick="showView('users',this)"><span class="nav-icon">👤</span>Users</a>
+    <a class="nav-item" onclick="showView('settings',this)"><span class="nav-icon">⚙️</span>Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span class="status-dot"></span>System Online<br>
+    <span style="font-size:.62rem;opacity:.55">Pro Susu Banking v2.0</span>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-btn" id="topbar-date-badge"></div>
+      <div class="topbar-time" id="live-time"></div>
+      <button id="calc-toggle-btn" onclick="calcToggle()" title="Calculator">⌨️ Calc</button>
+      <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">🌙</div>
+      <div class="topbar-btn" onclick="doLogout()" style="cursor:pointer">🚪 Logout</div>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+<!-- ═══════════════════════════════ DASHBOARD ═══════════════════════════════ -->
+<div class="view active" id="view-dashboard">
+  <div class="stats-grid">
+    <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-label">Total Float Today</div><div class="stat-value" id="d-float">GH₵ 0.00</div><div class="stat-sub">Start of day balance</div></div>
+    <div class="stat-card green"><div class="stat-icon">📥</div><div class="stat-label">Total Collections</div><div class="stat-value" id="d-coll">GH₵ 0.00</div><div class="stat-sub" id="d-coll-sub">0 posted today</div></div>
+    <div class="stat-card red"><div class="stat-icon">📤</div><div class="stat-label">Total Withdrawals</div><div class="stat-value" id="d-wd">GH₵ 0.00</div><div class="stat-sub" id="d-wd-sub">0 processed</div></div>
+    <div class="stat-card blue"><div class="stat-icon">💼</div><div class="stat-label">Active Loans</div><div class="stat-value" id="d-loans">0</div><div class="stat-sub" id="d-loans-sub">GH₵ 0.00 outstanding</div></div>
+    <div class="stat-card purple"><div class="stat-icon">🧑‍💼</div><div class="stat-label">Total Agents</div><div class="stat-value" id="d-agents">0</div><div class="stat-sub" id="d-agents-sub">0 active</div></div>
+    <div class="stat-card gold"><div class="stat-icon">👥</div><div class="stat-label">Total Customers</div><div class="stat-value" id="d-customers">0</div><div class="stat-sub" id="d-cust-sub">0 Susu · 0 Savings</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span>📊</span> Today's Summary</div>
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <div class="flex-between"><span class="text-muted" style="font-size:.83rem">Start of Day Float</span><span class="mono text-gold" id="s-float">GH₵ 0.00</span></div>
+        <div class="flex-between"><span class="text-muted" style="font-size:.83rem">+ Collections Posted</span><span class="mono text-success" id="s-coll">+ GH₵ 0.00</span></div>
+        <div class="flex-between"><span class="text-muted" style="font-size:.83rem">− Withdrawals Paid</span><span class="mono text-danger" id="s-wd">− GH₵ 0.00</span></div>
+        <div class="flex-between"><span class="text-muted" style="font-size:.83rem">− Expenses</span><span class="mono text-danger" id="s-exp">− GH₵ 0.00</span></div>
+        <hr class="divider" style="margin:4px 0">
+        <div class="flex-between"><span class="fw-600" style="font-size:.86rem">Cash at Hand</span><span class="mono fw-600 text-gold" style="font-size:1rem" id="s-hand">GH₵ 0.00</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>🧑‍💼</span> Agent Performance Today</div>
+      <div id="dash-agent-perf">
+        <div class="empty-state" style="padding:20px 0"><div class="ei">🧑‍💼</div><div class="et">No agents yet</div><div class="es">Add agents to see performance</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-4">
+    <div class="card-title"><span>🕐</span> Recent Activity</div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Time</th><th>Type</th><th>Description</th><th>Amount</th><th>By</th></tr></thead>
+      <tbody id="dash-activity"><tr><td colspan="5" class="text-center text-muted" style="padding:24px">No activity yet</td></tr></tbody></table>
+    </div>
+  </div>
+  <!-- Float status widget — rendered for admin/accountant only -->
+  <div id="dash-float-widget" style="margin-top:14px;display:none"></div>
+</div>
+
+<!-- ═══════════════════════════════ TELLER ═══════════════════════════════ -->
+<div class="view" id="view-teller">
+  <div class="stats-grid">
+    <div class="stat-card gold"><div class="stat-icon">🌅</div><div class="stat-label">Start of Day Float</div><div class="stat-value" id="t-sod">GH₵ 0.00</div><div class="stat-sub" id="t-sod-s">Not received</div></div>
+    <div class="stat-card blue"><div class="stat-icon">💼</div><div class="stat-label">Cash at Hand</div><div class="stat-value" id="t-cash">GH₵ 0.00</div><div class="stat-sub">After deductions</div></div>
+    <div class="stat-card green"><div class="stat-icon">📦</div><div class="stat-label">Collections Posted</div><div class="stat-value" id="t-coll">0</div><div class="stat-sub" id="t-coll-s">GH₵ 0.00 total</div></div>
+    <div class="stat-card red"><div class="stat-icon">⏳</div><div class="stat-label">Pending Withdrawals</div><div class="stat-value" id="t-pend">0</div><div class="stat-sub" id="t-pend-s">GH₵ 0.00 total</div></div>
+  </div>
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('t','float',this);renderFloatPanel()">💰 Float</button>
+    <button class="sub-tab" onclick="showSubTab('t','collections',this);populateAgentSelectors()">📦 Post Collections</button>
+    <button class="sub-tab" onclick="showSubTab('t','agent-subs',this);renderAgentSubmissionsForTeller()" id="tab-agent-subs">
+      📤 Agent Submissions
+      <span class="badge b-yellow" id="agent-subs-badge" style="margin-left:4px;font-size:.6rem;display:none">0</span>
+    </button>
+    <button class="sub-tab" onclick="showSubTab('t','withdrawals',this);initWithdrawalsPanel()">💳 Withdrawals</button>
+    <button class="sub-tab" onclick="showSubTab('t','expenses',this)">💸 Expenses</button>
+    <button class="sub-tab" onclick="showSubTab('t','close',this)">🔒 Close Day</button>
+    <button class="sub-tab" onclick="showSubTab('t','excess',this);renderExcessTab()">📈 Excess</button>
+    <button class="sub-tab" onclick="showSubTab('t','shortage',this);renderShortageTab()">📉 Shortage</button>
+    <button class="sub-tab" onclick="showSubTab('t','history',this)">📅 History</button>
+  </div>
+
+  <!-- Float — dynamic, role-aware panel -->
+  <div class="teller-sub active" id="t-float">
+    <div id="float-panel-content"></div>
+  </div>
+
+  <!-- Agent Submissions (teller confirms field collections) -->
+  <div class="teller-sub" id="t-agent-subs">
+    <div style="margin-bottom:12px">
+      <div class="fw-600" style="font-size:.95rem">📤 Agent Field Submissions</div>
+      <div class="text-muted" style="font-size:.77rem;margin-top:2px">
+        Confirm amounts received from agents, note any shortage or excess, then post to sheet.
+      </div>
+    </div>
+    <div id="teller-agent-submissions">
+      <div class="empty-state" style="padding:40px 0">
+        <div class="ei">📭</div>
+        <div class="et">No Pending Submissions</div>
+        <div class="es">Agent field collections will appear here once submitted</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collections -->
+  <div class="teller-sub" id="t-collections">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>📦</span> Post Mobile Banker Collection</div>
+        <div class="form-group">
+          <label class="form-label">Collection Date</label>
+          <input type="date" class="form-control" id="ci-date" value="">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile Banker / Agent</label>
+          <select class="form-control" id="ci-agent">
+            <option value="">-- Select Agent --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount Collected (GH₵)</label>
+          <input type="number" class="form-control" id="ci-amount" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Route / Reference</label>
+          <input type="text" class="form-control" id="ci-ref" placeholder="e.g. Zone A — Market">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <input type="text" class="form-control" id="ci-notes" placeholder="Optional">
+        </div>
+        <button class="btn btn-gold" onclick="postCollection()">📥 Post Collection</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>📋</span> Today's Collections</div>
+        <div id="t-coll-list">
+          <div class="empty-state" style="padding:24px 0"><div class="ei">📭</div><div class="et">No Collections Posted</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdrawals -->
+  <div class="teller-sub" id="t-withdrawals">
+    <div class="sub-tabs" style="margin-bottom:16px">
+      <button class="sub-tab active" onclick="showWdTab('pending',this)">⏳ Pending</button>
+      <button class="sub-tab" onclick="showWdTab('approved',this)">✅ Approved</button>
+      <button class="sub-tab" onclick="showWdTab('rejected',this)">✕ Rejected</button>
+      <button class="sub-tab" onclick="showWdTab('history',this)">📅 History</button>
+    </div>
+    <div id="wd-tab-content"></div>
+  </div>
+
+  <!-- Expenses -->
+  <div class="teller-sub" id="t-expenses">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>💸</span> Record Expense</div>
+        <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-control" id="ei-desc" placeholder="e.g. Stationery, Transport"></div>
+        <div class="form-group"><label class="form-label">Amount (GH₵)</label><input type="number" class="form-control" id="ei-amount" placeholder="0.00" min="0" step="0.01"></div>
+        <div class="form-group"><label class="form-label">Category</label>
+          <select class="form-control" id="ei-cat">
+            <option value="operational">Operational</option>
+            <option value="transport">Transport</option>
+            <option value="stationery">Stationery</option>
+            <option value="utilities">Utilities</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Paid To</label><input type="text" class="form-control" id="ei-payee" placeholder="Recipient name"></div>
+        <button class="btn btn-gold" onclick="recordExpense()">✅ Record</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>📋</span> Today's Expenses</div>
+        <div class="flex-between mb-3" style="background:rgba(232,93,93,.08);border:1px solid rgba(232,93,93,.18);border-radius:8px;padding:10px 14px">
+          <span class="text-muted" style="font-size:.8rem">Total Expenses</span>
+          <span class="mono text-danger fw-600" id="exp-total-d">GH₵ 0.00</span>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>#</th><th>Description</th><th>Category</th><th>Amount</th><th>Time</th></tr></thead>
+          <tbody id="exp-tbody"><tr><td colspan="5" class="text-center text-muted" style="padding:20px">No expenses</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Close Day -->
+  <div class="teller-sub" id="t-close">
+    <div class="card">
+      <div class="card-title"><span>🔒</span> End of Day — Cash Count by Denomination</div>
+      <div class="alert alert-info">Count all physical cash and enter quantities. System will compare with expected balance.</div>
+      <div class="fw-600 text-gold mt-4" style="font-size:.82rem;margin-bottom:10px">📄 NOTES (Ghana Cedis)</div>
+      <div class="denom-grid">
+        <div class="denom-item"><div class="denom-label">GH₵ 200</div><div class="denom-row"><input type="number" class="form-control" id="d200" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 200</span></div><div class="denom-total" id="d200-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">GH₵ 100</div><div class="denom-row"><input type="number" class="form-control" id="d100" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 100</span></div><div class="denom-total" id="d100-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">GH₵ 50</div><div class="denom-row"><input type="number" class="form-control" id="d50" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 50</span></div><div class="denom-total" id="d50-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">GH₵ 20</div><div class="denom-row"><input type="number" class="form-control" id="d20" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 20</span></div><div class="denom-total" id="d20-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">GH₵ 10</div><div class="denom-row"><input type="number" class="form-control" id="d10" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 10</span></div><div class="denom-total" id="d10-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">GH₵ 5</div><div class="denom-row"><input type="number" class="form-control" id="d5" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 5</span></div><div class="denom-total" id="d5-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">GH₵ 2</div><div class="denom-row"><input type="number" class="form-control" id="d2" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 2</span></div><div class="denom-total" id="d2-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">GH₵ 1</div><div class="denom-row"><input type="number" class="form-control" id="d1" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 1</span></div><div class="denom-total" id="d1-t">= GH₵ 0.00</div></div>
+      </div>
+      <div class="fw-600 text-gold mt-4" style="font-size:.82rem;margin-bottom:10px">🪙 COINS (Pesewas)</div>
+      <div class="denom-grid">
+        <div class="denom-item"><div class="denom-label">50p</div><div class="denom-row"><input type="number" class="form-control" id="dc50" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 0.50</span></div><div class="denom-total" id="dc50-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">20p</div><div class="denom-row"><input type="number" class="form-control" id="dc20" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 0.20</span></div><div class="denom-total" id="dc20-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">10p</div><div class="denom-row"><input type="number" class="form-control" id="dc10" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 0.10</span></div><div class="denom-total" id="dc10-t">= GH₵ 0.00</div></div>
+        <div class="denom-item"><div class="denom-label">5p</div><div class="denom-row"><input type="number" class="form-control" id="dc5" placeholder="0" min="0" oninput="calcDenoms()"><span class="text-muted" style="font-size:.75rem">× 0.05</span></div><div class="denom-total" id="dc5-t">= GH₵ 0.00</div></div>
+      </div>
+      <div class="denom-summary">
+        <div><div class="text-muted" style="font-size:.8rem">Total Counted</div></div>
+        <div class="mono text-gold fw-600" style="font-size:1.4rem" id="denom-grand">GH₵ 0.00</div>
+      </div>
+      <div id="close-preview" class="hidden mt-4" style="background:rgba(46,204,138,.07);border:1px solid rgba(46,204,138,.18);border-radius:var(--radius);padding:16px">
+        <div class="fw-600 text-success mb-3" style="font-size:.85rem">📊 Close Preview</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div class="flex-between"><span class="text-muted" style="font-size:.83rem">Expected Cash</span><span class="mono" id="cp-exp">GH₵ 0.00</span></div>
+          <div class="flex-between"><span class="text-muted" style="font-size:.83rem">Physical Count</span><span class="mono" id="cp-phys">GH₵ 0.00</span></div>
+          <hr class="divider" style="margin:3px 0">
+          <div class="flex-between"><span class="fw-600">Difference</span><span class="mono fw-600" id="cp-diff">GH₵ 0.00</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-outline" onclick="previewClose()">👁️ Preview</button>
+        <button class="btn btn-gold" onclick="closeDay()">🔒 Close Day</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Excess -->
+  <div class="teller-sub" id="t-excess"></div>
+
+  <!-- Shortage -->
+  <div class="teller-sub" id="t-shortage"></div>
+
+  <!-- History -->
+  <div class="teller-sub" id="t-history">
+    <div class="card">
+      <div class="card-title"><span>📅</span> Work History</div>
+      <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-gold" onclick="filterTellerHist('today',this)">Today</button>
+        <button class="btn btn-sm btn-outline" onclick="filterTellerHist('week',this)">This Week</button>
+        <button class="btn btn-sm btn-outline" onclick="filterTellerHist('month',this)">This Month</button>
+        <button class="btn btn-sm btn-outline" onclick="filterTellerHist('year',this)">This Year</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Float</th><th>Collections</th><th>Withdrawals</th><th>Expenses</th><th>Cash at Close</th><th>Status</th></tr></thead>
+        <tbody id="thist-tbody"><tr><td colspan="7" class="text-center text-muted" style="padding:24px">No history</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ENTRIES ═══════════════════════════════ -->
+<div class="view" id="view-entries">
+  <div id="entries-list" class="">
+    <div class="flex-between mb-4">
+      <div><div class="fw-600" style="font-size:.98rem">Posted Collections — Entry Workspace</div><div class="text-muted" style="font-size:.77rem;margin-top:2px">Click a collection to begin entry</div></div>
+      <div style="display:flex;gap:7px"><span class="badge b-yellow" id="ent-await">0 awaiting</span><span class="badge b-green" id="ent-done">0 entered</span></div>
+    </div>
+    <div id="entries-cards-area">
+      <div class="empty-state"><div class="ei">📭</div><div class="et">No Collection Posted</div><div class="es">Collections posted by teller will appear here</div></div>
+    </div>
+  </div>
+  <div id="entry-detail" class="hidden">
+    <div class="flex-between mb-4">
+      <button class="btn btn-outline btn-sm" onclick="backFromEntry()">← Back to List</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-gold btn-sm" onclick="finalizeEntry()">✅ Finalize Entry</button>
+      </div>
+    </div>
+    <div class="card mb-4 card-sm">
+      <div class="fw-600 text-gold" id="entry-heading" style="font-size:.95rem;margin-bottom:4px"></div>
+      <div class="text-muted" style="font-size:.78rem" id="entry-meta"></div>
+    </div>
+    <div class="balance-boxes">
+      <div class="bal-box posted" id="eb-remaining-box">
+        <div class="bl" id="eb-remaining-label">📥 Remaining Posted</div>
+        <div class="bv" id="eb-posted">GH₵ 0.00</div>
+      </div>
+      <div class="bal-box excess">
+        <div class="bl">⬆️ Excess</div>
+        <div class="bv" id="eb-excess">GH₵ 0.00</div>
+      </div>
+      <div class="bal-box shortage">
+        <div class="bl">⬇️ Shortage</div>
+        <div class="bv" id="eb-short">GH₵ 0.00</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📝</span> Contributor Entry Sheet</div>
+      <div class="table-wrap">
+        <table><thead><tr><th style="width:40px">#</th><th>Account No.</th><th>Customer Name</th><th>Amount (GH₵)</th><th style="width:50px"></th></tr></thead>
+        <tbody id="entry-rows"></tbody></table>
+      </div>
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px">
+        <div class="text-right">
+          <div class="text-muted" style="font-size:.75rem">Total Entered</div>
+          <div class="mono text-gold fw-600" style="font-size:1.05rem" id="entry-total">GH₵ 0.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ AGENT ENTRIES ══════════════════════ -->
+<div class="view" id="view-agent-entries">
+  <div id="view-agent-entries-content" style="padding:4px 0">
+    <div class="empty-state" style="padding:48px 0">
+      <div class="ei">📤</div>
+      <div class="et">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ AGENTS ═══════════════════════════════ -->
+<div class="view" id="view-agents">
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('ag','list',this)">👥 All Agents</button>
+    <button class="sub-tab" onclick="showSubTab('ag','add',this)">➕ Add Agent</button>
+    <button class="sub-tab" onclick="showSubTab('ag','targets',this)">🎯 Monthly Targets</button>
+    <button class="sub-tab" onclick="showSubTab('ag','commissions',this)">💰 Commissions</button>
+  </div>
+
+  <!-- Agent list -->
+  <div class="teller-sub active" id="ag-list">
+    <div class="flex-between mb-4">
+      <div><input type="text" class="form-control" style="width:250px" id="agent-search" placeholder="🔍 Search agents..." oninput="renderAgentList(this.value)"></div>
+      <div class="flex-center gap-8">
+        <span class="badge b-green" id="ag-active-badge">0 Active</span>
+        <span class="badge b-gray" id="ag-total-badge">0 Total</span>
+      </div>
+    </div>
+    <div id="agent-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+  </div>
+
+  <!-- Add agent -->
+  <div class="teller-sub" id="ag-add">
+    <div class="card" style="max-width:740px">
+      <div class="card-title"><span>➕</span> Register New Agent</div>
+      <div class="alert alert-info">Agent code is auto-generated as <strong id="next-agent-preview">TN01</strong> based on the next available number.</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-control" id="ag-fname" placeholder="First name"></div>
+        <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-control" id="ag-lname" placeholder="Last name"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Phone Number</label><input type="text" class="form-control" id="ag-phone" placeholder="0XX XXX XXXX"></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control" id="ag-email" placeholder="Optional email"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" class="form-control" id="ag-dob"></div>
+        <div class="form-group"><label class="form-label">Join Date</label><input type="date" class="form-control" id="ag-joindate"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Residential Address</label><input type="text" class="form-control" id="ag-address" placeholder="Home address"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">ID Type</label><select class="form-control" id="ag-idtype"><option>National ID</option><option>Passport</option><option>Voter's Card</option><option>Driver's License</option></select></div>
+        <div class="form-group"><label class="form-label">ID Number</label><input type="text" class="form-control" id="ag-idnum" placeholder="ID number"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Monthly Target (GH₵)</label><input type="number" class="form-control" id="ag-target" placeholder="0.00" min="0" step="0.01"></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="ag-status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+      </div>
+      <button class="btn btn-gold" onclick="addAgent()">✅ Register Agent</button>
+    </div>
+  </div>
+
+  <!-- Targets -->
+  <div class="teller-sub" id="ag-targets">
+    <div class="card">
+      <div class="card-title"><span>🎯</span> Monthly Targets — <span id="target-month-label" style="font-size:.82rem;color:var(--muted)"></span></div>
+      <div class="flex-center gap-8 mb-4">
+        <input type="month" class="form-control" id="target-month-picker" style="width:180px" onchange="renderTargets()">
+        <button class="btn btn-gold btn-sm" onclick="saveAllTargets()">💾 Save All Targets</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Agent</th><th>Code</th><th>Current Target</th><th>New Target (GH₵)</th><th>Collections This Month</th><th>Progress</th></tr></thead>
+        <tbody id="targets-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commissions -->
+  <div class="teller-sub" id="ag-commissions">
+    <div class="card">
+      <div class="card-title"><span>💰</span> Monthly Commissions (<span id="comm-rate-label">1%</span> of total collections)</div>
+      <div class="flex-center gap-8 mb-4">
+        <input type="month" class="form-control" id="comm-month-picker" style="width:180px" onchange="renderCommissions()">
+        <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Agent</th><th>Code</th><th>Total Collections</th><th>Commission (<span id="comm-rate-th">1%</span>)</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="comm-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CUSTOMERS ═══════════════════════════════ -->
+<div class="view" id="view-customers">
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('cu','list',this)">👥 All Customers</button>
+    <button class="sub-tab" onclick="showSubTab('cu','add',this);populateAgentSelectors()">➕ Add Customer</button>
+    <button class="sub-tab" onclick="showSubTab('cu','susu',this)">🏦 Susu</button>
+    <button class="sub-tab" onclick="showSubTab('cu','lending',this)">💼 Lending Deposit</button>
+    <button class="sub-tab" onclick="showSubTab('cu','savings',this)">💰 Savings</button>
+    <button class="sub-tab" id="cu-deleted-tab" onclick="showSubTab('cu','deleted',this);renderDeletedCustomers()" style="display:none">🗑️ Deleted</button>
+    <button class="sub-tab" id="cu-exportimport-tab" onclick="showSubTab('cu','exportimport',this);renderCustomerExportImport()" style="display:none">📤 Export / Import</button>
+  </div>
+
+  <!-- Customer list -->
+  <div class="teller-sub active" id="cu-list">
+    <div class="flex-between mb-4" style="flex-wrap:wrap;gap:8px">
+      <input type="text" class="form-control" style="width:260px" id="cust-search" placeholder="🔍 Search name or account..." oninput="renderCustomerList(this.value)">
+      <div style="display:flex;gap:7px">
+        <span class="badge b-gold" id="cu-susu-badge">0 Susu</span>
+        <span class="badge b-blue" id="cu-ld-badge">0 Lending</span>
+        <span class="badge b-green" id="cu-sav-badge">0 Savings</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>#</th><th>Account No.</th><th>Customer Name</th><th>Type</th><th>Agent</th><th>Phone</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="cust-tbody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- Add customer -->
+  <div class="teller-sub" id="cu-add">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+
+      <!-- ── FORM A ── -->
+      <div class="card">
+        <div class="card-title"><span>➕</span> Register New Customer — Form A</div>
+        <div class="form-group">
+          <label class="form-label">Account Type</label>
+          <div class="type-selector">
+            <div class="type-chip selected" id="tc-susu" onclick="selectCustType('susu','')">
+              <div class="tc-icon">🏦</div><div class="tc-label">Susu</div><div class="tc-code" id="tc-susu-code">TN01-0001</div>
+            </div>
+            <div class="type-chip" id="tc-lending" onclick="selectCustType('lending','')">
+              <div class="tc-icon">💼</div><div class="tc-label">Lending Deposit</div><div class="tc-code" id="tc-lending-code">LD01-0001</div>
+            </div>
+            <div class="type-chip" id="tc-savings" onclick="selectCustType('savings','')">
+              <div class="tc-icon">💰</div><div class="tc-label">Savings</div><div class="tc-code" id="tc-savings-code">TS01-0001</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profile Photo <span class="text-muted" style="font-size:.68rem;text-transform:none;letter-spacing:0">(Optional)</span></label>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div id="cu-photo-preview" style="width:64px;height:64px;border-radius:50%;background:var(--surface2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;overflow:hidden">👤</div>
+            <div>
+              <input type="file" id="cu-photo-input" accept="image/*" style="display:none" onchange="previewCustomerPhoto(this)">
+              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('cu-photo-input').click()">📷 Photo</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="clearCustomerPhoto()">✕</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select Agent</label>
+          <select class="form-control" id="cu-agent" onchange="updateAccountPreview('')"><option value="">-- Select Agent --</option></select>
+        </div>
+        <div class="alert alert-info" style="margin-bottom:10px;font-size:.8rem">Account: <strong class="mono" id="acct-preview">TN01-0001</strong></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-control" id="cu-fname" placeholder="First name"></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-control" id="cu-lname" placeholder="Last name"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-control" id="cu-phone" placeholder="0XX XXX XXXX"></div>
+          <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" class="form-control" id="cu-dob"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Gender</label><select class="form-control" id="cu-gender"><option value="">-- Select --</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">ID Type</label><select class="form-control" id="cu-idtype"><option>National ID</option><option>Voter's Card</option><option>Passport</option><option>Driver's License</option></select></div>
+          <div class="form-group"><label class="form-label">ID Number</label><input type="text" class="form-control" id="cu-idnum" placeholder="ID number"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Residential Address</label><input type="text" class="form-control" id="cu-address" placeholder="Address"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Town / City</label><input type="text" class="form-control" id="cu-town" placeholder="e.g. Kumasi"></div>
+          <div class="form-group"><label class="form-label">Occupation</label><input type="text" class="form-control" id="cu-occupation" placeholder="e.g. Trader"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Next of Kin <span class="text-muted" style="font-size:.68rem;text-transform:none;letter-spacing:0">(Min 1, Max 3)</span></label>
+          <div id="nok-list">
+            <div class="nok-row" id="nok-0" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:6px">
+              <span class="text-gold" style="font-size:.7rem;font-weight:600">Next of Kin #1</span>
+              <div class="form-row-3" style="margin-top:6px">
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Full Name</label><input type="text" class="form-control" id="nok-name-0" placeholder="Full name"></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Relationship</label><select class="form-control" id="nok-rel-0"><option value="">-- Select --</option><option value="Spouse">Spouse</option><option value="Parent">Parent</option><option value="Child">Child</option><option value="Sibling">Sibling</option><option value="Grandparent">Grandparent</option><option value="Uncle/Aunt">Uncle/Aunt</option><option value="Nephew/Niece">Nephew/Niece</option><option value="Friend">Friend</option><option value="Other">Other</option></select></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Phone</label><input type="text" class="form-control" id="nok-phone-0" placeholder="0XX XXX XXXX"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="nok-add-btn" onclick="addNokRow('')" style="margin-top:4px">+ Add Next of Kin</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Registration Date</label><input type="date" class="form-control" id="cu-regdate"></div>
+          <div class="form-group"><label class="form-label">Initial Balance (GH₵)</label><input type="number" class="form-control" id="cu-initbal" placeholder="0.00" min="0" step="0.01"></div>
+        </div>
+        <button class="btn btn-gold w-full" onclick="addCustomer('')">✅ Register Customer (Form A)</button>
+      </div>
+
+      <!-- ── FORM B ── -->
+      <div class="card">
+        <div class="card-title"><span>➕</span> Register New Customer — Form B</div>
+        <div class="form-group">
+          <label class="form-label">Account Type</label>
+          <div class="type-selector">
+            <div class="type-chip selected" id="b-tc-susu" onclick="selectCustType('susu','b')">
+              <div class="tc-icon">🏦</div><div class="tc-label">Susu</div><div class="tc-code" id="tc-b-susu-code">TN01-0001</div>
+            </div>
+            <div class="type-chip" id="b-tc-lending" onclick="selectCustType('lending','b')">
+              <div class="tc-icon">💼</div><div class="tc-label">Lending Deposit</div><div class="tc-code" id="tc-b-lending-code">LD01-0001</div>
+            </div>
+            <div class="type-chip" id="b-tc-savings" onclick="selectCustType('savings','b')">
+              <div class="tc-icon">💰</div><div class="tc-label">Savings</div><div class="tc-code" id="tc-b-savings-code">TS01-0001</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profile Photo <span class="text-muted" style="font-size:.68rem;text-transform:none;letter-spacing:0">(Optional)</span></label>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div id="cu-photo-preview-b" style="width:64px;height:64px;border-radius:50%;background:var(--surface2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;overflow:hidden">👤</div>
+            <div>
+              <input type="file" id="cu-photo-input-b" accept="image/*" style="display:none" onchange="previewCustomerPhotoB(this)">
+              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('cu-photo-input-b').click()">📷 Photo</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="clearCustomerPhotoB()">✕</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select Agent</label>
+          <select class="form-control" id="cu-agent-b" onchange="updateAccountPreview('b')"><option value="">-- Select Agent --</option></select>
+        </div>
+        <div class="alert alert-info" style="margin-bottom:10px;font-size:.8rem">Account: <strong class="mono" id="acct-preview-b">TN01-0001</strong></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-control" id="cu-fname-b" placeholder="First name"></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-control" id="cu-lname-b" placeholder="Last name"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-control" id="cu-phone-b" placeholder="0XX XXX XXXX"></div>
+          <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" class="form-control" id="cu-dob-b"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Gender</label><select class="form-control" id="cu-gender-b"><option value="">-- Select --</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">ID Type</label><select class="form-control" id="cu-idtype-b"><option>National ID</option><option>Voter's Card</option><option>Passport</option><option>Driver's License</option></select></div>
+          <div class="form-group"><label class="form-label">ID Number</label><input type="text" class="form-control" id="cu-idnum-b" placeholder="ID number"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Residential Address</label><input type="text" class="form-control" id="cu-address-b" placeholder="Address"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Town / City</label><input type="text" class="form-control" id="cu-town-b" placeholder="e.g. Kumasi"></div>
+          <div class="form-group"><label class="form-label">Occupation</label><input type="text" class="form-control" id="cu-occupation-b" placeholder="e.g. Trader"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Next of Kin <span class="text-muted" style="font-size:.68rem;text-transform:none;letter-spacing:0">(Min 1, Max 3)</span></label>
+          <div id="nok-list-b">
+            <div class="nok-row" id="b-nok-0" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:6px">
+              <span class="text-gold" style="font-size:.7rem;font-weight:600">Next of Kin #1</span>
+              <div class="form-row-3" style="margin-top:6px">
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Full Name</label><input type="text" class="form-control" id="b-nok-name-0" placeholder="Full name"></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Relationship</label><select class="form-control" id="b-nok-rel-0"><option value="">-- Select --</option><option value="Spouse">Spouse</option><option value="Parent">Parent</option><option value="Child">Child</option><option value="Sibling">Sibling</option><option value="Grandparent">Grandparent</option><option value="Uncle/Aunt">Uncle/Aunt</option><option value="Nephew/Niece">Nephew/Niece</option><option value="Friend">Friend</option><option value="Other">Other</option></select></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Phone</label><input type="text" class="form-control" id="b-nok-phone-0" placeholder="0XX XXX XXXX"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="nok-add-btn-b" onclick="addNokRow('b')" style="margin-top:4px">+ Add Next of Kin</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Registration Date</label><input type="date" class="form-control" id="cu-regdate-b"></div>
+          <div class="form-group"><label class="form-label">Initial Balance (GH₵)</label><input type="number" class="form-control" id="cu-initbal-b" placeholder="0.00" min="0" step="0.01"></div>
+        </div>
+        <button class="btn btn-gold w-full" onclick="addCustomer('b')">✅ Register Customer (Form B)</button>
+      </div>
+
+    </div>
+  </div>
+  <!-- Filtered by type views -->
+  <div class="teller-sub" id="cu-susu"><div id="cu-susu-content"></div></div>
+  <div class="teller-sub" id="cu-lending"><div id="cu-lending-content"></div></div>
+  <div class="teller-sub" id="cu-savings"><div id="cu-savings-content"></div></div>
+  <div class="teller-sub" id="cu-deleted"><div id="cu-deleted-content"></div></div>
+  <div class="teller-sub" id="cu-exportimport"><div id="cu-exportimport-content"></div></div>
+  <!-- Transaction detail — shown inline on page, not in a modal -->
+  <div class="teller-sub" id="cu-txn"></div>
+</div>
+
+<!-- ═══════════════════════════════ LOANS ═══════════════════════════════ -->
+<div class="view" id="view-loans">
+  <div class="stats-grid">
+    <div class="stat-card blue"><div class="stat-icon">💼</div><div class="stat-label">Active Loans</div><div class="stat-value" id="ln-stat-active">0</div><div class="stat-sub" id="ln-active-s">GH₵ 0.00 outstanding</div></div>
+    <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-label">Completed Loans</div><div class="stat-value" id="ln-done">0</div><div class="stat-sub" id="ln-done-s">GH₵ 0.00 recovered</div></div>
+    <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-label">Total Disbursed</div><div class="stat-value" id="ln-total">GH₵ 0.00</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card red"><div class="stat-icon">⚠️</div><div class="stat-label">Overdue Loans</div><div class="stat-value" id="ln-overdue">0</div><div class="stat-sub">Need attention</div></div>
+  </div>
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('ln','new',this)">➕ New Loan</button>
+    <button class="sub-tab" onclick="showSubTab('ln','active',this);renderLoansTab('active')">📋 Active Loans</button>
+    <button class="sub-tab" onclick="showSubTab('ln','completed',this);renderLoansTab('completed')">✅ Completed</button>
+    <button class="sub-tab" onclick="showSubTab('ln','all',this);renderLoansTab('all')">📊 All Loans</button>
+    <button class="sub-tab" id="ln-exportimport-tab" onclick="showSubTab('ln','exportimport',this);renderLoanExportImport()" style="display:none">📤 Export / Import</button>
+  </div>
+
+  <!-- New loan -->
+  <div class="teller-sub active" id="ln-new">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>➕</span> Apply for Loan</div>
+        <div class="form-group">
+          <label class="form-label">Select Agent</label>
+          <select class="form-control" id="lni-agent" onchange="populateLoanCustomers()"><option value="">-- Select Agent --</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Search & Select Customer</label>
+          <input type="text" class="form-control" id="lni-cust-search" placeholder="Type account no. or customer name..." oninput="loanCustSearch(this.value)">
+          <div id="lni-cust-results" class="hidden" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-top:4px;max-height:160px;overflow-y:auto"></div>
+          <div id="lni-cust-selected" class="hidden input-success mt-3"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Loan Amount (GH₵)</label><input type="number" class="form-control" id="lni-amount" placeholder="0.00" min="0" step="0.01" oninput="calcLoanPreview()"></div>
+          <div class="form-group"><label class="form-label">Duration (Months)</label><input type="number" class="form-control" id="lni-duration" placeholder="6" min="1" max="60" oninput="calcLoanPreview()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Start Date</label><input type="date" class="form-control" id="lni-start" onchange="calcLoanEndDate()"></div>
+          <div class="form-group"><label class="form-label">End Date (Auto)</label><input type="text" class="form-control" id="lni-end" readonly placeholder="Auto-calculated"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Loan Purpose</label><input type="text" class="form-control" id="lni-purpose" placeholder="Business, Education, Medical..."></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Guarantor Name</label><input type="text" class="form-control" id="lni-gname" placeholder="Guarantor's full name"></div>
+          <div class="form-group"><label class="form-label">Guarantor Phone</label><input type="text" class="form-control" id="lni-gphone" placeholder="0XX XXX XXXX"></div>
+        </div>
+        <button class="btn btn-gold w-full" onclick="createLoan()">✅ Create Loan</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>🧮</span> Loan Calculator</div>
+        <div id="loan-calc-display">
+          <div class="empty-state" style="padding:24px 0"><div class="ei">🧮</div><div class="et">Enter loan details</div><div class="es">Preview will appear here</div></div>
+        </div>
+        <div class="mt-4" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px">
+          <div class="text-muted" style="font-size:.72rem;margin-bottom:6px">INTEREST FORMULA (configurable in Settings)</div>
+          <div class="mono text-gold" style="font-size:.82rem" id="formula-display-settings">Interest = (Amount × 0.25 ÷ 6) × Months</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active -->
+  <div class="teller-sub" id="ln-active">
+    <div id="active-loans-list"><div class="empty-state"><div class="ei">💼</div><div class="et">No Active Loans</div></div></div>
+  </div>
+  <!-- Completed -->
+  <div class="teller-sub" id="ln-completed">
+    <div id="completed-loans-list"><div class="empty-state"><div class="ei">✅</div><div class="et">No Completed Loans</div></div></div>
+  </div>
+  <!-- All -->
+  <div class="teller-sub" id="ln-all">
+    <div class="table-wrap">
+      <table><thead><tr><th>Loan #</th><th>Customer</th><th>Agent</th><th>Amount</th><th>Duration</th><th>Monthly Pay.</th><th>Start</th><th>End</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="all-loans-tbody"><tr><td colspan="10" class="text-center text-muted" style="padding:24px">No loans yet</td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="teller-sub" id="ln-exportimport"><div id="ln-exportimport-content"></div></div>
+</div>
+
+<!-- ═══════════════════════════════ INVESTMENTS ═══════════════════════════════ -->
+<div id="view-investments" class="view">
+  <div class="view-header">
+    <div class="view-title"><span>📈</span> Investments</div>
+  </div>
+
+  <div class="sub-tabs" style="margin-bottom:20px">
+    <button class="sub-tab active" onclick="switchInvMode('customer',this)">👥 Customer Investments</button>
+    <button class="sub-tab" onclick="switchInvMode('company',this)">🏢 My Company's Investments</button>
+  </div>
+
+  <!-- Customer Investments -->
+  <div id="inv-panel-customer">
+    <div class="grid-2" style="gap:18px;align-items:start">
+      <div class="card">
+        <div class="card-title"><span>➕</span> New Investment</div>
+        <div class="form-group">
+          <label class="form-label">Customer Account No.</label>
+          <input type="text" class="form-control" id="ii-acct" placeholder="e.g. TN01-0001" oninput="lookupInvCustomer(this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Customer Name</label>
+          <input type="text" class="form-control" id="ii-custname" readonly placeholder="Auto-filled" style="background:var(--surface2)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Investment Type</label>
+          <select class="form-control" id="ii-cat">
+            <option value="">-- Select --</option>
+            <option value="fixed_deposit">Fixed Deposit</option>
+            <option value="treasury">Treasury Bill</option>
+            <option value="mutual_fund">Mutual Fund</option>
+            <option value="equity">Equity / Shares</option>
+            <option value="real_estate">Real Estate</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Investment Name / Label</label>
+          <input type="text" class="form-control" id="ii-name" placeholder="e.g. Fixed Deposit Q1">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Amount (GH₵)</label>
+            <input type="number" class="form-control" id="ii-amount" placeholder="0.00" min="0" step="0.01" oninput="calcInvReturns()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Interest Rate (%)</label>
+            <input type="number" class="form-control" id="ii-roi" placeholder="e.g. 15" min="0" step="0.1" oninput="calcInvReturns()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Start Date</label><input type="date" class="form-control" id="ii-date"></div>
+          <div class="form-group"><label class="form-label">Maturity Date</label><input type="date" class="form-control" id="ii-maturity"></div>
+        </div>
+        <div id="inv-returns-preview" class="hidden" style="background:var(--gold-dim);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:.82rem"></div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <input type="text" class="form-control" id="ii-desc" placeholder="Optional notes">
+        </div>
+        <button class="btn btn-gold" onclick="addInvestment('customer')">📈 Add Investment</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📊</span> Investment Portfolio</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+          <div class="stat-card gold card-sm"><div class="stat-label">Total Invested</div><div class="stat-value" style="font-size:.95rem" id="inv-total">GH₵ 0.00</div></div>
+          <div class="stat-card green card-sm"><div class="stat-label">Expected Returns</div><div class="stat-value" style="font-size:.95rem" id="inv-returns">GH₵ 0.00</div></div>
+          <div class="stat-card blue card-sm"><div class="stat-label">Active</div><div class="stat-value" style="font-size:.95rem" id="inv-active">0</div></div>
+          <div class="stat-card green card-sm"><div class="stat-label">Matured</div><div class="stat-value" style="font-size:.95rem" id="inv-matured">0</div></div>
+        </div>
+        <div id="inv-portfolio-customer">
+          <div class="empty-state" style="padding:30px 0"><div class="ei">📈</div><div class="et">No investments yet</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Company Investments -->
+  <div id="inv-panel-company" style="display:none">
+    <div class="grid-2" style="gap:18px;align-items:start">
+      <div class="card">
+        <div class="card-title"><span>🏢</span> New Company Investment</div>
+        <div class="form-group">
+          <label class="form-label">Product / Asset Type</label>
+          <div style="display:flex;gap:8px">
+            <select class="form-control" id="cinv-type" onchange="cinvTypeChanged()">
+              <option value="">-- Select Product --</option>
+              <option>Hardware</option>
+              <option>Rice</option>
+              <option>Cement</option>
+              <option>Cryptocurrency</option>
+              <option>Real Estate</option>
+              <option>Treasury Bill</option>
+              <option>Shares / Stocks</option>
+              <option>Vehicle / Equipment</option>
+              <option>Livestock</option>
+              <option>Other</option>
+              <option value="__custom__">➕ Add New Product Type</option>
+            </select>
+          </div>
+          <div id="cinv-custom-wrap" style="display:none;margin-top:8px">
+            <input type="text" class="form-control" id="cinv-custom-type" placeholder="Enter custom product type">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input type="text" class="form-control" id="cinv-desc" placeholder="e.g. 50 bags of cement at Tema port">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Capital Invested (GH₵)</label><input type="number" class="form-control" id="cinv-amount" placeholder="0.00" min="0" step="0.01" oninput="calcCinvReturns()"></div>
+          <div class="form-group"><label class="form-label">Expected Return (%)</label><input type="number" class="form-control" id="cinv-roi" placeholder="e.g. 20" min="0" step="0.1" oninput="calcCinvReturns()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Quantity / Units</label><input type="number" class="form-control" id="cinv-qty" placeholder="e.g. 50" min="0" step="any"></div>
+          <div class="form-group"><label class="form-label">Unit Label</label><input type="text" class="form-control" id="cinv-unit" placeholder="bags, kg, BTC, m²..."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Investment Date</label><input type="date" class="form-control" id="cinv-date"></div>
+          <div class="form-group"><label class="form-label">Expected Maturity Date</label><input type="date" class="form-control" id="cinv-maturity"></div>
+        </div>
+        <div id="cinv-returns-preview" class="hidden" style="background:var(--gold-dim);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:.82rem"></div>
+        <div class="form-group">
+          <label class="form-label">Managed By</label>
+          <input type="text" class="form-control" id="cinv-manager" placeholder="Staff or department responsible">
+        </div>
+        <button class="btn btn-gold" onclick="addInvestment('company')">🏢 Add Company Investment</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📊</span> Company Portfolio</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+          <div class="stat-card gold card-sm"><div class="stat-label">Total Invested</div><div class="stat-value" style="font-size:.95rem" id="cinv-total">GH₵ 0.00</div></div>
+          <div class="stat-card green card-sm"><div class="stat-label">Expected Returns</div><div class="stat-value" style="font-size:.95rem" id="cinv-returns">GH₵ 0.00</div></div>
+          <div class="stat-card blue card-sm"><div class="stat-label">Active</div><div class="stat-value" style="font-size:.95rem" id="cinv-active">0</div></div>
+          <div class="stat-card green card-sm"><div class="stat-label">Settled</div><div class="stat-value" style="font-size:.95rem" id="cinv-settled">0</div></div>
+        </div>
+        <div id="inv-portfolio-company">
+          <div class="empty-state" style="padding:30px 0"><div class="ei">🏢</div><div class="et">No company investments yet</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ TRANSFERS ═══════════════════════════════ -->
+<div class="view" id="view-transfers">
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('tr','new',this)">➕ New Transfer</button>
+    <button class="sub-tab" onclick="showSubTab('tr','history',this);renderTransferHistory()">📋 Transfer History</button>
+  </div>
+  <div class="teller-sub active" id="tr-new">
+    <div class="card" style="max-width:680px">
+      <div class="card-title"><span>🔄</span> Initiate Transfer</div>
+      <div class="form-group">
+        <label class="form-label">Transfer Type</label>
+        <select class="form-control" id="tri-type" onchange="renderTransferForm()">
+          <option value="excess">Excess Transfer</option>
+          <option value="wd_reversal">Withdrawal Reversal</option>
+          <option value="customer">Customer Transfer (Agent to Agent)</option>
+          <option value="transaction">Transaction Transfer (Move to Correct Customer)</option>
+        </select>
+      </div>
+      <div id="transfer-form-body"></div>
+    </div>
+  </div>
+  <div class="teller-sub" id="tr-history">
+    <div class="card">
+      <div class="card-title"><span>📋</span> Transfer History</div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Reason</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="transfer-tbody"><tr><td colspan="8" class="text-center text-muted" style="padding:24px">No transfers</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CARD REPLACEMENT ═══════════════════════════════ -->
+<div class="view" id="view-cards">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span>💳</span> Card Replacement Request</div>
+      <div class="alert alert-warning">💰 A fee of <strong id="card-fee-display">GH₵ 30.00</strong> will be deducted from the customer's account balance.</div>
+      <div class="form-group">
+        <label class="form-label">Account Number</label>
+        <input type="text" class="form-control" id="cri-acct" placeholder="e.g. TN01-0001" oninput="lookupAcct(this.value,'cri-fb','cri-name')">
+        <div id="cri-fb"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Customer Name</label><input type="text" class="form-control" id="cri-name" readonly placeholder="Auto-filled"></div>
+      <div id="cri-balance-display"></div>
+      <div class="form-group">
+        <label class="form-label">Reason for Replacement</label>
+        <select class="form-control" id="cri-reason">
+          <option value="lost">Card Lost</option>
+          <option value="damaged">Card Damaged</option>
+          <option value="expired">Card Expired</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Processed By</label><input type="text" class="form-control" id="cri-by" placeholder="Staff name"></div>
+      <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-control" id="cri-notes" placeholder="Optional"></div>
+      <button class="btn btn-gold" onclick="processCardReplacement()">💳 Process Replacement</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📋</span> Replacement History</div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Account</th><th>Customer</th><th>Reason</th><th>Fee</th><th>By</th></tr></thead>
+        <tbody id="card-replace-tbody"><tr><td colspan="6" class="text-center text-muted" style="padding:24px">No replacements</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ COLLABORATIONS ═══════════════════════════════ -->
+<div class="view" id="view-collaborations">
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('co','overview',this);renderCollabOverview()">📊 Overview</button>
+    <button class="sub-tab" onclick="showSubTab('co','partners',this);renderPartnerList()">🤝 Partners</button>
+    <button class="sub-tab" onclick="showSubTab('co','add',this)">➕ Add Partner</button>
+    <button class="sub-tab" onclick="showSubTab('co','transactions',this);renderCollabTransactions()">💸 Transactions</button>
+  </div>
+
+  <!-- Overview -->
+  <div class="teller-sub active" id="co-overview">
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-icon">🤝</div><div class="stat-label">Total Partners</div><div class="stat-value" id="col-partners">0</div></div>
+      <div class="stat-card green"><div class="stat-icon">📥</div><div class="stat-label">Total Inflows</div><div class="stat-value" id="col-inflows">GH₵ 0.00</div></div>
+      <div class="stat-card red"><div class="stat-icon">📤</div><div class="stat-label">Total Outflows</div><div class="stat-value" id="col-outflows">GH₵ 0.00</div></div>
+      <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-label">Net Balance</div><div class="stat-value" id="col-net">GH₵ 0.00</div></div>
+    </div>
+    <div id="collab-partner-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:4px"></div>
+  </div>
+
+  <!-- Partners -->
+  <div class="teller-sub" id="co-partners">
+    <div id="partners-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>
+  </div>
+
+  <!-- Add partner -->
+  <div class="teller-sub" id="co-add">
+    <div class="card" style="max-width:660px">
+      <div class="card-title"><span>➕</span> Add Collaboration Partner</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Organisation Name</label><input type="text" class="form-control" id="pi-name" placeholder="Organisation name"></div>
+        <div class="form-group"><label class="form-label">Partner Code</label><input type="text" class="form-control" id="pi-code" placeholder="e.g. GCB01" style="text-transform:uppercase"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Contact Person</label><input type="text" class="form-control" id="pi-contact" placeholder="Contact name"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-control" id="pi-phone" placeholder="0XX XXX XXXX"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control" id="pi-email" placeholder="contact@org.com"></div>
+        <div class="form-group"><label class="form-label">Category</label>
+          <select class="form-control" id="pi-cat">
+            <option value="bank">Bank</option>
+            <option value="insurance">Insurance</option>
+            <option value="microfinance">Microfinance</option>
+            <option value="ngo">NGO</option>
+            <option value="government">Government</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Address</label><input type="text" class="form-control" id="pi-address" placeholder="Organisation address"></div>
+      <div class="form-group"><label class="form-label">Agreement / Notes</label><textarea class="form-control" id="pi-notes" rows="2" placeholder="Terms, notes..."></textarea></div>
+      <button class="btn btn-gold" onclick="addPartner()">✅ Add Partner & Generate QR</button>
+    </div>
+  </div>
+
+  <!-- Transactions -->
+  <div class="teller-sub" id="co-transactions">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>💸</span> Record Transaction</div>
+        <div class="form-group"><label class="form-label">Partner</label><select class="form-control" id="cti-partner"><option value="">-- Select Partner --</option></select></div>
+        <div class="form-group"><label class="form-label">Type</label><select class="form-control" id="cti-type"><option value="inflow">Inflow (Receive)</option><option value="outflow">Outflow (Send)</option></select></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Amount (GH₵)</label><input type="number" class="form-control" id="cti-amount" placeholder="0.00" min="0" step="0.01"></div>
+          <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-control" id="cti-date"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-control" id="cti-desc" placeholder="Transaction description"></div>
+        <div class="form-group"><label class="form-label">Reference</label><input type="text" class="form-control" id="cti-ref" placeholder="Reference number"></div>
+        <button class="btn btn-gold" onclick="addCollabTransaction()">✅ Record Transaction</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>📋</span> Transaction Log</div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Date</th><th>Partner</th><th>Type</th><th>Amount</th><th>Description</th></tr></thead>
+          <tbody id="collab-txn-tbody"><tr><td colspan="5" class="text-center text-muted" style="padding:20px">No transactions</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ COLLECTION SHEETS ═══════════════════════════════ -->
+<div id="view-sheets" class="view">
+  <div class="view-header">
+    <div class="view-title"><span>📋</span> Collection Sheets</div>
+    <div><span class="badge b-gold" id="sheets-total-badge">0 Sheets</span></div>
+  </div>
+
+  <!-- List view -->
+  <div id="sheets-list-view">
+    <div class="card" style="margin-bottom:16px;padding:14px 16px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div class="form-group" style="flex:1;min-width:180px;margin-bottom:0">
+          <label class="form-label">Search by Sheet Code or Agent</label>
+          <input type="text" class="form-control" id="sheet-search-code"
+            placeholder="e.g. SH-20250313-AB12 or agent name"
+            oninput="searchSheets()">
+        </div>
+        <div class="form-group" style="min-width:160px;margin-bottom:0">
+          <label class="form-label">Filter by Date</label>
+          <input type="date" class="form-control" id="sheet-search-date" onchange="searchSheets()">
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="clearSheetSearch()">✕ Clear</button>
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:rgba(74,144,217,.07);border:1px solid rgba(74,144,217,.18);border-radius:var(--radius-sm);font-size:.78rem;color:var(--info)">
+        📌 Sheets are automatically generated when an entry is finalized in the
+        <strong>Entries</strong> module. Each sheet carries a unique code.
+      </div>
+    </div>
+    <div id="sheets-container"></div>
+  </div>
+
+  <!-- Detail view (read-only) -->
+  <div id="sheet-detail-view" class="hidden">
+    <div class="flex-between mb-4" style="flex-wrap:wrap;gap:10px">
+      <button class="btn btn-outline btn-sm no-print" onclick="backFromSheet()">← Back to Sheets</button>
+      <button class="btn btn-ghost btn-sm no-print" onclick="window.print()">🖨️ Print Sheet</button>
+    </div>
+    <div class="print-header" style="display:none">
+      <div id="ph-company" class="print-company"></div>
+      <div id="ph-sheet-meta" class="print-meta"></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;font-size:.84rem">
+        <div><div class="text-muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:1px">Sheet Code</div><div class="mono text-gold fw-600" id="sd-code">—</div></div>
+        <div><div class="text-muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:1px">Date</div><div class="fw-600" id="sd-date">—</div></div>
+        <div><div class="text-muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:1px">Agent</div><div class="fw-600" id="sd-agent">—</div></div>
+        <div><div class="text-muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:1px">Total</div><div class="mono text-gold fw-600" id="sd-total">—</div></div>
+        <div><div class="text-muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:1px">Contributors</div><div class="fw-600" id="sd-count">—</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>👥</span> Contributors</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Account No.</th><th>Customer Name</th><th>Amount</th></tr></thead>
+          <tbody id="sheet-entry-rows"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right fw-600" style="padding:10px 14px">Total</td>
+              <td class="mono text-gold fw-600" id="sheet-running-total">GH₵ 0.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <div id="sd-balance-summary" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ACCOUNTING ═══════════════════════════════ -->
+<div class="view" id="view-accounting">
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('acc','journal',this)">📒 Daily Journal</button>
+    <button class="sub-tab" onclick="showSubTab('acc','income',this)">📥 Income</button>
+    <button class="sub-tab" onclick="showSubTab('acc','expense',this)">📤 Expense</button>
+    <button class="sub-tab" onclick="showSubTab('acc','balance',this);renderTrialBalance()">⚖️ Trial Balance</button>
+  </div>
+
+  <!-- Journal -->
+  <div class="teller-sub active" id="acc-journal">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>📒</span> Record Journal Entry</div>
+        <div class="form-group"><label class="form-label">Entry Type</label><select class="form-control" id="acci-type"><option value="income">Income</option><option value="expense">Expense</option><option value="asset">Asset</option><option value="liability">Liability</option><option value="equity">Equity</option></select></div>
+        <div class="form-group"><label class="form-label">Category</label>
+          <select class="form-control" id="acci-cat">
+            <option value="collections">Collections</option>
+            <option value="loan_repayment">Loan Repayment</option>
+            <option value="interest_income">Interest Income</option>
+            <option value="investment_returns">Investment Returns</option>
+            <option value="staff_salary">Staff Salary</option>
+            <option value="rent">Rent/Utilities</option>
+            <option value="stationery">Stationery</option>
+            <option value="transport">Transport</option>
+            <option value="loan_disbursement">Loan Disbursement</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-control" id="acci-desc" placeholder="Entry description"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Amount (GH₵)</label><input type="number" class="form-control" id="acci-amount" placeholder="0.00" min="0" step="0.01"></div>
+          <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-control" id="acci-date"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Reference No.</label><input type="text" class="form-control" id="acci-ref" placeholder="Receipt or reference number"></div>
+        <button class="btn btn-gold" onclick="addAccountingEntry()">✅ Record Entry</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>📊</span> Financial Summary</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="flex-between" style="padding:9px 13px;background:rgba(46,204,138,.08);border:1px solid rgba(46,204,138,.18);border-radius:8px"><span class="text-muted" style="font-size:.82rem">Total Income</span><span class="mono text-success fw-600" id="acc-income">GH₵ 0.00</span></div>
+          <div class="flex-between" style="padding:9px 13px;background:rgba(232,93,93,.08);border:1px solid rgba(232,93,93,.18);border-radius:8px"><span class="text-muted" style="font-size:.82rem">Total Expenses</span><span class="mono text-danger fw-600" id="acc-expense">GH₵ 0.00</span></div>
+          <div class="flex-between" style="padding:9px 13px;background:var(--gold-dim);border:1px solid var(--border);border-radius:8px"><span class="fw-600" style="font-size:.84rem">Net Balance</span><span class="mono text-gold fw-600" id="acc-net">GH₵ 0.00</span></div>
+        </div>
+        <div class="table-wrap mt-4" style="max-height:280px;overflow-y:auto">
+          <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead>
+          <tbody id="acc-journal-tbody"><tr><td colspan="5" class="text-center text-muted" style="padding:20px">No entries</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="teller-sub" id="acc-income">
+    <div class="table-wrap"><table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Reference</th><th>Amount</th></tr></thead>
+    <tbody id="acc-income-tbody"><tr><td colspan="5" class="text-center text-muted" style="padding:24px">No income entries</td></tr></tbody></table></div>
+  </div>
+  <div class="teller-sub" id="acc-expense">
+    <div class="table-wrap"><table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Reference</th><th>Amount</th></tr></thead>
+    <tbody id="acc-expense-tbody"><tr><td colspan="5" class="text-center text-muted" style="padding:24px">No expense entries</td></tr></tbody></table></div>
+  </div>
+  <div class="teller-sub" id="acc-balance">
+    <div class="card">
+      <div class="card-title"><span>⚖️</span> Trial Balance</div>
+      <div id="trial-balance-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ REPORTS ═══════════════════════════════ -->
+<div id="view-reports" class="view">
+  <div class="view-header">
+    <div class="view-title"><span>📊</span> Reports</div>
+  </div>
+  <div class="sub-tabs" style="margin-bottom:20px" id="reports-subtabs">
+    <button class="sub-tab active" onclick="showReportTab('overview',this)">🏠 Overview</button>
+    <button class="sub-tab" onclick="showReportTab('performance',this)">📈 Performance</button>
+    <button class="sub-tab" onclick="showReportTab('financial',this)">💰 Financial</button>
+    <button class="sub-tab" onclick="showReportTab('customers',this)">👥 Customers</button>
+    <button class="sub-tab" onclick="showReportTab('loans',this)">📋 Loans</button>
+    <button class="sub-tab" onclick="showReportTab('agents',this)">🧑‍💼 Agents</button>
+  </div>
+  <div id="rpt-overview" class="rpt-panel"><div id="rpt-overview-content"></div></div>
+  <div id="rpt-performance" class="rpt-panel hidden"><div id="rpt-performance-content"></div></div>
+  <div id="rpt-financial" class="rpt-panel hidden"><div id="rpt-financial-content"></div></div>
+  <div id="rpt-customers" class="rpt-panel hidden"><div id="rpt-customers-content"></div></div>
+  <div id="rpt-loans" class="rpt-panel hidden"><div id="rpt-loans-content"></div></div>
+  <div id="rpt-agents" class="rpt-panel hidden"><div id="rpt-agents-content"></div></div>
+</div>
+
+<!-- ═══════════════════════════════ USERS ═══════════════════════════════ -->
+<div id="view-users" class="view">
+  <div class="view-header">
+    <div class="view-title"><span>👤</span> Users &amp; Access</div>
+  </div>
+  <div class="sub-tabs" style="margin-bottom:20px" id="users-subtabs">
+    <button class="sub-tab active" onclick="showUsersTab('overview',this)">🏠 Overview</button>
+    <button class="sub-tab" onclick="showUsersTab('add',this)">➕ Add User</button>
+    <button class="sub-tab" onclick="showUsersTab('all',this)">👥 All Users</button>
+    <button class="sub-tab" onclick="showUsersTab('activity',this)">📋 Activity Log</button>
+  </div>
+
+  <!-- Overview -->
+  <div id="usr-panel-overview" class="usr-panel"><div id="usr-overview-content"></div></div>
+
+  <!-- Add User -->
+  <div id="usr-panel-add" class="usr-panel hidden">
+    <div class="grid-2" style="gap:18px;align-items:start">
+      <div class="card">
+        <div class="card-title"><span>➕</span> Create New User</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input type="text" class="form-control" id="ui-name" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username <span class="req">*</span></label>
+            <input type="text" class="form-control" id="ui-username" placeholder="Login username" autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role <span class="req">*</span></label>
+          <select class="form-control" id="ui-role">
+            <option value="">-- Select Role --</option>
+            <option value="admin">👑 Administrator</option>
+            <option value="accountant">📊 Accountant</option>
+            <option value="accounting_clerk">✍️ Accounting Clerk</option>
+            <option value="teller">💵 Teller</option>
+            <option value="loan_officer">🏦 Loan Officer</option>
+            <option value="monitoring_officer">🔍 Monitoring Officer</option>
+            <option value="agent">🚶 Agent</option>
+            <option value="manager">🗂️ Manager</option>
+            <option value="auditor">🔎 Auditor</option>
+            <option value="customer_service">🎧 Customer Service</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-control" id="ui-phone" placeholder="0XX XXX XXXX"></div>
+          <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control" id="ui-email" placeholder="user@email.com"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password <span class="req">*</span></label>
+            <input type="password" class="form-control" id="ui-pass" placeholder="Password" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password <span class="req">*</span></label>
+            <input type="password" class="form-control" id="ui-pass2" placeholder="Repeat password">
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="addUser()">✅ Create User</button>
+      </div>
+
+      <!-- Role guide -->
+      <div class="card">
+        <div class="card-title"><span>📖</span> Role Permissions Guide</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:.8rem">
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">👑 Administrator</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Full system access — all modules, settings, user management</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">🗂️ Manager</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Access to reports, agents, customers, loans — no settings</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">📊 Accountant</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Accounting, reports, financial summary, investments</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">✍️ Accounting Clerk</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Journal entries, collection sheets, entries module</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">💵 Teller</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Teller module, withdrawals, float management, collections</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">🏦 Loan Officer</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Loans module — create, manage, record payments</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">🔍 Monitoring Officer</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Read-only access to all modules for oversight</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">🔎 Auditor</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Activity log, reports, accounting — read-only</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">🎧 Customer Service</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Customers module — view and basic transactions</div></div>
+          <div style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div class="fw-600">🚶 Agent</div><div class="text-muted" style="font-size:.74rem;margin-top:2px">Basic customer and collection view only</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Users -->
+  <div id="usr-panel-all" class="usr-panel hidden"><div id="usr-all-content"></div></div>
+
+  <!-- Activity Log -->
+  <div id="usr-panel-activity" class="usr-panel hidden"><div id="usr-activity-content"></div></div>
+</div>
+
+<!-- ═══════════════════════════════ SETTINGS ═══════════════════════════════ -->
+<div id="view-settings" class="view">
+  <div class="view-header">
+    <div class="view-title"><span>⚙️</span> Settings</div>
+  </div>
+
+  <div class="sub-tabs" style="margin-bottom:20px" id="settings-subtabs">
+    <button class="sub-tab active" onclick="showSettingsTab('general',this)">🌐 General</button>
+    <button class="sub-tab" onclick="showSettingsTab('financial',this)">💰 Financial</button>
+    <button class="sub-tab" onclick="showSettingsTab('notifications',this)">🔔 Notifications</button>
+    <button class="sub-tab" onclick="showSettingsTab('security',this)">🔒 Security</button>
+    <button class="sub-tab" onclick="showSettingsTab('backup',this)">💾 Backup &amp; Data</button>
+    <button class="sub-tab" onclick="showSettingsTab('appearance',this)">🎨 Appearance</button>
+  </div>
+
+  <!-- General -->
+  <div id="st-panel-general" class="st-panel">
+    <div class="grid-2" style="gap:18px;align-items:start">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><span>🏢</span> Company Information</div>
+          <div class="form-group"><label class="form-label">Company Name</label><input type="text" class="form-control" id="st-company-name" oninput="settingChanged('companyName',this.value)"></div>
+          <div class="form-group"><label class="form-label">Company Tagline / Slogan</label><input type="text" class="form-control" id="st-tagline" placeholder="e.g. Your trusted savings partner" oninput="settingChanged('tagline',this.value)"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input type="text" class="form-control" id="st-phone" oninput="settingChanged('companyPhone',this.value)"></div>
+          <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-control" id="st-email" oninput="settingChanged('companyEmail',this.value)"></div>
+          <div class="form-group"><label class="form-label">Location / Address</label><input type="text" class="form-control" id="st-location" placeholder="e.g. Accra, Greater Accra, Ghana" oninput="settingChanged('companyLocation',this.value)"></div>
+          <div class="form-group"><label class="form-label">Website</label><input type="text" class="form-control" id="st-website" placeholder="https://www.yourcompany.com" oninput="settingChanged('companyWebsite',this.value)"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>🕐</span> Business Hours</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Opening Time</label><input type="time" class="form-control" id="st-open-time" value="08:00" oninput="settingChanged('openTime',this.value)"></div>
+            <div class="form-group"><label class="form-label">Closing Time</label><input type="time" class="form-control" id="st-close-time" value="17:00" oninput="settingChanged('closeTime',this.value)"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Working Days</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+              <label class="day-chip"><input type="checkbox" value="Mon" id="wd-mon" checked onchange="updateWorkingDays()"> Mon</label>
+              <label class="day-chip"><input type="checkbox" value="Tue" id="wd-tue" checked onchange="updateWorkingDays()"> Tue</label>
+              <label class="day-chip"><input type="checkbox" value="Wed" id="wd-wed" checked onchange="updateWorkingDays()"> Wed</label>
+              <label class="day-chip"><input type="checkbox" value="Thu" id="wd-thu" checked onchange="updateWorkingDays()"> Thu</label>
+              <label class="day-chip"><input type="checkbox" value="Fri" id="wd-fri" checked onchange="updateWorkingDays()"> Fri</label>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+            <div class="settings-row">
+              <div><div class="settings-key">Work on Saturdays?</div><div class="settings-val">Enable if the company operates on Saturdays</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="st-saturday" onchange="settingChanged('workSaturday',this.checked)"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-key">Work on Public Holidays?</div><div class="settings-val">Enable if the company operates during public holidays</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="st-holiday" onchange="settingChanged('workHoliday',this.checked)"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🌍</span> Country &amp; Regional Settings</div>
+        <div class="form-group">
+          <label class="form-label">Language</label>
+          <select class="form-control" id="st-language" onchange="settingChanged('language',this.value);applyLanguage(this.value)">
+            <option value="en">🇬🇧 English</option>
+            <option value="fr">🇫🇷 Français (French)</option>
+            <option value="es">🇪🇸 Español (Spanish)</option>
+            <option value="pt">🇵🇹 Português (Portuguese)</option>
+            <option value="ha">🇳🇬 Hausa</option>
+            <option value="tw">🇬🇭 Twi (Akan)</option>
+            <option value="sw">🇰🇪 Swahili</option>
+            <option value="ar">🇸🇦 العربية (Arabic)</option>
+          </select>
+          <div class="input-hint">Changing language applies to navigation and key labels</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <select class="form-control" id="st-currency" onchange="settingChanged('currency',this.value);applyCurrencyChange(this.value)">
+            <option value="GH₵">🇬🇭 GH₵ — Ghana Cedi</option>
+            <option value="$">🇺🇸 $ — US Dollar</option>
+            <option value="€">🇪🇺 € — Euro</option>
+            <option value="£">🇬🇧 £ — British Pound</option>
+            <option value="₦">🇳🇬 ₦ — Nigerian Naira</option>
+            <option value="CFA">🌍 CFA — CFA Franc</option>
+            <option value="KSh">🇰🇪 KSh — Kenyan Shilling</option>
+            <option value="R">🇿🇦 R — South African Rand</option>
+            <option value="ETB">🇪🇹 ETB — Ethiopian Birr</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Timezone</label>
+          <select class="form-control" id="st-timezone" onchange="settingChanged('timezone',this.value)">
+            <option value="Africa/Accra">🇬🇭 Africa/Accra (GMT+0)</option>
+            <option value="Africa/Lagos">🇳🇬 Africa/Lagos (GMT+1)</option>
+            <option value="Africa/Nairobi">🇰🇪 Africa/Nairobi (GMT+3)</option>
+            <option value="Africa/Johannesburg">🇿🇦 Africa/Johannesburg (GMT+2)</option>
+            <option value="Africa/Cairo">🇪🇬 Africa/Cairo (GMT+2)</option>
+            <option value="Europe/London">🇬🇧 Europe/London (GMT+0/+1)</option>
+            <option value="Europe/Paris">🇫🇷 Europe/Paris (GMT+1/+2)</option>
+            <option value="America/New_York">🇺🇸 America/New_York (GMT-5/-4)</option>
+            <option value="America/Los_Angeles">🇺🇸 America/Los_Angeles (GMT-8/-7)</option>
+            <option value="Asia/Dubai">🇦🇪 Asia/Dubai (GMT+4)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date Format</label>
+          <select class="form-control" id="st-date-format" onchange="settingChanged('dateFormat',this.value)">
+            <option value="DD/MM/YYYY">DD/MM/YYYY (e.g. 14/03/2026)</option>
+            <option value="MM/DD/YYYY">MM/DD/YYYY (e.g. 03/14/2026)</option>
+            <option value="YYYY-MM-DD">YYYY-MM-DD (e.g. 2026-03-14)</option>
+            <option value="DD MMM YYYY">DD MMM YYYY (e.g. 14 Mar 2026)</option>
+            <option value="MMMM DD, YYYY">MMMM DD, YYYY (e.g. March 14, 2026)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Number Format</label>
+          <select class="form-control" id="st-num-format" onchange="settingChanged('numFormat',this.value)">
+            <option value="1,234.56">1,234.56 (comma thousands, dot decimal)</option>
+            <option value="1.234,56">1.234,56 (dot thousands, comma decimal)</option>
+            <option value="1 234.56">1 234.56 (space thousands, dot decimal)</option>
+          </select>
+        </div>
+        <div style="margin-top:16px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.78rem">
+          <div class="fw-600" style="margin-bottom:8px;color:var(--gold-light)">🇬🇭 Ghana Public Holidays 2026</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;color:var(--text2)">
+            <div>Jan 1 — New Year's Day</div><div>Mar 6 — Independence Day</div>
+            <div>Apr 3 — Good Friday</div><div>Apr 6 — Easter Monday</div>
+            <div>May 1 — Workers' Day</div><div>May 25 — Africa Day</div>
+            <div>Jul 1 — Republic Day</div><div>Aug 4 — Founders' Day</div>
+            <div>Sep 21 — Kwame Nkrumah Day</div><div>Dec 25 — Christmas Day</div>
+            <div>Dec 26 — Boxing Day</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn btn-outline" onclick="resetSettingsTab('general')">🔄 Reset to Default</button>
+      <button class="btn btn-gold" onclick="saveSettingsTab('general')">✅ Save General Settings</button>
+    </div>
+  </div>
+
+  <!-- Financial -->
+  <div id="st-panel-financial" class="st-panel hidden">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title"><span>🔢</span> Account Prefixes</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Susu Prefix</label><input type="text" class="form-control" id="st-susu-prefix" maxlength="4" oninput="settingChanged('susuPrefix',this.value.toUpperCase());this.value=this.value.toUpperCase()"></div>
+        <div class="form-group"><label class="form-label">Lending Prefix</label><input type="text" class="form-control" id="st-lending-prefix" maxlength="4" oninput="settingChanged('lendingPrefix',this.value.toUpperCase());this.value=this.value.toUpperCase()"></div>
+        <div class="form-group"><label class="form-label">Savings Prefix</label><input type="text" class="form-control" id="st-savings-prefix" maxlength="4" oninput="settingChanged('savingsPrefix',this.value.toUpperCase());this.value=this.value.toUpperCase()"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title"><span>📊</span> Loan Configuration</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Interest Rate (decimal)</label><input type="number" class="form-control" id="st-loan-rate" step="0.01" min="0" oninput="settingChanged('loanRate',parseFloat(this.value));updateFormulaDisplay()"></div>
+        <div class="form-group"><label class="form-label">Divisor Base</label><input type="number" class="form-control" id="st-loan-base" step="1" min="1" oninput="settingChanged('loanBase',parseFloat(this.value));updateFormulaDisplay()"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Loan Interest Formula</label>
+        <div style="padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'JetBrains Mono',monospace;font-size:.84rem" id="formula-display">Interest = (Amount × 0.25 ÷ 6) × Months</div>
+      </div>
+      <div id="formula-preview" style="font-size:.78rem;color:var(--muted);margin-top:4px"></div>
+      <div class="form-row" style="margin-top:10px">
+        <div class="form-group"><label class="form-label">Lending Deposit Requirement (%)</label><input type="number" class="form-control" id="st-loan-dep-pct" min="0" max="100" step="1" oninput="settingChanged('loanDepositPct',parseFloat(this.value)||30)"></div>
+        <div class="form-group"><label class="form-label">Instant Overdue Penalty (%)</label><input type="number" class="form-control" id="st-instant-penalty" min="0" step="0.1" oninput="settingChanged('instantPenalty',parseFloat(this.value)||1)"></div>
+        <div class="form-group"><label class="form-label">Monthly Overdue Penalty (%)</label><input type="number" class="form-control" id="st-monthly-penalty" min="0" step="0.1" oninput="settingChanged('monthlyPenalty',parseFloat(this.value)||1)"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title"><span>💳</span> Fees &amp; Commission</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Card Replacement Fee (GH₵)</label><input type="number" class="form-control" id="st-card-fee" min="0" step="0.01" oninput="settingChanged('cardFee',parseFloat(this.value)||30)"></div>
+        <div class="form-group"><label class="form-label">Agent Commission Rate (%)</label><input type="number" class="form-control" id="st-commission" min="0" max="100" step="0.1" oninput="settingChanged('commissionRate',parseFloat(this.value)||1)"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title"><span>📱</span> SMS Notifications</div>
+      <div class="settings-row">
+        <div><div class="settings-key">Enable SMS Notifications</div><div class="settings-val">Send SMS to customers on registration, deposit, and withdrawal</div></div>
+        <label class="toggle-switch"><input type="checkbox" id="st-sms-enabled" onchange="settingChanged('smsEnabled',this.checked)"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="form-group"><label class="form-label">SMS Provider</label><select class="form-control" id="st-sms-provider" onchange="settingChanged('smsProvider',this.value)"><option value="arkesel">Arkesel</option><option value="mnotify">mNotify</option><option value="hubtel">Hubtel</option></select></div>
+        <div class="form-group"><label class="form-label">Sender ID (max 11 chars)</label><input type="text" class="form-control" id="st-sms-sender" maxlength="11" placeholder="PROSUSU" oninput="settingChanged('smsSenderId',this.value)"></div>
+      </div>
+      <div class="form-group"><label class="form-label">API Key</label><input type="text" class="form-control" id="st-sms-apikey" placeholder="Your SMS provider API key" oninput="settingChanged('smsApiKey',this.value)"></div>
+
+      <button class="btn btn-outline btn-sm" onclick="testSMS(this)">📤 Send Test SMS</button>
+
+      <!-- Message Previews -->
+      <div style="margin-top:18px;border-top:1px solid var(--border);padding-top:14px">
+        <div class="fw-600" style="font-size:.8rem;margin-bottom:10px">📋 Message Templates (Preview)</div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+
+          <!-- Registration -->
+          <div style="padding:10px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <div class="flex-between" style="margin-bottom:5px">
+              <span class="badge b-green" style="font-size:.68rem">📋 Registration</span>
+              <span class="text-muted" style="font-size:.7rem">Sent when customer is added</span>
+            </div>
+            <div class="mono text-muted" style="font-size:.75rem;line-height:1.5" id="sms-prev-reg">—</div>
+          </div>
+
+          <!-- Deposit -->
+          <div style="padding:10px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <div class="flex-between" style="margin-bottom:5px">
+              <span class="badge b-blue" style="font-size:.68rem">💰 Deposit</span>
+              <span class="text-muted" style="font-size:.7rem">Sent after deposit</span>
+            </div>
+            <div class="mono text-muted" style="font-size:.75rem;line-height:1.5" id="sms-prev-dep">—</div>
+          </div>
+
+          <!-- Withdrawal -->
+          <div style="padding:10px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <div class="flex-between" style="margin-bottom:5px">
+              <span class="badge b-red" style="font-size:.68rem">📤 Withdrawal</span>
+              <span class="text-muted" style="font-size:.7rem">Sent after withdrawal is paid</span>
+            </div>
+            <div class="mono text-muted" style="font-size:.75rem;line-height:1.5" id="sms-prev-wd">—</div>
+          </div>
+
+          <!-- Holiday -->
+          <div style="padding:10px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <div class="flex-between" style="margin-bottom:5px">
+              <span class="badge b-gold" style="font-size:.68rem">🎉 Holiday</span>
+              <span class="text-muted" style="font-size:.7rem">Manual broadcast</span>
+            </div>
+            <div class="mono text-muted" style="font-size:.75rem;line-height:1.5" id="sms-prev-hol">—</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Holiday Broadcast -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+        <div class="fw-600" style="font-size:.8rem;margin-bottom:8px">🎉 Send Holiday Greeting</div>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="margin-bottom:0;flex:1;min-width:180px">
+            <label class="form-label">Holiday Name</label>
+            <input type="text" class="form-control" id="holiday-name-input"
+              placeholder="e.g. Easter, Christmas, Eid">
+          </div>
+          <button class="btn btn-gold btn-sm" style="margin-bottom:0"
+            onclick="sendHolidaySMS(document.getElementById('holiday-name-input').value.trim())">
+            📨 Send to All Customers
+          </button>
+        </div>
+        <div class="input-hint">Sends to all active customers with phone numbers.</div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn btn-outline" onclick="resetSettingsTab('financial')">🔄 Reset to Default</button>
+      <button class="btn btn-gold" onclick="saveSettingsTab('financial')">✅ Save Financial Settings</button>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div id="st-panel-notifications" class="st-panel hidden">
+    <div class="grid-2" style="gap:18px;align-items:start">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><span>🔔</span> System Notifications</div>
+          <div class="settings-row"><div><div class="settings-key">🔊 Sound Alerts</div><div class="settings-val">Play a sound when new notifications arrive</div></div><label class="toggle-switch"><input type="checkbox" id="notif-sound" onchange="settingChanged('notifSound',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="settings-row"><div><div class="settings-key">🖥️ Desktop Notifications</div><div class="settings-val">Browser notifications even when tab is not active</div></div><label class="toggle-switch"><input type="checkbox" id="notif-desktop" onchange="toggleDesktopNotifs(this.checked)"><span class="toggle-slider"></span></label></div>
+          <div id="notif-desktop-status" style="font-size:.74rem;margin-top:4px;padding:0 14px;color:var(--muted)"></div>
+          <div class="settings-row"><div><div class="settings-key">⚠️ Overdue Payment Alerts</div><div class="settings-val">Notify when loan payments become overdue</div></div><label class="toggle-switch"><input type="checkbox" id="notif-overdue" onchange="settingChanged('notifOverdue',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="settings-row"><div><div class="settings-key">💰 Low Balance Alerts</div><div class="settings-val">Notify when cash at hand falls below threshold</div></div><label class="toggle-switch"><input type="checkbox" id="notif-low-balance" onchange="settingChanged('notifLowBalance',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div id="notif-balance-threshold-wrap" style="display:none;padding:0 2px;margin-top:6px">
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Alert Threshold (GH₵)</label><input type="number" class="form-control" id="notif-balance-threshold" placeholder="e.g. 500" min="0" oninput="settingChanged('notifBalanceThreshold',parseFloat(this.value)||500)"></div>
+          </div>
+          <div class="settings-row"><div><div class="settings-key">📋 Daily Summary</div><div class="settings-val">Show daily summary notification at closing time</div></div><label class="toggle-switch"><input type="checkbox" id="notif-daily-summary" onchange="settingChanged('notifDailySummary',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="settings-row"><div><div class="settings-key">🎉 Loan Completion Alert</div><div class="settings-val">Notify when a loan is fully repaid</div></div><label class="toggle-switch"><input type="checkbox" id="notif-loan-complete" onchange="settingChanged('notifLoanComplete',this.checked)"><span class="toggle-slider"></span></label></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>🧪</span> Test Notifications</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm" onclick="testNotification('sound')">🔊 Test Sound</button>
+            <button class="btn btn-outline btn-sm" onclick="testNotification('desktop')">🖥️ Test Desktop</button>
+            <button class="btn btn-outline btn-sm" onclick="testNotification('overdue')">⚠️ Test Overdue</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><span>📅</span> Event Notifications</div>
+          <div class="settings-row"><div><div class="settings-key">🇬🇭 Upcoming Public Holidays</div><div class="settings-val">Notify X days before Ghana public holidays</div></div><label class="toggle-switch"><input type="checkbox" id="notif-holidays" onchange="settingChanged('notifHolidays',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="form-group" style="margin-top:8px"><label class="form-label">Days before to notify</label><input type="number" class="form-control" id="notif-holiday-days" placeholder="3" min="1" max="30" oninput="settingChanged('notifHolidayDays',parseInt(this.value)||3)"></div>
+          <div class="settings-row"><div><div class="settings-key">📅 Upcoming Payment Due Dates</div><div class="settings-val">Remind before loan payment is due</div></div><label class="toggle-switch"><input type="checkbox" id="notif-payment-due" onchange="settingChanged('notifPaymentDue',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="form-group" style="margin-top:8px"><label class="form-label">Days before to remind</label><input type="number" class="form-control" id="notif-due-days" placeholder="3" min="1" max="14" oninput="settingChanged('notifDueDays',parseInt(this.value)||3)"></div>
+          <div class="settings-row"><div><div class="settings-key">📈 Investment Maturity Alerts</div><div class="settings-val">Notify when an investment is about to mature</div></div><label class="toggle-switch"><input type="checkbox" id="notif-investment" onchange="settingChanged('notifInvestment',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="settings-row"><div><div class="settings-key">👥 New Customer Registered</div><div class="settings-val">Show notification when a new customer is added</div></div><label class="toggle-switch"><input type="checkbox" id="notif-new-customer" onchange="settingChanged('notifNewCustomer',this.checked)"><span class="toggle-slider"></span></label></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>🗓️</span> Upcoming Holidays This Year</div>
+          <div id="upcoming-holidays-list" style="font-size:.8rem"></div>
+        </div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn btn-outline" onclick="resetSettingsTab('notifications')">🔄 Reset to Default</button>
+      <button class="btn btn-gold" onclick="saveSettingsTab('notifications')">✅ Save Notifications Settings</button>
+    </div>
+  </div>
+
+  <!-- Security -->
+  <div id="st-panel-security" class="st-panel hidden">
+    <div class="grid-2" style="gap:18px;align-items:start">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><span>🔐</span> Authentication</div>
+          <div class="settings-row"><div><div class="settings-key">Strong Password Policy</div><div class="settings-val">Require min 8 chars, letters + numbers</div></div><label class="toggle-switch"><input type="checkbox" id="st-strong-pass" onchange="settingChanged('strongPass',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="settings-row"><div><div class="settings-key">Auto Logout on Inactivity</div><div class="settings-val">Automatically log out after idle period</div></div><label class="toggle-switch"><input type="checkbox" id="st-auto-logout" onchange="settingChanged('autoLogout',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="form-group" style="margin-top:8px"><label class="form-label">Inactivity Timeout (minutes)</label><input type="number" class="form-control" id="st-logout-mins" placeholder="30" min="5" max="480" oninput="settingChanged('logoutMins',parseInt(this.value)||30)"></div>
+          <div class="form-group" style="margin-top:10px">
+            <label class="form-label">Change Admin Password</label>
+            <div style="display:flex;gap:8px"><input type="password" class="form-control" id="new-admin-pass" placeholder="New password"><button class="btn btn-outline btn-sm" onclick="changeAdminPass()">Update</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>🛡️</span> Access Control</div>
+          <div class="settings-row"><div><div class="settings-key">Role-Based Access</div><div class="settings-val">Restrict module access by user role</div></div><label class="toggle-switch"><input type="checkbox" id="st-rbac" onchange="settingChanged('rbac',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="settings-row"><div><div class="settings-key">Login Attempt Limit</div><div class="settings-val">Lock account after 5 failed login attempts</div></div><label class="toggle-switch"><input type="checkbox" id="st-login-limit" onchange="settingChanged('loginLimit',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="settings-row"><div><div class="settings-key">Activity Logging</div><div class="settings-val">Log all user actions to the activity log</div></div><label class="toggle-switch"><input type="checkbox" id="st-activity-log" onchange="settingChanged('activityLog',this.checked)"><span class="toggle-slider"></span></label></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>🔒</span> Data Protection</div>
+        <div class="settings-row"><div><div class="settings-key">Confirm Before Deleting</div><div class="settings-val">Always show a confirmation dialog before any deletion</div></div><label class="toggle-switch"><input type="checkbox" id="st-confirm-delete" onchange="settingChanged('confirmDelete',this.checked)"><span class="toggle-slider"></span></label></div>
+        <div class="settings-row"><div><div class="settings-key">Backup Before Major Changes</div><div class="settings-val">Auto-export data before bulk edits or deletions</div></div><label class="toggle-switch"><input type="checkbox" id="st-backup-on-change" onchange="settingChanged('backupOnChange',this.checked)"><span class="toggle-slider"></span></label></div>
+        <div class="settings-row"><div><div class="settings-key">Encrypt Sensitive Data</div><div class="settings-val">Encrypt customer IDs and financial data in storage</div></div><label class="toggle-switch"><input type="checkbox" id="st-encrypt" onchange="settingChanged('encryptData',this.checked)"><span class="toggle-slider"></span></label></div>
+        <div class="settings-row"><div><div class="settings-key">Mask Sensitive Fields</div><div class="settings-val">Hide full account numbers and phone numbers in tables</div></div><label class="toggle-switch"><input type="checkbox" id="st-mask-data" onchange="settingChanged('maskData',this.checked)"><span class="toggle-slider"></span></label></div>
+        <div class="settings-row">
+          <div><div class="settings-key">Audit Trail Retention</div><div class="settings-val">Keep activity logs for this many days</div></div>
+          <input type="number" class="form-control" style="width:90px" id="st-log-days" placeholder="90" min="7" oninput="settingChanged('logRetentionDays',parseInt(this.value)||90)">
+        </div>
+        <div style="margin-top:16px;padding:12px 14px;background:rgba(232,93,93,.06);border:1px solid rgba(232,93,93,.15);border-radius:var(--radius-sm)">
+          <div class="fw-600 text-danger" style="margin-bottom:8px;font-size:.83rem">☢️ Danger Zone</div>
+          <button class="btn btn-danger btn-sm" onclick="clearData()">🗑 Clear All Data</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn btn-outline" onclick="resetSettingsTab('security')">🔄 Reset to Default</button>
+      <button class="btn btn-gold" onclick="saveSettingsTab('security')">✅ Save Security Settings</button>
+    </div>
+  </div>
+
+  <!-- Backup & Data -->
+  <div id="st-panel-backup" class="st-panel hidden">
+    <div class="grid-2" style="gap:18px;align-items:start">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><span>💾</span> Manual Backup &amp; Restore</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+              <div class="fw-600" style="font-size:.85rem;margin-bottom:4px">📤 Export Data</div>
+              <div class="text-muted" style="font-size:.76rem;margin-bottom:8px">Download a full backup of all your data as a JSON file</div>
+              <button class="btn btn-gold btn-sm" onclick="exportData()">💾 Export Backup</button>
+            </div>
+            <div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+              <div class="fw-600" style="font-size:.85rem;margin-bottom:4px">📥 Import Data</div>
+              <div class="text-muted" style="font-size:.76rem;margin-bottom:8px">Restore from a previously exported backup file</div>
+              <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-file').click()">📂 Import Backup</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>📋</span> Backup History</div>
+          <div id="backup-history-list">
+            <div class="empty-state" style="padding:20px 0"><div class="ei">💾</div><div class="et">No backup history yet</div><div class="es">Backups will be logged here</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>⚙️</span> Auto Backup</div>
+        <div class="settings-row"><div><div class="settings-key">Enable Auto Backup</div><div class="settings-val">Automatically download a backup at set intervals</div></div><label class="toggle-switch"><input type="checkbox" id="st-auto-backup" onchange="toggleAutoBackup(this.checked)"><span class="toggle-slider"></span></label></div>
+        <div id="auto-backup-options" style="display:none;margin-top:14px">
+          <div class="form-group"><label class="form-label">Backup Frequency</label><select class="form-control" id="st-backup-freq" onchange="settingChanged('backupFreq',this.value);scheduleAutoBackup()"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="manual">Manual only</option></select></div>
+          <div class="form-group"><label class="form-label">Backup Time</label><input type="time" class="form-control" id="st-backup-time" value="23:00" oninput="settingChanged('backupTime',this.value);scheduleAutoBackup()"></div>
+          <div id="backup-next-info" style="padding:9px 12px;background:var(--gold-dim);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.78rem;margin-top:4px;color:var(--gold-light)"></div>
+        </div>
+        <div style="margin-top:16px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem">
+          <div class="fw-600" style="margin-bottom:6px">📊 Storage Usage</div>
+          <div id="storage-usage-info" style="color:var(--muted)">Calculating...</div>
+          <div id="storage-bar" style="margin-top:8px">
+            <div class="progress-wrap"><div class="progress-bar" id="storage-bar-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div style="margin-top:12px"><button class="btn btn-outline btn-sm" onclick="refreshStorageUsage()">🔄 Refresh Storage Info</button></div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn btn-outline" onclick="resetSettingsTab('backup')">🔄 Reset to Default</button>
+      <button class="btn btn-gold" onclick="saveSettingsTab('backup')">✅ Save Backup Settings</button>
+    </div>
+  </div>
+
+  <!-- Appearance -->
+  <div id="st-panel-appearance" class="st-panel hidden">
+    <div class="grid-2" style="gap:18px;align-items:start">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><span>🎨</span> Theme</div>
+          <div id="theme-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="theme-card" data-theme="dark" onclick="selectTheme('dark',this)"><div class="theme-preview" style="background:#0a1628;border:1px solid rgba(201,168,76,.3)"><div style="height:8px;background:rgba(201,168,76,.4);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌑 Dark Gold</div><div class="theme-sub">Default dark theme</div></div>
+            <div class="theme-card" data-theme="light" onclick="selectTheme('light',this)"><div class="theme-preview" style="background:#f5f5f0;border:1px solid #ddd"><div style="height:8px;background:rgba(180,140,20,.6);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(0,0,0,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(0,0,0,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">☀️ Light</div><div class="theme-sub">Clean white theme</div></div>
+            <div class="theme-card" data-theme="ocean" onclick="selectTheme('ocean',this)"><div class="theme-preview" style="background:#061523;border:1px solid rgba(56,189,248,.3)"><div style="height:8px;background:rgba(56,189,248,.5);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌊 Ocean Blue</div><div class="theme-sub">Deep sea blue</div></div>
+            <div class="theme-card" data-theme="forest" onclick="selectTheme('forest',this)"><div class="theme-preview" style="background:#061208;border:1px solid rgba(74,222,128,.3)"><div style="height:8px;background:rgba(74,222,128,.5);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌿 Forest</div><div class="theme-sub">Natural green tones</div></div>
+            <div class="theme-card" data-theme="sunset" onclick="selectTheme('sunset',this)"><div class="theme-preview" style="background:#150a06;border:1px solid rgba(251,146,60,.3)"><div style="height:8px;background:rgba(251,146,60,.5);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌅 Sunset</div><div class="theme-sub">Warm amber tones</div></div>
+            <div class="theme-card" data-theme="royal" onclick="selectTheme('royal',this)"><div class="theme-preview" style="background:#0e0615;border:1px solid rgba(168,85,247,.3)"><div style="height:8px;background:rgba(168,85,247,.5);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">👑 Royal Purple</div><div class="theme-sub">Deep violet luxury</div></div>
+            <div class="theme-card" data-theme="midnight" onclick="selectTheme('midnight',this)"><div class="theme-preview" style="background:#020408;border:1px solid rgba(6,182,212,.3)"><div style="height:8px;background:rgba(6,182,212,.5);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌃 Midnight</div><div class="theme-sub">Near-black with cyan</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>🖥️</span> Display Options</div>
+          <div class="settings-row"><div><div class="settings-key">Compact Mode</div><div class="settings-val">Reduce padding and spacing throughout the app</div></div><label class="toggle-switch"><input type="checkbox" id="st-compact" onchange="settingChanged('compact',this.checked);applyCompact(this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="form-group" style="margin-top:12px"><label class="form-label">Font Size</label><select class="form-control" id="st-font-size" onchange="settingChanged('fontSize',this.value);applyFontSize(this.value)"><option value="13">Small (13px)</option><option value="14" selected>Normal (14px)</option><option value="15">Medium (15px)</option><option value="16">Large (16px)</option><option value="17">Extra Large (17px)</option></select></div>
+          <div class="form-group"><label class="form-label">Sidebar Style</label><select class="form-control" id="st-sidebar-style" onchange="settingChanged('sidebarStyle',this.value);applySidebarStyle(this.value)"><option value="full">Full Labels</option><option value="icons">Icons Only</option></select></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🏷️</span> Branding</div>
+        <div class="form-group">
+          <label class="form-label">Company Logo</label>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+            <div id="logo-preview" style="width:80px;height:80px;border-radius:var(--radius-sm);background:var(--surface2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden;flex-shrink:0">🏢</div>
+            <div>
+              <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="uploadCompanyLogo(this)">
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('logo-input').click()">📷 Upload Logo</button>
+              <button class="btn btn-ghost btn-sm" onclick="clearCompanyLogo()">✕ Remove</button>
+              <div class="input-hint">PNG, JPG — Recommended 200×200px, max 2MB</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Brand Accent Colour</label>
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="color" id="st-brand-color" value="#c9a84c" style="width:44px;height:36px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:none;padding:2px" oninput="applyBrandColor(this.value)">
+            <input type="text" class="form-control" id="st-brand-color-text" value="#c9a84c" style="width:120px;font-family:monospace;font-size:.82rem" oninput="applyBrandColor(this.value)">
+            <button class="btn btn-ghost btn-xs" onclick="applyBrandColor('#c9a84c');document.getElementById('st-brand-color').value='#c9a84c';document.getElementById('st-brand-color-text').value='#c9a84c'">Reset</button>
+          </div>
+          <div class="input-hint">Changes the primary gold/accent colour throughout the app</div>
+        </div>
+        <div class="form-group"><label class="form-label">Sidebar Header Text</label><input type="text" class="form-control" id="st-sidebar-header" placeholder="Pro Susu Banking" oninput="settingChanged('sidebarHeader',this.value);updateBrandNames()"></div>
+        <div style="margin-top:12px;padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)">
+          <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Live Preview</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div id="brand-preview-logo" style="width:44px;height:44px;border-radius:8px;background:var(--gold-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.3rem">🏢</div>
+            <div>
+              <div id="brand-preview-name" class="fw-600" style="color:var(--gold-light)">Pro Susu Banking</div>
+              <div id="brand-preview-tagline" class="text-muted" style="font-size:.72rem">Your trusted savings partner</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn btn-outline" onclick="resetSettingsTab('appearance')">🔄 Reset to Default</button>
+      <button class="btn btn-gold" onclick="saveSettingsTab('appearance')">✅ Save Appearance Settings</button>
+    </div>
+  </div>
+</div>
+<!-- ══════════════════════ PAYROLL ══════════════════════ -->
+<div class="view" id="view-payroll">
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('pay','salaries',this);renderPayrollSalaries()">💰 Salaries</button>
+    <button class="sub-tab" onclick="showSubTab('pay','allowances',this);renderAllowancesTab()">🎁 Allowances</button>
+    <button class="sub-tab" onclick="showSubTab('pay','agent-report',this);renderAgentReportTab()">🖨️ Agent Reports</button>
+  </div>
+
+  <!-- Salaries -->
+  <div class="teller-sub active" id="pay-salaries">
+    <div class="flex-between mb-4" style="flex-wrap:wrap;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Payroll Month</label>
+          <input type="month" class="form-control" id="pay-month-sel"
+            style="width:180px" onchange="renderPayrollSalaries()">
+        </div>
+        <button class="btn btn-gold" onclick="generatePayroll()" style="margin-top:18px">
+          ⚙️ Generate Payroll
+        </button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end;padding-bottom:2px">
+        <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print All</button>
+      </div>
+    </div>
+    <div id="pay-salaries-content">
+      <div class="empty-state" style="padding:48px 0">
+        <div class="ei">💰</div>
+        <div class="et">Select a month and generate payroll</div>
+        <div class="es">Agent commissions and staff salaries will be computed automatically</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Allowances -->
+  <div class="teller-sub" id="pay-allowances">
+    <div class="grid-2" style="align-items:start">
+      <!-- Add allowance -->
+      <div class="card">
+        <div class="card-title"><span>🎁</span> Add Allowance</div>
+
+        <div class="form-group">
+          <label class="form-label">Allowance Type</label>
+          <select class="form-control" id="alw-type" onchange="toggleAllowancePeriod()">
+            <option value="clothing">👔 Clothing Allowance (Quarterly)</option>
+            <option value="health">🏥 Health Allowance (Quarterly)</option>
+            <option value="risk">⚠️ Risk Allowance (Quarterly)</option>
+            <option value="target">🎯 Target Achieved (Monthly — Agents Only)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="alw-quarter-wrap">
+          <label class="form-label">Quarter</label>
+          <select class="form-control" id="alw-quarter">
+            <option value="Q1">Q1 (Jan – Mar)</option>
+            <option value="Q2">Q2 (Apr – Jun)</option>
+            <option value="Q3">Q3 (Jul – Sep)</option>
+            <option value="Q4">Q4 (Oct – Dec)</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="alw-month-wrap">
+          <label class="form-label">Month</label>
+          <input type="month" class="form-control" id="alw-month">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Year</label>
+          <input type="number" class="form-control" id="alw-year"
+            min="2020" max="2099" placeholder="2026">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Amount per Person (GH₵)</label>
+          <input type="number" class="form-control" id="alw-amount"
+            placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Apply To</label>
+          <select class="form-control" id="alw-scope">
+            <option value="all">All Staff</option>
+            <option value="agents">Agents / Mobile Bankers Only</option>
+            <option value="staff">Non-Agent Staff Only</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes <span class="text-muted" style="font-size:.68rem;text-transform:none;letter-spacing:0">(Optional)</span></label>
+          <input type="text" class="form-control" id="alw-notes" placeholder="e.g. Q1 2026 clothing allowance">
+        </div>
+
+        <button class="btn btn-gold" onclick="applyAllowance()">✅ Apply Allowance</button>
+      </div>
+
+      <!-- Allowance history -->
+      <div class="card">
+        <div class="card-title"><span>📋</span> Allowance History</div>
+        <div id="alw-history-content">
+          <div class="empty-state" style="padding:28px 0">
+            <div class="ei">🎁</div>
+            <div class="et">No allowances applied yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Customer Reports -->
+  <div class="teller-sub" id="pay-agent-report">
+    <div class="flex-between mb-4" style="flex-wrap:wrap;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Select Agent / Mobile Banker</label>
+          <select class="form-control" id="rpt-agent-sel" style="width:240px"
+            onchange="generateAgentReport()">
+            <option value="">-- Select Agent --</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <button class="btn btn-gold btn-sm" onclick="printAgentReport()">🖨️ Print Report</button>
+      </div>
+    </div>
+    <div id="agent-report-content">
+      <div class="empty-state" style="padding:48px 0">
+        <div class="ei">🖨️</div>
+        <div class="et">Select an agent to view their customer list</div>
+        <div class="es">Account numbers, names, phone, registration date, last collection, and balance</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END PAGE CONTENT -->
+
+  </div><!-- /page-content -->
+</main>
+</div><!-- /app-shell -->
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MODALS                                              -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- Payslip Modal -->
+<div class="modal-overlay" id="modal-payslip">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-title">
+      <span id="m-payslip-title">Payslip</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-xs" onclick="window.print()">🖨️ Print</button>
+        <button class="modal-close" onclick="closeModal('modal-payslip')">✕</button>
+      </div>
+    </div>
+    <div id="m-payslip-body"></div>
+  </div>
+</div>
+
+<!-- Salary Withdrawal Modal -->
+<div class="modal-overlay" id="modal-salary-withdraw">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title">
+      <span id="m-sal-wd-title">💸 Salary Withdrawal</span>
+      <button class="modal-close" onclick="closeModal('modal-salary-withdraw')">✕</button>
+    </div>
+    <div id="m-sal-wd-body"></div>
+  </div>
+</div>
+
+<!-- Agent Detail Modal -->
+<div class="modal-overlay" id="modal-agent">
+  <div class="modal modal-lg">
+    <div class="modal-title"><span id="m-agent-title">Agent Details</span><button class="modal-close" onclick="closeModal('modal-agent')">✕</button></div>
+    <div id="m-agent-body"></div>
+  </div>
+</div>
+
+<!-- Customer Detail Modal -->
+<div class="modal-overlay" id="modal-customer">
+  <div class="modal modal-lg">
+    <div class="modal-title"><span id="m-cust-title">Customer Details</span><button class="modal-close" onclick="closeModal('modal-customer')">✕</button></div>
+    <div id="m-cust-body"></div>
+  </div>
+</div>
+
+<!-- Loan Payment Modal -->
+<div class="modal-overlay" id="modal-loan-pay">
+  <div class="modal">
+    <div class="modal-title"><span>💳 Record Loan Payment</span><button class="modal-close" onclick="closeModal('modal-loan-pay')">✕</button></div>
+    <div id="m-loan-pay-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-loan-pay')">Cancel</button>
+      <button class="btn btn-gold" onclick="confirmLoanPayment()">✅ Record Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loan Detail Modal -->
+<div class="modal-overlay" id="modal-loan-detail">
+  <div class="modal modal-xl">
+    <div class="modal-title"><span id="m-loan-title">Loan Details</span><button class="modal-close" onclick="closeModal('modal-loan-detail')">✕</button></div>
+    <div id="m-loan-body"></div>
+  </div>
+</div>
+
+<!-- Partner QR Modal -->
+<div class="modal-overlay" id="modal-partner-qr">
+  <div class="modal">
+    <div class="modal-title"><span id="m-qr-title">Partner QR Code</span><button class="modal-close" onclick="closeModal('modal-partner-qr')">✕</button></div>
+    <div id="m-qr-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-partner-qr')">Close</button>
+      <button class="btn btn-gold" onclick="printQR()">🖨️ Print QR</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-title"><span id="m-conf-title">Confirm Action</span><button class="modal-close" onclick="closeModal('modal-confirm')">✕</button></div>
+    <div id="m-conf-body" style="font-size:.88rem;line-height:1.6"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('modal-confirm')">Cancel</button>
+      <button class="btn btn-danger" id="m-conf-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Edit Modal -->
+<div class="modal-overlay" id="modal-edit-customer">
+  <div class="modal modal-lg">
+    <div class="modal-title"><span id="m-edit-cust-title">Edit Customer</span><button class="modal-close" onclick="closeModal('modal-edit-customer')">✕</button></div>
+    <div id="m-edit-cust-body"></div>
+  </div>
+</div>
+
+<!-- Withdrawal Request Modal -->
+<div class="modal-overlay" id="modal-wd-request">
+  <div class="modal modal-lg">
+    <div class="modal-title"><span id="m-wd-title">💸 Withdrawal Request</span><button class="modal-close" onclick="closeModal('modal-wd-request')">✕</button></div>
+    <div id="m-wd-body"></div>
+  </div>
+</div>
+
+<!-- Loan Edit Modal -->
+<div class="modal-overlay" id="modal-loan-edit">
+  <div class="modal modal-lg">
+    <div class="modal-title"><span id="m-loan-edit-title">✏️ Edit Loan</span><button class="modal-close" onclick="closeModal('modal-loan-edit')">✕</button></div>
+    <div id="m-loan-edit-body"></div>
+  </div>
+</div>
+
+<!-- Penalty Waiver Modal -->
+<div class="modal-overlay" id="modal-waiver">
+  <div class="modal">
+    <div class="modal-title"><span>🛡️ Waive Penalty</span><button class="modal-close" onclick="closeModal('modal-waiver')">✕</button></div>
+    <div id="m-waiver-body"></div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- LOADERS                                             -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- Login Loader Overlay -->
+<div id="login-loader" style="display:none;position:fixed;inset:0;
+  background:rgba(5,10,28,.97);z-index:9999;
+  flex-direction:column;align-items:center;justify-content:center;gap:20px">
+  <div id="ll-logo" style="font-size:3rem;animation:pulse 1.4s infinite">🏦</div>
+  <div style="font-family:'Playfair Display',serif;font-size:1.4rem;
+    font-weight:700;color:var(--gold-light);letter-spacing:1px"
+    id="ll-brand">Pro Susu Banking</div>
+  <div style="width:48px;height:48px;border:3px solid rgba(201,168,76,.2);
+    border-top-color:var(--gold);border-radius:50%;
+    animation:spin 0.8s linear infinite"></div>
+  <div id="ll-message"
+    style="font-size:.88rem;color:var(--text2);letter-spacing:.3px;
+      text-align:center;max-width:280px;min-height:22px;
+      transition:opacity .3s ease">
+    Checking your credentials...
+  </div>
+  <div style="display:flex;gap:7px" id="ll-dots">
+    <div class="ll-dot active"></div>
+    <div class="ll-dot"></div>
+    <div class="ll-dot"></div>
+    <div class="ll-dot"></div>
+  </div>
+</div>
+
+<!-- Logout Loader -->
+<div id="logout-loader" style="display:none;position:fixed;inset:0;
+  background:rgba(5,10,28,.92);z-index:9990;
+  flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  backdrop-filter:blur(4px)">
+  <div style="width:52px;height:52px;border:3px solid rgba(201,168,76,.2);
+    border-top-color:var(--gold);border-radius:50%;
+    animation:spin 0.7s linear infinite"></div>
+  <div style="font-family:'Playfair Display',serif;font-size:1.1rem;
+    font-weight:600;color:var(--gold-light);letter-spacing:.5px">
+    Signing out...
+  </div>
+  <div style="font-size:.78rem;color:rgba(255,255,255,.4)">
+    Saving your data. Please wait.
+  </div>
+</div>
+
+<!-- Agent Entry Modal -->
+<div class="modal-overlay" id="modal-agent-entry">
+  <div class="modal" style="max-width:680px;max-height:90vh;overflow-y:auto">
+    <div class="modal-title">
+      <span id="m-agent-entry-title">📝 New Collection Entry</span>
+      <button class="modal-close" onclick="closeModal('modal-agent-entry')">✕</button>
+    </div>
+    <div class="modal-body" id="m-agent-entry-body"></div>
+  </div>
+</div>
+
+<!-- Global Action Loader -->
+<div id="global-loader" style="display:none;position:fixed;inset:0;
+  background:rgba(5,10,28,.75);z-index:8888;
+  align-items:center;justify-content:center;flex-direction:column;gap:14px;
+  backdrop-filter:blur(2px)">
+  <div style="background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:28px 36px;text-align:center;
+    min-width:260px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="width:44px;height:44px;border:3px solid rgba(201,168,76,.2);
+      border-top-color:var(--gold);border-radius:50%;
+      animation:spin 0.8s linear infinite;margin:0 auto 14px"></div>
+    <div id="gl-message" style="font-size:.88rem;color:var(--text2);font-weight:500">Processing...</div>
+    <div id="gl-sub" style="font-size:.75rem;color:var(--muted);margin-top:5px"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<script src="scripts/general.js"></script>
+<script src="scripts/withdrawal.js"></script>
+<script src="scripts/withdrawal-request.js"></script>
+<script src="scripts/sms.js"></script>
+<script src="scripts/theme-definition.js"></script>
+<script src="scripts/display-options.js"></script>
+<script src="scripts/teller.js"></script>
+<script src="scripts/entries.js"></script>
+<script src="scripts/agents.js"></script>
+<script src="scripts/customers.js"></script>
+<script src="scripts/loans.js"></script>
+<script src="scripts/payroll.js"></script>
+<script src="scripts/salary-wallet.js"></script>
+<script src="scripts/agent-entries.js"></script>
+<script src="scripts/calculator.js?v=2"></script>
+<script src="scripts/investments.js"></script>
+<script src="scripts/transfers.js"></script>
+<script src="scripts/collaborations.js"></script>
+<script src="scripts/card-replacement.js"></script>
+<script src="scripts/collection-sheets.js"></script>
+<script src="scripts/accounting.js"></script>
+<script src="scripts/users.js"></script>
+
+<!-- Firebase Firestore Sync — loads after all app scripts -->
+<script type="module" src="scripts/firebase-sync.js"></script>
+</body>
+</html>

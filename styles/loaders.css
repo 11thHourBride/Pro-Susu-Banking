@@ -1,0 +1,30 @@
+/* ── Login loader ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.6; transform:scale(.95); }
+}
+.ll-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: rgba(201,168,76,.2);
+  transition: background .3s ease, transform .3s ease;
+}
+.ll-dot.active {
+  background: var(--gold, #c9a84c);
+  transform: scale(1.25);
+}
+
+/* ── Login page responsive ── */
+@media (max-width: 700px) {
+  .login-left  { display: none !important; }
+  .login-right { width: 100% !important; }
+}
+
+#global-loader {
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+}
