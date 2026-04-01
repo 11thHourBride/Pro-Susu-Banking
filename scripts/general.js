@@ -75,6 +75,18 @@ function loadAll() {
     if(d.PAYROLL)            PAYROLL            = d.PAYROLL;
     if(d.ALLOWANCES_RECORDS) ALLOWANCES_RECORDS = d.ALLOWANCES_RECORDS;
     if(d.ACTIVITY_LOG) ACTIVITY_LOG = d.ACTIVITY_LOG;
+
+    // Always guarantee the default admin exists — even if a previous
+    // company's data was loaded, a new company must always be able to log in.
+    // If no admin-role user exists at all, re-inject the default.
+    const hasAdmin = USERS.some(u => u.role === 'admin' && u.status === 'active');
+    if (!hasAdmin) {
+      USERS.unshift({
+        id:'u1', name:'System Administrator',
+        username:'admin', password:'admin123',
+        role:'admin', phone:'', email:'', status:'active', lastLogin:''
+      });
+    }
   } catch(e) {}
 }
 
@@ -120,6 +132,156 @@ setInterval(updateClock,1000); updateClock();
 // ═══════════════════════════════════════════════════════
 //  AUTH
 // ═══════════════════════════════════════════════════════
+// ── First-Run Setup Wizard ────────────────────────────
+function showSetupWizard() {
+  const overlay = document.getElementById('login-overlay');
+  if (!overlay) return;
+
+  // Inject wizard panel into the login screen right panel
+  const right = overlay.querySelector('#login-right-panel') ||
+                overlay.querySelector('div[style*="padding:48px"]') ||
+                overlay.children[overlay.children.length - 1];
+
+  const wizardHTML = `
+    <div id="setup-wizard" style="
+      position:absolute;inset:0;background:rgba(5,10,28,.97);
+      z-index:10;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;padding:40px 32px;
+      border-radius:inherit;backdrop-filter:blur(8px)">
+
+      <div style="font-size:2rem;margin-bottom:8px">🏦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.4rem;
+        font-weight:700;color:var(--gold-light,#e8d48a);margin-bottom:6px">
+        Welcome to Pro Susu Banking
+      </div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,.45);
+        margin-bottom:28px;text-align:center;line-height:1.6">
+        It looks like this is a fresh installation.<br>
+        Let's set up your company before you log in.
+      </div>
+
+      <!-- Company Name -->
+      <div style="width:100%;max-width:340px;margin-bottom:14px">
+        <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;
+          text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:6px">
+          Company / Bank Name
+        </label>
+        <input type="text" id="setup-company" class="form-control"
+          style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);
+            color:#fff;font-size:.92rem"
+          placeholder="e.g. Bright Star Susu" autocomplete="off">
+      </div>
+
+      <!-- Admin Name -->
+      <div style="width:100%;max-width:340px;margin-bottom:14px">
+        <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;
+          text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:6px">
+          Administrator Name
+        </label>
+        <input type="text" id="setup-name" class="form-control"
+          style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);
+            color:#fff;font-size:.92rem"
+          placeholder="Full name" autocomplete="off">
+      </div>
+
+      <!-- Admin Username -->
+      <div style="width:100%;max-width:340px;margin-bottom:14px">
+        <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;
+          text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:6px">
+          Admin Username
+        </label>
+        <input type="text" id="setup-username" class="form-control"
+          style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);
+            color:#fff;font-size:.92rem"
+          placeholder="e.g. admin" autocomplete="off">
+      </div>
+
+      <!-- Admin Password -->
+      <div style="width:100%;max-width:340px;margin-bottom:20px">
+        <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;
+          text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:6px">
+          Admin Password
+        </label>
+        <input type="password" id="setup-pass" class="form-control"
+          style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);
+            color:#fff;font-size:.92rem"
+          placeholder="Choose a strong password" autocomplete="new-password">
+      </div>
+
+      <div id="setup-error" style="display:none;color:var(--danger,#e85d5d);
+        font-size:.78rem;margin-bottom:12px;text-align:center"></div>
+
+      <button onclick="completeSetup()"
+        style="width:100%;max-width:340px;padding:13px;border:none;
+          border-radius:10px;background:var(--gold,#c9a84c);
+          color:#08142a;font-size:.92rem;font-weight:700;cursor:pointer;
+          letter-spacing:.5px;box-shadow:0 4px 20px rgba(201,168,76,.25)">
+        🚀 Set Up &amp; Enter Dashboard
+      </button>
+
+      <div style="margin-top:14px;font-size:.72rem;color:rgba(255,255,255,.2);text-align:center">
+        You can change these details anytime in Settings
+      </div>
+    </div>`;
+
+  overlay.style.position = 'relative';
+  overlay.insertAdjacentHTML('beforeend', wizardHTML);
+
+  // Focus first field
+  setTimeout(() => document.getElementById('setup-company')?.focus(), 100);
+}
+
+function completeSetup() {
+  const company  = document.getElementById('setup-company')?.value.trim();
+  const name     = document.getElementById('setup-name')?.value.trim();
+  const username = document.getElementById('setup-username')?.value.trim();
+  const pass     = document.getElementById('setup-pass')?.value;
+  const errEl    = document.getElementById('setup-error');
+
+  const showErr = msg => { if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; } };
+
+  if (!company)             return showErr('Enter your company or bank name.');
+  if (!name)                return showErr('Enter the administrator\'s full name.');
+  if (!username)            return showErr('Choose an admin username.');
+  if (!pass || pass.length < 4) return showErr('Password must be at least 4 characters.');
+
+  // Apply settings
+  SETTINGS.companyName = company;
+
+  // Update the default admin user
+  USERS = [{
+    id      : 'u1',
+    name    : name,
+    username: username,
+    password: pass,
+    role    : 'admin',
+    phone   : '',
+    email   : '',
+    status  : 'active',
+    lastLogin: '',
+  }];
+
+  saveAll();
+  updateBrandNames();
+  applyTheme(SETTINGS.theme || 'dark');
+
+  // Remove wizard
+  document.getElementById('setup-wizard')?.remove();
+
+  // Show success hint on login screen
+  const loginUser = document.getElementById('login-user');
+  const loginPass = document.getElementById('login-pass');
+  if (loginUser) loginUser.value = username;
+  if (loginPass) loginPass.value = '';
+  if (loginPass) loginPass.focus();
+
+  // Update the login hint text
+  const hint = document.querySelector('#login-overlay .login-default-hint');
+  if (hint) hint.textContent = `Login: ${username} / (your password)`;
+
+  toast(`Setup complete! Welcome to ${company}. Please enter your password to log in.`, 'success', 5000);
+}
+
 function doLogin() {
   const username = document.getElementById('login-user').value.trim();
   const password = document.getElementById('login-pass').value;
@@ -1521,6 +1683,20 @@ function lookupEntryAcct(id, val) {
   // Bind activity listeners for inactivity timer (safe to call here —
   // currentUser is declared and init runs after all scripts load)
   _bindActivityEvents();
+
+  // ── First-run detection ─────────────────────────────
+  // If there is no stored data at all (fresh browser, new company),
+  // show the setup wizard so the new company can set their name and
+  // admin password before seeing the login screen.
+  const hasStoredData = !!localStorage.getItem('psb_v2');
+  if (!hasStoredData && CUSTOMERS.length === 0 && AGENTS.length === 0) {
+    // Firebase sync may populate data — give it 2s before deciding
+    setTimeout(() => {
+      const stillFresh = CUSTOMERS.length === 0 && AGENTS.length === 0 &&
+                         !localStorage.getItem('psb_v2');
+      if (stillFresh) showSetupWizard();
+    }, 2000);
+  }
 
   // ── Restore session on page refresh ────────────────
   // If the user was already logged in before the refresh,
