@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,29 +20,640 @@
 <body>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- LOGIN OVERLAY                                       -->
+<!-- LANDING PAGE (light theme, public)                  -->
 <!-- ═══════════════════════════════════════════════════ -->
-<div id="login-overlay" style="position:fixed;inset:0;z-index:1000;
-  display:flex;align-items:stretch;min-height:100vh">
+<div id="landing-page" style="display:flex;flex-direction:column;min-height:100vh;
+  background:#f7f5f0;color:#1a1a2e;font-family:'DM Sans',sans-serif;overflow-x:hidden;
+  opacity:0;transition:opacity .5s ease">
 
-  <!-- ── LEFT PANEL — Branding ── -->
-  <div class="login-left" style="flex:1;background:linear-gradient(135deg,#04091a 0%,#081428 50%,#0a1c38 100%);
+<!-- NAV -->
+<nav style="display:flex;align-items:center;justify-content:space-between;
+  padding:14px 48px;background:rgba(247,245,240,.9);
+  border-bottom:1px solid #e8e4d8;position:sticky;top:0;z-index:200;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:10px;
+      background:linear-gradient(135deg,#c9a84c,#8b6914);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.1rem;box-shadow:0 2px 10px rgba(201,168,76,.3)">&#127970;</div>
+    <div>
+      <div id="landing-company-name" style="font-family:'Playfair Display',serif;
+        font-size:.95rem;font-weight:700;color:#1a1a2e">Pro Susu Banking</div>
+      <div id="landing-tagline" style="font-size:.6rem;color:#c9a84c;
+        font-weight:600;letter-spacing:.5px">Management System</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:26px;align-items:center">
+    <a class="lp-nav-link" onclick="showLandingSection('features')">Features</a>
+    <a class="lp-nav-link" onclick="showLandingSection('stats')">Why Us</a>
+    <a class="lp-nav-link" onclick="showLandingSection('plans')">Pricing</a>
+    <a class="lp-nav-link" onclick="showLandingSection('testimonials')">Reviews</a>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <button onclick="showLoginScreen()"
+      style="padding:8px 20px;border:1.5px solid #c9a84c;border-radius:8px;
+        background:transparent;color:#8b6914;font-size:.82rem;font-weight:600;
+        cursor:pointer;transition:all .18s"
+      onmouseover="this.style.background='#c9a84c1a'"
+      onmouseout="this.style.background='transparent'">Sign In</button>
+    <button onclick="showLoginScreen()" class="lp-btn-gold"
+      style="padding:9px 20px;font-size:.82rem">Get Started &rarr;</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div id="landing-hero" style="padding:88px 48px 70px;max-width:1100px;
+  margin:0 auto;width:100%;box-sizing:border-box">
+  <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:60px;align-items:center">
+    <div>
+      <div class="lp-appear" style="display:inline-flex;align-items:center;gap:8px;
+        padding:6px 14px;background:#c9a84c18;border:1px solid #c9a84c44;
+        border-radius:20px;font-size:.72rem;font-weight:700;color:#8b6914;
+        letter-spacing:1px;margin-bottom:22px;text-transform:uppercase">
+        <span class="lp-pulse" style="width:6px;height:6px;border-radius:50%;
+          background:#2ecc8a;display:inline-block;flex-shrink:0"></span>
+        &#127468;&#127469; Ghana&rsquo;s #1 Susu Platform
+      </div>
+
+      <h1 class="lp-appear lp-d1" style="font-family:'Playfair Display',serif;
+        font-size:3.1rem;font-weight:700;line-height:1.14;margin:0 0 18px;color:#1a1a2e">
+        The Complete<br>
+        <span class="gold-grad">Susu Banking</span><br>
+        Platform
+      </h1>
+
+      <p class="lp-appear lp-d2" style="font-size:1rem;color:#555;line-height:1.76;
+        margin:0 0 32px;max-width:430px">
+        Manage customers, daily collections, loans, teller operations,
+        payroll and reports &mdash; all from one
+        <strong style="color:#1a1a2e">secure, Ghana-built</strong> platform.
+      </p>
+
+      <div class="lp-appear lp-d3" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px">
+        <button class="lp-btn-gold" onclick="showLoginScreen()">
+          &#128275; Sign In to Dashboard
+        </button>
+        <button class="lp-btn-outline" onclick="showLandingSection('plans')">
+          &#128203; View Plans &amp; Pricing
+        </button>
+      </div>
+
+      <div class="lp-appear lp-d4" style="display:flex;gap:22px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:6px;font-size:.76rem;color:#888">
+          <span style="color:#2ecc8a;font-size:1rem">&#10003;</span> 14-day free trial
+        </span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:.76rem;color:#888">
+          <span style="color:#2ecc8a;font-size:1rem">&#10003;</span> No credit card required
+        </span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:.76rem;color:#888">
+          <span style="color:#2ecc8a;font-size:1rem">&#10003;</span> Firebase cloud sync
+        </span>
+      </div>
+    </div>
+
+    <!-- Dashboard Mockup -->
+    <div class="lp-float lp-appear lp-d2">
+      <div style="background:#0d1b2e;border-radius:16px;padding:20px;
+        box-shadow:0 28px 80px rgba(0,0,0,.22),0 0 0 1px rgba(201,168,76,.12)">
+        <!-- Mock topbar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;
+          margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:26px;height:26px;border-radius:7px;
+              background:linear-gradient(135deg,#c9a84c,#8b6914);
+              display:flex;align-items:center;justify-content:center;font-size:.78rem">&#127970;</div>
+            <span style="font-size:.68rem;color:#c9a84c;font-weight:700">Pro Susu Banking</span>
+          </div>
+          <div style="display:flex;gap:5px">
+            <div style="width:8px;height:8px;border-radius:50%;background:#e85d5d"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#f0d07a"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#2ecc8a"></div>
+          </div>
+        </div>
+        <!-- Stat cards -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+          <div style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);
+            border-radius:9px;padding:10px 11px">
+            <div style="font-size:.85rem;margin-bottom:4px">&#128176;</div>
+            <div style="font-size:.76rem;font-weight:700;color:#c9a84c">GH&#8373; 14,820</div>
+            <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Float Today</div>
+          </div>
+          <div style="background:rgba(74,144,217,.1);border:1px solid rgba(74,144,217,.2);
+            border-radius:9px;padding:10px 11px">
+            <div style="font-size:.85rem;margin-bottom:4px">&#128101;</div>
+            <div style="font-size:.76rem;font-weight:700;color:#4a90d9">342</div>
+            <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Customers</div>
+          </div>
+          <div style="background:rgba(46,204,138,.1);border:1px solid rgba(46,204,138,.2);
+            border-radius:9px;padding:10px 11px">
+            <div style="font-size:.85rem;margin-bottom:4px">&#128202;</div>
+            <div style="font-size:.76rem;font-weight:700;color:#2ecc8a">GH&#8373; 4,200</div>
+            <div style="font-size:.58rem;color:rgba(255,255,255,.3)">Collections</div>
+          </div>
+        </div>
+        <!-- Table -->
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+          border-radius:9px;overflow:hidden">
+          <div style="padding:7px 11px;border-bottom:1px solid rgba(255,255,255,.04)">
+            <span style="font-size:.58rem;font-weight:700;color:rgba(255,255,255,.3);
+              text-transform:uppercase;letter-spacing:1px">Recent Collections</span>
+          </div>
+          <div style="padding:7px 11px;border-bottom:1px solid rgba(255,255,255,.03);
+            display:flex;justify-content:space-between">
+            <div>
+              <div style="font-size:.66rem;font-weight:600;color:rgba(255,255,255,.7)">Kofi Mensah</div>
+              <div style="font-size:.56rem;color:rgba(255,255,255,.3)">TN01-0042</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <span style="font-size:.66rem;font-weight:700;color:#c9a84c">GH&#8373; 50</span>
+              <span style="font-size:.68rem">&#10003;&#65039;</span>
+            </div>
+          </div>
+          <div style="padding:7px 11px;border-bottom:1px solid rgba(255,255,255,.03);
+            display:flex;justify-content:space-between">
+            <div>
+              <div style="font-size:.66rem;font-weight:600;color:rgba(255,255,255,.7)">Ama Asante</div>
+              <div style="font-size:.56rem;color:rgba(255,255,255,.3)">TN01-0017</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <span style="font-size:.66rem;font-weight:700;color:#c9a84c">GH&#8373; 100</span>
+              <span style="font-size:.68rem">&#10003;&#65039;</span>
+            </div>
+          </div>
+          <div style="padding:7px 11px;border-bottom:1px solid rgba(255,255,255,.03);
+            display:flex;justify-content:space-between">
+            <div>
+              <div style="font-size:.66rem;font-weight:600;color:rgba(255,255,255,.7)">Yaw Boateng</div>
+              <div style="font-size:.56rem;color:rgba(255,255,255,.3)">TN01-0063</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <span style="font-size:.66rem;font-weight:700;color:#c9a84c">GH&#8373; 75</span>
+              <span style="font-size:.68rem">&#9203;</span>
+            </div>
+          </div>
+          <div style="padding:7px 11px;display:flex;justify-content:space-between">
+            <div>
+              <div style="font-size:.66rem;font-weight:600;color:rgba(255,255,255,.7)">Akosua Frimpong</div>
+              <div style="font-size:.56rem;color:rgba(255,255,255,.3)">TN01-0031</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <span style="font-size:.66rem;font-weight:700;color:#c9a84c">GH&#8373; 200</span>
+              <span style="font-size:.68rem">&#10003;&#65039;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAND -->
+<div id="landing-stats" style="background:linear-gradient(135deg,#1a1a2e,#08142a);
+  padding:52px 48px">
+  <div style="max-width:1000px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:28px;text-align:center">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:2.4rem;
+        font-weight:700;color:#c9a84c;margin-bottom:6px">500+</div>
+      <div style="font-size:.86rem;font-weight:700;color:#fff;margin-bottom:4px">Susu Groups</div>
+      <div style="font-size:.73rem;color:rgba(255,255,255,.4)">using the platform</div>
+    </div>
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:2.4rem;
+        font-weight:700;color:#c9a84c;margin-bottom:6px">&#8373;2M+</div>
+      <div style="font-size:.86rem;font-weight:700;color:#fff;margin-bottom:4px">Processed</div>
+      <div style="font-size:.73rem;color:rgba(255,255,255,.4)">in daily collections</div>
+    </div>
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:2.4rem;
+        font-weight:700;color:#c9a84c;margin-bottom:6px">10+</div>
+      <div style="font-size:.86rem;font-weight:700;color:#fff;margin-bottom:4px">Roles</div>
+      <div style="font-size:.73rem;color:rgba(255,255,255,.4)">admin to agent</div>
+    </div>
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:2.4rem;
+        font-weight:700;color:#c9a84c;margin-bottom:6px">99.9%</div>
+      <div style="font-size:.86rem;font-weight:700;color:#fff;margin-bottom:4px">Uptime</div>
+      <div style="font-size:.73rem;color:rgba(255,255,255,.4)">Firebase-backed</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div id="landing-features" style="padding:80px 48px;max-width:1100px;
+  margin:0 auto;width:100%;box-sizing:border-box">
+  <div style="text-align:center;margin-bottom:50px">
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:2px;
+      text-transform:uppercase;color:#c9a84c;margin-bottom:10px">Features</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:2.1rem;
+      font-weight:700;color:#1a1a2e;margin:0 0 12px">
+      Everything You Need to Run Your Susu Business
+    </h2>
+    <p style="color:#777;font-size:.9rem;max-width:500px;margin:0 auto;line-height:1.7">
+      From daily collections to year-end reports, every operation is covered.
+    </p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#4a90d918;
+        border:1px solid #4a90d933;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#128188;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">Loan Management</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Track disbursements, repayments, schedules and overdue penalties automatically.</div>
+    </div>
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#c9a84c18;
+        border:1px solid #c9a84c33;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#128101;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">Customer Accounts</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Susu, Lending Deposit and Savings &mdash; all with full transaction history.</div>
+    </div>
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#e85d5d18;
+        border:1px solid #e85d5d33;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#127975;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">Teller Operations</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Receive float, post collections, approve withdrawals, close the day seamlessly.</div>
+    </div>
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#2ecc8a18;
+        border:1px solid #2ecc8a33;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#128221;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">Entry Sheets</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Accounting clerks finalize entries; sheets auto-generate with a unique sheet code.</div>
+    </div>
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#9b59b618;
+        border:1px solid #9b59b633;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#129351;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">Agent Workflow</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Agents post field collections, tellers confirm, clerks approve. Full audit trail.</div>
+    </div>
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#e67e2218;
+        border:1px solid #e67e2233;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#128202;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">Reports &amp; Analytics</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Daily, monthly, agent performance, loan status and financial summaries.</div>
+    </div>
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#1abc9c18;
+        border:1px solid #1abc9c33;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#128181;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">Payroll &amp; Allowances</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Auto-calculate salaries, PAYE, SSNIT, commissions and quarterly allowances.</div>
+    </div>
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#3498db18;
+        border:1px solid #3498db33;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#128241;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">SMS Notifications</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Automated messages on registration, deposit, withdrawal and holidays via Arkesel.</div>
+    </div>
+    <div class="lp-card">
+      <div style="width:44px;height:44px;border-radius:12px;background:#e74c3c18;
+        border:1px solid #e74c3c33;display:flex;align-items:center;justify-content:center;
+        font-size:1.3rem;margin-bottom:14px">&#128274;</div>
+      <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:6px">Role-Based Access</div>
+      <div style="font-size:.76rem;color:#888;line-height:1.6">Admin, teller, agent, accounting clerk, auditor &mdash; each with precisely the right access.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div style="padding:72px 48px;background:#fff;border-top:1px solid #ede9e0">
+  <div style="max-width:860px;margin:0 auto;text-align:center">
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:2px;
+      text-transform:uppercase;color:#c9a84c;margin-bottom:10px">How It Works</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:2rem;
+      font-weight:700;color:#1a1a2e;margin:0 0 50px">Up and Running in 3 Steps</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:40px;position:relative">
+      <div style="position:absolute;top:27px;left:calc(16.5% + 28px);right:calc(16.5% + 28px);
+        height:2px;background:linear-gradient(90deg,#c9a84c44,#c9a84c88,#c9a84c44);
+        pointer-events:none"></div>
+      <div style="position:relative;z-index:1">
+        <div style="width:54px;height:54px;border-radius:50%;
+          background:linear-gradient(135deg,#c9a84c,#8b6914);
+          display:flex;align-items:center;justify-content:center;
+          font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;
+          color:#fff;margin:0 auto 16px;box-shadow:0 4px 16px rgba(201,168,76,.35)">1</div>
+        <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:8px">Set Up Your Company</div>
+        <div style="font-size:.76rem;color:#888;line-height:1.6">Run the setup wizard, choose your plan, and customise your branding and settings.</div>
+      </div>
+      <div style="position:relative;z-index:1">
+        <div style="width:54px;height:54px;border-radius:50%;
+          background:linear-gradient(135deg,#c9a84c,#8b6914);
+          display:flex;align-items:center;justify-content:center;
+          font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;
+          color:#fff;margin:0 auto 16px;box-shadow:0 4px 16px rgba(201,168,76,.35)">2</div>
+        <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:8px">Register Agents &amp; Customers</div>
+        <div style="font-size:.76rem;color:#888;line-height:1.6">Add your field agents, then register customers under each agent with full details.</div>
+      </div>
+      <div style="position:relative;z-index:1">
+        <div style="width:54px;height:54px;border-radius:50%;
+          background:linear-gradient(135deg,#c9a84c,#8b6914);
+          display:flex;align-items:center;justify-content:center;
+          font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;
+          color:#fff;margin:0 auto 16px;box-shadow:0 4px 16px rgba(201,168,76,.35)">3</div>
+        <div style="font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:8px">Start Operating</div>
+        <div style="font-size:.76rem;color:#888;line-height:1.6">Agents collect, tellers confirm, clerks finalize. Reports update in real time.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div id="landing-testimonials" style="padding:80px 48px;background:#f7f5f0">
+  <div style="max-width:1000px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:48px">
+      <div style="font-size:.72rem;font-weight:700;letter-spacing:2px;
+        text-transform:uppercase;color:#c9a84c;margin-bottom:10px">Reviews</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2rem;
+        font-weight:700;color:#1a1a2e;margin:0">What Our Users Say</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+      <div class="lp-card">
+        <div class="lp-star" style="font-size:.82rem;margin-bottom:12px;letter-spacing:2px">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p style="font-size:.78rem;color:#555;line-height:1.72;margin:0 0 16px;font-style:italic">&ldquo;Before this system, we used paper books. Now I can see every member&rsquo;s balance instantly and send SMS alerts. It has transformed how we run our group.&rdquo;</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;
+            background:linear-gradient(135deg,#c9a84c,#8b6914);
+            display:flex;align-items:center;justify-content:center;
+            font-size:.76rem;font-weight:700;color:#fff;flex-shrink:0">AM</div>
+          <div>
+            <div style="font-size:.78rem;font-weight:700;color:#1a1a2e">Akua Mensah</div>
+            <div style="font-size:.7rem;color:#aaa">Group Leader, Accra</div>
+          </div>
+        </div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-star" style="font-size:.82rem;margin-bottom:12px;letter-spacing:2px">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p style="font-size:.78rem;color:#555;line-height:1.72;margin:0 0 16px;font-style:italic">&ldquo;The teller workflow is very smooth. Receiving float, posting collections and closing the day now takes minutes instead of hours. The shortage tracking is brilliant.&rdquo;</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;
+            background:linear-gradient(135deg,#4a90d9,#2c6db5);
+            display:flex;align-items:center;justify-content:center;
+            font-size:.76rem;font-weight:700;color:#fff;flex-shrink:0">EO</div>
+          <div>
+            <div style="font-size:.78rem;font-weight:700;color:#1a1a2e">Emmanuel Ofori</div>
+            <div style="font-size:.7rem;color:#aaa">Teller, Kumasi</div>
+          </div>
+        </div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-star" style="font-size:.82rem;margin-bottom:12px;letter-spacing:2px">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p style="font-size:.78rem;color:#555;line-height:1.72;margin:0 0 16px;font-style:italic">&ldquo;The agent entries workflow is exactly what we needed. Agents submit from the field, I confirm in the office. No more phone calls to reconcile!&rdquo;</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;
+            background:linear-gradient(135deg,#2ecc8a,#1a9e65);
+            display:flex;align-items:center;justify-content:center;
+            font-size:.76rem;font-weight:700;color:#fff;flex-shrink:0">GA</div>
+          <div>
+            <div style="font-size:.78rem;font-weight:700;color:#1a1a2e">Grace Acheampong</div>
+            <div style="font-size:.7rem;color:#aaa">Admin, Takoradi</div>
+          </div>
+        </div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-star" style="font-size:.82rem;margin-bottom:12px;letter-spacing:2px">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p style="font-size:.78rem;color:#555;line-height:1.72;margin:0 0 16px;font-style:italic">&ldquo;Collection sheets with automatic sheet codes have made my job so much easier. I can trace every transaction back to the original entry in seconds.&rdquo;</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;
+            background:linear-gradient(135deg,#9b59b6,#7d3c98);
+            display:flex;align-items:center;justify-content:center;
+            font-size:.76rem;font-weight:700;color:#fff;flex-shrink:0">KA</div>
+          <div>
+            <div style="font-size:.78rem;font-weight:700;color:#1a1a2e">Kwabena Asante</div>
+            <div style="font-size:.7rem;color:#aaa">Accounting Clerk</div>
+          </div>
+        </div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-star" style="font-size:.82rem;margin-bottom:12px;letter-spacing:2px">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p style="font-size:.78rem;color:#555;line-height:1.72;margin:0 0 16px;font-style:italic">&ldquo;The payroll module saves us hours every month &mdash; PAYE, SSNIT and commissions calculated automatically. I recommend this to any susu group.&rdquo;</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;
+            background:linear-gradient(135deg,#e67e22,#ca6f1e);
+            display:flex;align-items:center;justify-content:center;
+            font-size:.76rem;font-weight:700;color:#fff;flex-shrink:0">AF</div>
+          <div>
+            <div style="font-size:.78rem;font-weight:700;color:#1a1a2e">Abena Frimpong</div>
+            <div style="font-size:.7rem;color:#aaa">Susu Manager</div>
+          </div>
+        </div>
+      </div>
+      <div class="lp-card">
+        <div class="lp-star" style="font-size:.82rem;margin-bottom:12px;letter-spacing:2px">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p style="font-size:.78rem;color:#555;line-height:1.72;margin:0 0 16px;font-style:italic">&ldquo;My collections page is very easy. I type the account number, the customer&rsquo;s name appears automatically. Submitting to the teller takes just two clicks.&rdquo;</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;
+            background:linear-gradient(135deg,#1abc9c,#148f77);
+            display:flex;align-items:center;justify-content:center;
+            font-size:.76rem;font-weight:700;color:#fff;flex-shrink:0">NY</div>
+          <div>
+            <div style="font-size:.78rem;font-weight:700;color:#1a1a2e">Nana Yaw Boateng</div>
+            <div style="font-size:.7rem;color:#aaa">Agent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div id="landing-plans" style="padding:80px 48px;background:#fff;
+  border-top:1px solid #ede9e0;display:none">
+  <div style="max-width:980px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:48px">
+      <div style="font-size:.72rem;font-weight:700;letter-spacing:2px;
+        text-transform:uppercase;color:#c9a84c;margin-bottom:10px">Pricing</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2.1rem;
+        font-weight:700;color:#1a1a2e;margin:0 0 10px">Simple Yearly Plans</h2>
+      <p style="color:#777;font-size:.88rem;margin:0;line-height:1.65;max-width:500px;margin-left:auto;margin-right:auto">
+        All priced in Ghana Cedis (&#8373;). Includes a 14-day free trial.
+        Activate your plan from <strong>Settings &rarr; Plan &amp; Billing</strong> after signing in.
+      </p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start">
+      <!-- Starter -->
+      <div class="lp-card" style="display:flex;flex-direction:column">
+        <div style="font-size:2rem;margin-bottom:10px">&#127807;</div>
+        <div style="font-size:1.05rem;font-weight:700;color:#1a1a2e;margin-bottom:4px">Starter</div>
+        <div style="font-size:.78rem;color:#999;margin-bottom:18px">Small susu groups</div>
+        <div style="margin-bottom:22px">
+          <span style="font-size:2.2rem;font-weight:800;color:#1a1a2e">&#8373;499</span>
+          <span style="font-size:.78rem;color:#aaa">/year</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0 0 26px;flex:1">
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f0ede8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>2 agents</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f0ede8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>200 customers</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f0ede8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>3 user accounts</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f0ede8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Susu &amp; Savings accounts</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>14-day free trial</li>
+        </ul>
+        <button onclick="showLoginScreen()" class="lp-btn-outline" style="padding:11px;font-size:.82rem;width:100%">Get Started</button>
+      </div>
+      <!-- Business -->
+      <div style="border:2px solid #c9a84c;border-radius:14px;padding:22px;
+        background:#fffef7;display:flex;flex-direction:column;position:relative;
+        box-shadow:0 8px 40px rgba(201,168,76,.18);transition:transform .22s,box-shadow .22s"
+        onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='0 18px 50px rgba(201,168,76,.25)'"
+        onmouseout="this.style.transform='';this.style.boxShadow='0 8px 40px rgba(201,168,76,.18)'">
+        <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+          background:linear-gradient(135deg,#c9a84c,#8b6914);color:#fff;
+          font-size:.64rem;font-weight:800;padding:4px 16px;border-radius:20px;
+          white-space:nowrap;letter-spacing:.5px">&#11088; Most Popular</div>
+        <div style="font-size:2rem;margin-bottom:10px">&#127970;</div>
+        <div style="font-size:1.05rem;font-weight:700;color:#1a1a2e;margin-bottom:4px">Business</div>
+        <div style="font-size:.78rem;color:#999;margin-bottom:18px">Growing susu businesses</div>
+        <div style="margin-bottom:22px">
+          <span style="font-size:2.2rem;font-weight:800;color:#c9a84c">&#8373;999</span>
+          <span style="font-size:.78rem;color:#aaa">/year</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0 0 26px;flex:1">
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f5eed8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>10 agents</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f5eed8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>2,000 customers</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f5eed8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>10 user accounts</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f5eed8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>All account types + Loans</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f5eed8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Payroll module</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #f5eed8;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Firebase cloud sync</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Export / Import CSV</li>
+        </ul>
+        <button onclick="showLoginScreen()" class="lp-btn-gold" style="padding:12px;font-size:.85rem;width:100%">Get Started</button>
+      </div>
+      <!-- Enterprise -->
+      <div class="lp-card" style="display:flex;flex-direction:column;background:#f7fff9;border-color:#2ecc8a44">
+        <div style="font-size:2rem;margin-bottom:10px">&#127978;</div>
+        <div style="font-size:1.05rem;font-weight:700;color:#1a1a2e;margin-bottom:4px">Enterprise</div>
+        <div style="font-size:.78rem;color:#999;margin-bottom:18px">Large institutions</div>
+        <div style="margin-bottom:22px">
+          <span style="font-size:2.2rem;font-weight:800;color:#1a9e65">&#8373;1,999</span>
+          <span style="font-size:.78rem;color:#aaa">/year</span>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0 0 26px;flex:1">
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #eaf7f2;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Unlimited agents</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #eaf7f2;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Unlimited customers</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #eaf7f2;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Unlimited user accounts</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #eaf7f2;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>All features included</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;border-bottom:1px solid #eaf7f2;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Priority support</li>
+          <li style="font-size:.78rem;color:#555;padding:5px 0;display:flex;gap:8px"><span style="color:#2ecc8a">&#10003;</span>Multi-branch ready</li>
+        </ul>
+        <button onclick="showLoginScreen()"
+          style="padding:11px;border:2px solid #2ecc8a;border-radius:10px;
+            background:transparent;color:#1a9e65;font-size:.82rem;font-weight:700;
+            cursor:pointer;width:100%;transition:background .18s"
+          onmouseover="this.style.background='#2ecc8a18'"
+          onmouseout="this.style.background='transparent'">Get Started</button>
+      </div>
+    </div>
+    <!-- FAQ -->
+    <div style="margin-top:50px;max-width:660px;margin-left:auto;margin-right:auto">
+      <div style="font-weight:700;font-size:.88rem;color:#1a1a2e;margin-bottom:18px;text-align:center">
+        Frequently Asked Questions
+      </div>
+      <details style="border:1px solid #ede9e0;border-radius:10px;padding:14px 16px;margin-bottom:8px;background:#fff">
+        <summary style="font-size:.82rem;font-weight:600;color:#1a1a2e;cursor:pointer;
+          list-style:none;display:flex;justify-content:space-between;align-items:center">
+          How do I activate my plan?<span style="color:#c9a84c;transition:transform .2s">+</span></summary>
+        <div style="font-size:.78rem;color:#666;line-height:1.7;margin-top:10px">After signing in, go to Settings &rarr; Plan &amp; Billing. Enter your payment reference and start date to activate your chosen plan.</div>
+      </details>
+      <details style="border:1px solid #ede9e0;border-radius:10px;padding:14px 16px;margin-bottom:8px;background:#fff">
+        <summary style="font-size:.82rem;font-weight:600;color:#1a1a2e;cursor:pointer;
+          list-style:none;display:flex;justify-content:space-between;align-items:center">
+          How do I pay?<span style="color:#c9a84c;transition:transform .2s">+</span></summary>
+        <div style="font-size:.78rem;color:#666;line-height:1.7;margin-top:10px">Send payment via MoMo or bank transfer using your company name as the reference, then enter the transaction ID in the activation form.</div>
+      </details>
+      <details style="border:1px solid #ede9e0;border-radius:10px;padding:14px 16px;margin-bottom:8px;background:#fff">
+        <summary style="font-size:.82rem;font-weight:600;color:#1a1a2e;cursor:pointer;
+          list-style:none;display:flex;justify-content:space-between;align-items:center">
+          Can I upgrade my plan?<span style="color:#c9a84c;transition:transform .2s">+</span></summary>
+        <div style="font-size:.78rem;color:#666;line-height:1.7;margin-top:10px">Yes. Upgrade at any time from Settings &rarr; Plan &amp; Billing. Your new plan activates immediately.</div>
+      </details>
+      <details style="border:1px solid #ede9e0;border-radius:10px;padding:14px 16px;background:#fff">
+        <summary style="font-size:.82rem;font-weight:600;color:#1a1a2e;cursor:pointer;
+          list-style:none;display:flex;justify-content:space-between;align-items:center">
+          What happens when my plan expires?<span style="color:#c9a84c;transition:transform .2s">+</span></summary>
+        <div style="font-size:.78rem;color:#666;line-height:1.7;margin-top:10px">You receive warnings 30 days before expiry. After expiry a renewal screen appears on login. Your data is never deleted.</div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- CTA BAND -->
+<div style="padding:72px 48px;background:linear-gradient(135deg,#1a1a2e,#08142a);text-align:center">
+  <div style="max-width:540px;margin:0 auto">
+    <h2 style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;
+      color:#fff;margin:0 0 14px">
+      Ready to Modernise Your<br><span class="gold-grad">Susu Operations?</span>
+    </h2>
+    <p style="font-size:.9rem;color:rgba(255,255,255,.5);line-height:1.72;margin:0 0 28px">
+      Join hundreds of Ghanaian susu groups already using Pro Susu Banking.
+      Start your 14-day free trial &mdash; no credit card required.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button onclick="showLoginScreen()" class="lp-btn-gold">&#128640; Start Free Trial</button>
+      <button onclick="showLandingSection('plans')"
+        style="padding:13px 26px;border:1.5px solid rgba(255,255,255,.2);border-radius:11px;
+          background:transparent;color:rgba(255,255,255,.65);font-size:.9rem;
+          font-weight:600;cursor:pointer;transition:all .2s"
+        onmouseover="this.style.borderColor='rgba(255,255,255,.5)';this.style.color='#fff'"
+        onmouseout="this.style.borderColor='rgba(255,255,255,.2)';this.style.color='rgba(255,255,255,.65)'">
+        View Plans
+      </button>
+    </div>
+    <div style="margin-top:18px;font-size:.73rem;color:rgba(255,255,255,.22)">
+      &#10003; 14-day free trial &nbsp;&middot;&nbsp; &#10003; No credit card &nbsp;&middot;&nbsp; &#10003; Cancel anytime
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="padding:26px 48px;background:#0d1117;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.73rem;color:rgba(255,255,255,.22);flex-wrap:wrap;gap:10px">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:26px;height:26px;border-radius:7px;
+      background:linear-gradient(135deg,#c9a84c,#8b6914);
+      display:flex;align-items:center;justify-content:center;font-size:.8rem">&#127970;</div>
+    <span>Pro Susu Banking v2.0 &nbsp;&middot;&nbsp; &#127468;&#127469; Built for Ghana &nbsp;&middot;&nbsp; &copy; 2026</span>
+  </div>
+  <div style="display:flex;gap:20px">
+    <span class="lp-nav-link" style="color:rgba(255,255,255,.22)"
+      onclick="showLandingSection('features')">Features</span>
+    <span class="lp-nav-link" style="color:rgba(255,255,255,.22)"
+      onclick="showLandingSection('plans')">Pricing</span>
+    <span class="lp-nav-link" style="color:rgba(255,255,255,.22)"
+      onclick="showLandingSection('testimonials')">Reviews</span>
+    <span style="color:#c9a84c;font-weight:600;cursor:pointer"
+      onclick="showLoginScreen()">Sign In &rarr;</span>
+  </div>
+</div>
+
+</div>
+
+<div id="login-overlay" style="position:fixed;inset:0;z-index:1000;
+  display:none;align-items:stretch;min-height:100vh;
+  opacity:1;transition:opacity .35s ease">
+
+  <!-- Left branding -->
+  <div style="flex:1;background:linear-gradient(135deg,#04091a 0%,#081428 50%,#0a1c38 100%);
     padding:48px 52px;display:flex;flex-direction:column;justify-content:space-between;
     position:relative;overflow:hidden;min-width:0">
-
-    <!-- Background decorations (absolute, not flex children) -->
     <div style="position:absolute;top:-80px;right:-80px;width:320px;height:320px;
       border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.08) 0%,transparent 70%);
       pointer-events:none"></div>
-    <div style="position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;
-      border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.05) 0%,transparent 70%);
-      pointer-events:none"></div>
 
-    <!-- Main content block -->
+    <!-- Back to landing -->
+    <div style="margin-bottom:32px">
+      <button onclick="showLandingPage()"
+        style="background:none;border:1px solid rgba(255,255,255,.12);border-radius:8px;
+          color:rgba(255,255,255,.4);padding:6px 14px;font-size:.76rem;cursor:pointer">
+        ← Back
+      </button>
+    </div>
+
     <div>
-
-      <!-- Logo row -->
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:52px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:40px">
         <div id="login-logo-display" style="width:48px;height:48px;border-radius:12px;
           background:linear-gradient(135deg,rgba(201,168,76,.3),rgba(201,168,76,.1));
           border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;
@@ -50,40 +661,21 @@
         <div>
           <div id="login-company-name"
             style="font-family:'Playfair Display',serif;font-size:1.05rem;
-              font-weight:700;color:var(--gold-light,#e8c96a);letter-spacing:.5px">
-            Pro Susu Banking
-          </div>
+              font-weight:700;color:var(--gold-light,#e8c96a)">Pro Susu Banking</div>
           <div id="login-company-tagline"
-            style="font-size:.7rem;color:rgba(201,168,76,.6);letter-spacing:.5px">
-            Management System
-          </div>
+            style="font-size:.7rem;color:rgba(201,168,76,.6)">Management System</div>
         </div>
       </div>
 
-      <!-- Hero headline -->
-      <div style="margin-bottom:28px">
-        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:3px;
-          color:rgba(201,168,76,.6);margin-bottom:12px;font-weight:600">
-          🇬🇭 Ghana's Trusted Susu Platform
-        </div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:2.2rem;
-          font-weight:700;color:#ffffff;line-height:1.25;margin:0 0 14px">
-          Welcome to<br>
-          <span style="background:linear-gradient(90deg,#c9a84c,#e8c96a,#c9a84c);
-            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-            background-clip:text">Pro Susu Banking</span>
-        </h1>
-        <p style="font-size:.88rem;color:rgba(255,255,255,.55);line-height:1.7;
-          max-width:340px;margin:0">
-          The complete collection management system built exclusively
-          for Ghanaian susu banking operations. Banking made
-          <em style="color:rgba(201,168,76,.8)">simple</em> &amp;
-          <em style="color:rgba(201,168,76,.8)">secure</em>.
-        </p>
-      </div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:2.2rem;
+        font-weight:700;color:#fff;margin:0 0 14px">Welcome back.</h2>
+      <p style="font-size:.88rem;color:rgba(255,255,255,.45);max-width:320px;line-height:1.7;margin:0 0 32px">
+        Sign in to access your banking workspace and manage daily operations.
+      </p>
 
-      <!-- Feature chips -->
-      <div style="display:flex;flex-direction:column;gap:10px;max-width:360px">
+      <!-- Feature summary (compact) -->
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:320px">
+       <div style="display:flex;flex-direction:column;gap:10px;max-width:360px">
 
         <div style="display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.1);border-radius:10px">
           <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px">💼</span>
@@ -134,25 +726,23 @@
         </div>
 
       </div>
-      <!-- /Feature chips -->
-
+      </div>
     </div>
-    <!-- /Main content block -->
 
+    <div style="font-size:.68rem;color:rgba(255,255,255,.15);line-height:1.6">
+      🔒 Secured &nbsp;·&nbsp; 🇬🇭 Built for Ghana &nbsp;·&nbsp; © 2026 Pro Susu Banking
+    </div>
   </div>
-  <!-- ── END LEFT PANEL ── -->
 
-  <!-- ── RIGHT PANEL — Login form ── -->
-  <div class="login-right" style="width:420px;flex-shrink:0;background:#04091a;
+  <!-- Right login form -->
+  <div style="width:420px;flex-shrink:0;background:#04091a;
     display:flex;flex-direction:column;justify-content:center;padding:48px 44px;
     position:relative;border-left:1px solid rgba(201,168,76,.1)">
 
-    <!-- Top-right decoration -->
     <div style="position:absolute;top:0;right:0;width:160px;height:160px;
       background:radial-gradient(circle at top right,rgba(201,168,76,.06),transparent 70%);
       pointer-events:none"></div>
 
-    <!-- Form header -->
     <div style="margin-bottom:36px">
       <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:3px;
         color:rgba(201,168,76,.5);margin-bottom:10px">Secure Access</div>
@@ -163,14 +753,10 @@
       </p>
     </div>
 
-    <!-- Error message -->
     <div id="login-error" style="display:none;padding:10px 14px;
       background:rgba(232,93,93,.1);border:1px solid rgba(232,93,93,.3);
-      border-radius:8px;font-size:.82rem;color:#e85d5d;margin-bottom:16px">
-      Invalid username or password. Please try again.
-    </div>
+      border-radius:8px;font-size:.82rem;color:#e85d5d;margin-bottom:16px"></div>
 
-    <!-- Username field -->
     <div style="margin-bottom:16px">
       <label style="display:block;font-size:.74rem;font-weight:600;
         text-transform:uppercase;letter-spacing:1px;
@@ -178,21 +764,17 @@
       <div style="position:relative">
         <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);
           font-size:.95rem;opacity:.5">👤</span>
-        <input type="text" id="login-user"
-          placeholder="Enter your username"
-          autocomplete="username"
-          onkeydown="if(event.key==='Enter')doLogin()"
+        <input type="text" id="login-user" placeholder="Enter your username"
+          autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"
           style="width:100%;padding:13px 14px 13px 40px;
-            background:rgba(255,255,255,.05);
-            border:1px solid rgba(201,168,76,.2);border-radius:10px;
-            color:#fff;font-size:.88rem;outline:none;box-sizing:border-box;
-            transition:border-color .2s"
+            background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);
+            border-radius:10px;color:#fff;font-size:.88rem;outline:none;
+            box-sizing:border-box;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(201,168,76,.6)'"
           onblur="this.style.borderColor='rgba(201,168,76,.2)'">
       </div>
     </div>
 
-    <!-- Password field -->
     <div style="margin-bottom:28px">
       <label style="display:block;font-size:.74rem;font-weight:600;
         text-transform:uppercase;letter-spacing:1px;
@@ -200,21 +782,17 @@
       <div style="position:relative">
         <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);
           font-size:.95rem;opacity:.5">🔑</span>
-        <input type="password" id="login-pass"
-          placeholder="Enter your password"
-          autocomplete="current-password"
-          onkeydown="if(event.key==='Enter')doLogin()"
+        <input type="password" id="login-pass" placeholder="Enter your password"
+          autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"
           style="width:100%;padding:13px 14px 13px 40px;
-            background:rgba(255,255,255,.05);
-            border:1px solid rgba(201,168,76,.2);border-radius:10px;
-            color:#fff;font-size:.88rem;outline:none;box-sizing:border-box;
-            transition:border-color .2s"
+            background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);
+            border-radius:10px;color:#fff;font-size:.88rem;outline:none;
+            box-sizing:border-box;transition:border-color .2s"
           onfocus="this.style.borderColor='rgba(201,168,76,.6)'"
           onblur="this.style.borderColor='rgba(201,168,76,.2)'">
       </div>
     </div>
 
-    <!-- Sign-in button -->
     <button onclick="doLogin()"
       style="width:100%;padding:14px;background:linear-gradient(135deg,#c9a84c,#a8851c);
         border:none;border-radius:10px;color:#08142a;font-size:.92rem;font-weight:700;
@@ -225,14 +803,12 @@
       🔓 Sign In to Dashboard
     </button>
 
-    <!-- Divider -->
     <div style="display:flex;align-items:center;gap:12px;margin:24px 0">
       <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
       <span style="font-size:.7rem;color:rgba(255,255,255,.25)">SYSTEM INFO</span>
       <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
     </div>
 
-    <!-- System status -->
     <div style="padding:12px 16px;background:rgba(46,204,138,.06);
       border:1px solid rgba(46,204,138,.15);border-radius:10px;
       font-size:.75rem;color:rgba(255,255,255,.5);
@@ -246,15 +822,11 @@
       </div>
     </div>
 
-    <!-- Bottom note -->
-    <div style="margin-top:auto;padding-top:32px;font-size:.68rem;
-      color:rgba(255,255,255,.2);text-align:center;line-height:1.6">
-      🔒 Secured &nbsp;·&nbsp; 🇬🇭 Built for Ghana &nbsp;·&nbsp;
-      © 2026 Pro Susu Banking
+    <div style="margin-top:auto;padding-top:28px;text-align:center">
+      <span style="font-size:.76rem;color:rgba(255,255,255,.25);cursor:pointer"
+        onclick="showLandingPage()">← Back to home</span>
     </div>
-
   </div>
-  <!-- ── END RIGHT PANEL ── -->
 
 </div>
 <!-- ═══════════════════════════════════════════════════ -->
@@ -321,6 +893,7 @@
     <div class="topbar-right">
       <div class="topbar-btn" id="topbar-date-badge"></div>
       <div class="topbar-time" id="live-time"></div>
+      <div id="topbar-plan-badge" style="display:flex;align-items:center"></div>
       <button id="calc-toggle-btn" onclick="calcToggle()" title="Calculator">⌨️ Calc</button>
       <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">🌙</div>
       <div class="topbar-btn" onclick="doLogout()" style="cursor:pointer">🚪 Logout</div>
@@ -1528,6 +2101,7 @@
     <button class="sub-tab" onclick="showSettingsTab('notifications',this)">🔔 Notifications</button>
     <button class="sub-tab" onclick="showSettingsTab('security',this)">🔒 Security</button>
     <button class="sub-tab" onclick="showSettingsTab('backup',this)">💾 Backup &amp; Data</button>
+    <button class="sub-tab" onclick="showSettingsTab('plan',this);renderPlanSettingsTab()" id="settings-plan-tab">📋 Plan &amp; Billing</button>
     <button class="sub-tab" onclick="showSettingsTab('appearance',this)">🎨 Appearance</button>
   </div>
 
@@ -1914,13 +2488,18 @@
   </div>
 
   <!-- Appearance -->
+  <!-- Plan & Billing -->
+  <div id="st-panel-plan" class="st-panel hidden">
+    <div id="st-plan-content"></div>
+  </div>
+
   <div id="st-panel-appearance" class="st-panel hidden">
     <div class="grid-2" style="gap:18px;align-items:start">
       <div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-title"><span>🎨</span> Theme</div>
           <div id="theme-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div class="theme-card" data-theme="dark" onclick="selectTheme('dark',this)"><div class="theme-preview" style="background:#0a1628;border:1px solid rgba(201,168,76,.3)"><div style="height:8px;background:rgba(201,168,76,.4);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌑 Dark Gold</div><div class="theme-sub">Default dark theme</div></div>
+            <div class="theme-card" data-theme="light" onclick="selectTheme('dark',this)"><div class="theme-preview" style="background:#0a1628;border:1px solid rgba(201,168,76,.3)"><div style="height:8px;background:rgba(201,168,76,.4);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌑 Dark Gold</div><div class="theme-sub">Default dark theme</div></div>
             <div class="theme-card" data-theme="light" onclick="selectTheme('light',this)"><div class="theme-preview" style="background:#f5f5f0;border:1px solid #ddd"><div style="height:8px;background:rgba(180,140,20,.6);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(0,0,0,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(0,0,0,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">☀️ Light</div><div class="theme-sub">Clean white theme</div></div>
             <div class="theme-card" data-theme="ocean" onclick="selectTheme('ocean',this)"><div class="theme-preview" style="background:#061523;border:1px solid rgba(56,189,248,.3)"><div style="height:8px;background:rgba(56,189,248,.5);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌊 Ocean Blue</div><div class="theme-sub">Deep sea blue</div></div>
             <div class="theme-card" data-theme="forest" onclick="selectTheme('forest',this)"><div class="theme-preview" style="background:#061208;border:1px solid rgba(74,222,128,.3)"><div style="height:8px;background:rgba(74,222,128,.5);border-radius:2px;margin-bottom:5px;width:60%"></div><div style="height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:3px"></div><div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;width:80%"></div></div><div class="theme-name">🌿 Forest</div><div class="theme-sub">Natural green tones</div></div>
@@ -2334,6 +2913,7 @@
 <script src="scripts/payroll.js"></script>
 <script src="scripts/salary-wallet.js"></script>
 <script src="scripts/agent-entries.js"></script>
+<script src="scripts/plans.js"></script>
 <script src="scripts/calculator.js?v=2"></script>
 <script src="scripts/investments.js"></script>
 <script src="scripts/transfers.js"></script>
