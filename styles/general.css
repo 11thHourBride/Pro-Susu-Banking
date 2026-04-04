@@ -169,5 +169,104 @@ select.form-control option{background:var(--bg2);color:var(--text)}
 .sheet-card:hover{border-color:rgba(201,168,76,.3)}
 .sheet-code{font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--gold-dim);color:var(--gold-light);padding:3px 8px;border-radius:4px;display:inline-block}
 
+@keyframes fadeUp  {from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes shimmer {0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes floatY  {0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pglow   {0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.4)}50%{box-shadow:0 0 0 12px rgba(201,168,76,0)}}
+@keyframes fadeSlideIn {from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
+.lp-appear{animation:fadeSlideIn .7s ease both}
+.lp-d1{animation-delay:.08s}.lp-d2{animation-delay:.18s}
+.lp-d3{animation-delay:.28s}.lp-d4{animation-delay:.42s}
+.lp-d5{animation-delay:.56s}.lp-d6{animation-delay:.70s}
 
+.gold-grad{
+  background:linear-gradient(90deg,#c9a84c,#f0d07a,#c9a84c);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;animation:shimmer 4s linear infinite}
+
+.lp-float{animation:floatY 4s ease-in-out infinite}
+.lp-pulse{animation:pglow 2s infinite}
+
+.lp-card{
+  background:#fff;border:1px solid #ede9e0;border-radius:14px;padding:22px;
+  transition:transform .22s ease,box-shadow .22s ease}
+.lp-card:hover{transform:translateY(-5px);box-shadow:0 14px 36px rgba(0,0,0,.1)}
+
+.lp-nav-link{
+  font-size:.82rem;color:#666;cursor:pointer;font-weight:500;
+  transition:color .15s;text-decoration:none}
+.lp-nav-link:hover{color:#c9a84c}
+
+.lp-btn-gold{
+  padding:13px 30px;border:none;border-radius:11px;
+  background:linear-gradient(135deg,#c9a84c,#8b6914);
+  color:#fff;font-size:.92rem;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 18px rgba(201,168,76,.35);
+  transition:transform .2s,box-shadow .2s;letter-spacing:.3px}
+.lp-btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,168,76,.45)}
+
+.lp-btn-outline{
+  padding:13px 26px;border:2px solid #c9a84c;border-radius:11px;
+  background:transparent;color:#8b6914;font-size:.92rem;
+  font-weight:700;cursor:pointer;
+  transition:background .18s,transform .2s}
+.lp-btn-outline:hover{background:#c9a84c18;transform:translateY(-2px)}
+
+.lp-star{color:#c9a84c;letter-spacing:2px}
+
+details summary::-webkit-details-marker{display:none}
+details[open] summary span{transform:rotate(45deg)}
+details summary span{display:inline-block;transition:transform .2s}
+
+@keyframes fadeUp  {from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes shimmer {0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes floatY  {0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pglow   {0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.4)}50%{box-shadow:0 0 0 12px rgba(201,168,76,0)}}
+@keyframes fadeSlideIn {from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+.lp-appear{animation:fadeSlideIn .7s ease both}
+.lp-d1{animation-delay:.08s}.lp-d2{animation-delay:.18s}
+.lp-d3{animation-delay:.28s}.lp-d4{animation-delay:.42s}
+.lp-d5{animation-delay:.56s}.lp-d6{animation-delay:.70s}
+
+.gold-grad{
+  background:linear-gradient(90deg,#c9a84c,#f0d07a,#c9a84c);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;animation:shimmer 4s linear infinite}
+
+.lp-float{animation:floatY 4s ease-in-out infinite}
+.lp-pulse{animation:pglow 2s infinite}
+
+.lp-card{
+  background:#fff;border:1px solid #ede9e0;border-radius:14px;padding:22px;
+  transition:transform .22s ease,box-shadow .22s ease}
+.lp-card:hover{transform:translateY(-5px);box-shadow:0 14px 36px rgba(0,0,0,.1)}
+
+.lp-nav-link{
+  font-size:.82rem;color:#666;cursor:pointer;font-weight:500;
+  transition:color .15s;text-decoration:none}
+.lp-nav-link:hover{color:#c9a84c}
+
+.lp-btn-gold{
+  padding:13px 30px;border:none;border-radius:11px;
+  background:linear-gradient(135deg,#c9a84c,#8b6914);
+  color:#fff;font-size:.92rem;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 18px rgba(201,168,76,.35);
+  transition:transform .2s,box-shadow .2s;letter-spacing:.3px}
+.lp-btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,168,76,.45)}
+
+.lp-btn-outline{
+  padding:13px 26px;border:2px solid #c9a84c;border-radius:11px;
+  background:transparent;color:#8b6914;font-size:.92rem;
+  font-weight:700;cursor:pointer;
+  transition:background .18s,transform .2s}
+.lp-btn-outline:hover{background:#c9a84c18;transform:translateY(-2px)}
+
+.lp-star{color:#c9a84c;letter-spacing:2px}
+
+details summary::-webkit-details-marker{display:none}
+details[open] summary span{transform:rotate(45deg)}
+details summary span{display:inline-block;transition:transform .2s}
