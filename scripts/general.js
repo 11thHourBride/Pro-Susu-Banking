@@ -132,35 +132,45 @@ setInterval(updateClock,1000); updateClock();
 // ═══════════════════════════════════════════════════════
 //  AUTH
 // ═══════════════════════════════════════════════════════
+// ── Landing page navigation ───────────────────────────
+function showLoginPanel() {
+  const drawer = document.getElementById('login-drawer');
+  if (drawer) {
+    drawer.style.display = 'flex';
+    setTimeout(() => document.getElementById('login-user')?.focus(), 100);
+  }
+}
+function hideLoginDrawer() {
+  const drawer = document.getElementById('login-drawer');
+  if (drawer) drawer.style.display = 'none';
+}
+function showSignupPanel() {
+  hideLoginDrawer();
+  showSetupWizard();
+}
+
 // ── First-Run Setup Wizard ────────────────────────────
 function showSetupWizard() {
-  const overlay = document.getElementById('login-overlay');
-  if (!overlay) return;
-
-  // Inject wizard panel into the login screen right panel
-  const right = overlay.querySelector('#login-right-panel') ||
-                overlay.querySelector('div[style*="padding:48px"]') ||
-                overlay.children[overlay.children.length - 1];
+  const existing = document.getElementById('setup-wizard');
+  if (existing) existing.remove();
 
   const wizardHTML = `
     <div id="setup-wizard" style="
-      position:absolute;inset:0;background:rgba(5,10,28,.97);
-      z-index:10;display:flex;flex-direction:column;
+      position:fixed;inset:0;z-index:9999;background:rgba(13,27,46,.96);
+      display:flex;flex-direction:column;
       align-items:center;justify-content:center;padding:40px 32px;
-      border-radius:inherit;backdrop-filter:blur(8px)">
+      backdrop-filter:blur(8px)">
 
       <div style="font-size:2rem;margin-bottom:8px">🏦</div>
       <div style="font-family:'Playfair Display',serif;font-size:1.4rem;
-        font-weight:700;color:var(--gold-light,#e8d48a);margin-bottom:6px">
+        font-weight:700;color:#e8d48a;margin-bottom:6px">
         Welcome to Pro Susu Banking
       </div>
       <div style="font-size:.82rem;color:rgba(255,255,255,.45);
         margin-bottom:28px;text-align:center;line-height:1.6">
-        It looks like this is a fresh installation.<br>
-        Let's set up your company before you log in.
+        Set up your company account to get started.
       </div>
 
-      <!-- Company Name -->
       <div style="width:100%;max-width:340px;margin-bottom:14px">
         <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;
           text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:6px">
@@ -172,7 +182,6 @@ function showSetupWizard() {
           placeholder="e.g. Bright Star Susu" autocomplete="off">
       </div>
 
-      <!-- Admin Name -->
       <div style="width:100%;max-width:340px;margin-bottom:14px">
         <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;
           text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:6px">
@@ -184,7 +193,6 @@ function showSetupWizard() {
           placeholder="Full name" autocomplete="off">
       </div>
 
-      <!-- Admin Username -->
       <div style="width:100%;max-width:340px;margin-bottom:14px">
         <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;
           text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:6px">
@@ -196,7 +204,6 @@ function showSetupWizard() {
           placeholder="e.g. admin" autocomplete="off">
       </div>
 
-      <!-- Admin Password -->
       <div style="width:100%;max-width:340px;margin-bottom:20px">
         <label style="font-size:.72rem;font-weight:700;letter-spacing:1px;
           text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:6px">
@@ -208,29 +215,26 @@ function showSetupWizard() {
           placeholder="Choose a strong password" autocomplete="new-password">
       </div>
 
-      <div id="setup-error" style="display:none;color:var(--danger,#e85d5d);
+      <div id="setup-error" style="display:none;color:#e85d5d;
         font-size:.78rem;margin-bottom:12px;text-align:center"></div>
 
       <button onclick="completeSetup()"
         style="width:100%;max-width:340px;padding:13px;border:none;
-          border-radius:10px;background:var(--gold,#c9a84c);
-          color:#08142a;font-size:.92rem;font-weight:700;cursor:pointer;
-          letter-spacing:.5px;box-shadow:0 4px 20px rgba(201,168,76,.25)">
+          border-radius:10px;background:#c9a84c;
+          color:#08142a;font-size:.92rem;font-weight:700;cursor:pointer">
         🚀 Set Up &amp; Enter Dashboard
       </button>
 
-      <div style="margin-top:14px;font-size:.72rem;color:rgba(255,255,255,.2);text-align:center">
-        You can change these details anytime in Settings
+      <div style="margin-top:12px;font-size:.72rem;color:rgba(255,255,255,.2)">
+        Already have an account?
+        <span onclick="document.getElementById('setup-wizard').remove();showLoginPanel()"
+          style="color:#c9a84c;cursor:pointer;text-decoration:underline">Sign in →</span>
       </div>
     </div>`;
 
-  overlay.style.position = 'relative';
-  overlay.insertAdjacentHTML('beforeend', wizardHTML);
-
-  // Focus first field
+  document.body.insertAdjacentHTML('beforeend', wizardHTML);
   setTimeout(() => document.getElementById('setup-company')?.focus(), 100);
 }
-
 function completeSetup() {
   const company  = document.getElementById('setup-company')?.value.trim();
   const name     = document.getElementById('setup-name')?.value.trim();
@@ -268,18 +272,14 @@ function completeSetup() {
   // Remove wizard
   document.getElementById('setup-wizard')?.remove();
 
-  // Show success hint on login screen
+  // Open sign-in drawer with username pre-filled
+  showLoginPanel();
   const loginUser = document.getElementById('login-user');
   const loginPass = document.getElementById('login-pass');
   if (loginUser) loginUser.value = username;
-  if (loginPass) loginPass.value = '';
-  if (loginPass) loginPass.focus();
+  if (loginPass) { loginPass.value = ''; loginPass.focus(); }
 
-  // Update the login hint text
-  const hint = document.querySelector('#login-overlay .login-default-hint');
-  if (hint) hint.textContent = `Login: ${username} / (your password)`;
-
-  toast(`Setup complete! Welcome to ${company}. Please enter your password to log in.`, 'success', 5000);
+  toast(`Setup complete! Welcome to ${company}. Enter your password to sign in.`, 'success', 5000);
 }
 
 function doLogin() {
@@ -353,6 +353,10 @@ function _activateSession(user, hideLoader) {
 
   function _show() {
     document.getElementById('login-overlay').style.display = 'none';
+    const lp = document.getElementById('landing-page');
+    if (lp) lp.style.display = 'none';
+    // Apply the user's saved theme (default dark for app shell)
+    applyTheme(SETTINGS.theme || 'dark');
     document.getElementById('app-shell').style.display     = 'flex';
     // Agents land on their entries page, everyone else on dashboard
     if (user.role === 'agent') {
@@ -362,6 +366,8 @@ function _activateSession(user, hideLoader) {
       updateDashboard();
     }
     _startInactivityTimer();
+    // Initialise plan badge and expiry check
+    if (typeof initPlans === 'function') initPlans();
   }
 
   if (hideLoader) {
@@ -394,14 +400,74 @@ function _applyNavRestrictions(role) {
   });
 }
 
+// ── Landing / Login screen navigation ─────────────────
+function showLoginScreen() {
+  const lp = document.getElementById('landing-page');
+  const lo = document.getElementById('login-overlay');
+  if (!lo) return;
+  // Fade out landing, then show login
+  if (lp && lp.style.display !== 'none') {
+    lp.style.opacity = '0';
+    lp.style.transition = 'opacity .35s ease';
+    setTimeout(() => {
+      lp.style.display = 'none';
+      lo.style.display = 'flex';
+      lo.style.opacity = '0';
+      lo.style.transition = 'opacity .35s ease';
+      requestAnimationFrame(() => { lo.style.opacity = '1'; });
+      setTimeout(() => document.getElementById('login-user')?.focus(), 100);
+    }, 340);
+  } else {
+    lo.style.display = 'flex';
+    lo.style.opacity = '0';
+    setTimeout(() => { lo.style.opacity = '1'; lo.style.transition = 'opacity .35s ease'; }, 10);
+    setTimeout(() => document.getElementById('login-user')?.focus(), 100);
+  }
+}
+
+function showLandingPage() {
+  const lo = document.getElementById('login-overlay');
+  const lp = document.getElementById('landing-page');
+  if (lo) {
+    lo.style.opacity = '0';
+    lo.style.transition = 'opacity .3s ease';
+    setTimeout(() => {
+      lo.style.display = 'none';
+      if (lp) {
+        lp.style.display = 'flex';
+        lp.style.opacity = '0';
+        lp.style.transition = 'opacity .35s ease';
+        requestAnimationFrame(() => { lp.style.opacity = '1'; });
+      }
+    }, 300);
+  }
+}
+
+function showLandingSection(section) {
+  const plans = document.getElementById('landing-plans');
+  if (section === 'plans') {
+    if (plans) plans.style.display = 'block';
+  }
+  const targets = {
+    hero        : 'landing-hero',
+    features    : 'landing-features',
+    stats       : 'landing-stats',
+    plans       : 'landing-plans',
+    testimonials: 'landing-testimonials',
+  };
+  const elId = targets[section];
+  if (elId) {
+    const el = document.getElementById(elId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 function doLogout() {
   _stopInactivityTimer();
 
-  // Show logout loader
   const logoutOverlay = document.getElementById('logout-loader');
   if (logoutOverlay) logoutOverlay.style.display = 'flex';
 
-  // Save data first, then clear session after a brief visible pause
   saveAll();
 
   setTimeout(() => {
@@ -410,11 +476,26 @@ function doLogout() {
 
     if (logoutOverlay) logoutOverlay.style.display = 'none';
 
-    document.getElementById('app-shell').style.display   = 'none';
-    document.getElementById('login-overlay').style.display = 'flex';
-    document.getElementById('login-user').value  = '';
-    document.getElementById('login-pass').value  = '';
-    document.getElementById('login-error').style.display = 'none';
+    // Hide app and login, fade back to landing page
+    document.getElementById('app-shell').style.display     = 'none';
+    document.getElementById('login-overlay').style.display = 'none';
+
+    // Reset login fields
+    const loginUser = document.getElementById('login-user');
+    const loginPass = document.getElementById('login-pass');
+    const loginErr  = document.getElementById('login-error');
+    if (loginUser) loginUser.value = '';
+    if (loginPass) loginPass.value = '';
+    if (loginErr)  loginErr.style.display = 'none';
+
+    // Fade in landing page
+    const lp = document.getElementById('landing-page');
+    if (lp) {
+      lp.style.opacity    = '0';
+      lp.style.display    = 'flex';
+      lp.style.transition = 'opacity .4s ease';
+      requestAnimationFrame(() => { lp.style.opacity = '1'; });
+    }
   }, 1200);
 }
 
@@ -686,6 +767,11 @@ function showSettingsTab(tab, btn) {
   if (tab === 'backup')        { refreshStorageUsage(); renderBackupHistory(); }
   if (tab === 'appearance')    syncThemeCards();
   if (tab === 'financial')     { if (typeof renderSMSPreviews === 'function') renderSMSPreviews(); }
+  if (tab === 'plan')          { if (typeof renderPlanSettingsTab === 'function') renderPlanSettingsTab(); }
+
+  // Plan & Billing tab — admin only
+  const planTab = document.getElementById('settings-plan-tab');
+  if (planTab) planTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
 }
 
 function settingChanged(key, val) {
@@ -1651,6 +1737,16 @@ function lookupEntryAcct(id, val) {
   applyTheme(SETTINGS.theme || 'dark');
   const company = SETTINGS.companyName || 'Pro Susu Banking';
   document.title = `Dashboard — ${company}`;
+
+  // Fade in the landing page on first load
+  const lp = document.getElementById('landing-page');
+  if (lp) {
+    // Small delay so paint has settled before fade starts
+    setTimeout(() => {
+      lp.style.transition = 'opacity .55s ease';
+      lp.style.opacity    = '1';
+    }, 60);
+  }
 
   // FIX 1 — apply saved tagline and brand names on every page load,
   // not just when the user opens Settings
