@@ -585,7 +585,7 @@ function openEditCustomerModal(id) {
           min="0" step="0.01" placeholder="0.00">
         <div class="input-hint">
           Current balance: <strong class="mono">${fmt(c.balance || 0)}</strong>.
-          Changing this adjusts the balance by the difference.
+          Editing this sets the customer's balance to the entered amount.
         </div>
       </div>
       <div class="form-group">
@@ -803,12 +803,11 @@ function saveEditCustomer(id) {
     c.status      = status;
     c.nextOfKin   = noks;
 
-    // Apply initial deposit change — adjust live balance by the difference
-    const oldInitial = c.initialDeposit || 0;
-    if (newInitial !== oldInitial) {
-      const diff = newInitial - oldInitial;
+    // Apply initial deposit edit — the entered value becomes the customer's current balance.
+    // It does NOT add to the existing balance; it replaces it.
+    if (newInitial !== (c.initialDeposit || 0) || newInitial !== c.balance) {
       c.initialDeposit = Math.round(newInitial * 100) / 100;
-      c.balance = Math.round(Math.max(0, (c.balance || 0) + diff) * 100) / 100;
+      c.balance        = Math.round(newInitial * 100) / 100;
     }
 
     // FIX 2 — save edited photo
@@ -835,9 +834,11 @@ function renderCustomerList(search) {
 
   const isAgent = currentUser?.role === 'agent';
 
-  // Show Deleted tab only for admin
+  // Show Deleted tab only for admin; show Export/Import only for admin
   const delTab = document.getElementById('cu-deleted-tab');
   if (delTab) delTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
+  const expTab = document.getElementById('cu-exportimport-tab');
+  if (expTab) expTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
 
   // Show Export/Import tab only for admin
   const eiTab = document.getElementById('cu-exportimport-tab');
@@ -2100,4 +2101,234 @@ function _downloadFile(content, filename, mime) {
   document.body.appendChild(a);
   a.click();
   setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 500);
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXPORT / IMPORT — CUSTOMERS (Admin only)
+// ═══════════════════════════════════════════════════════
+
+function renderCustomerExportImport() {
+  const el = document.getElementById('cu-exportimport-content'); if (!el) return;
+  if (currentUser?.role !== 'admin') {
+    el.innerHTML = `<div class="empty-state" style="padding:48px 0">
+      <div class="ei">🔒</div><div class="et">Admin Only</div></div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px">
+
+      <!-- EXPORT -->
+      <div class="card">
+        <div class="card-title"><span>📤</span> Export Customers</div>
+        <div class="text-muted" style="font-size:.8rem;margin-bottom:14px;line-height:1.6">
+          Downloads all customers with their details and current balances as a CSV file.
+          Includes: name, account number, type, agent, phone, gender, DOB, address,
+          ID, status, balance, initial deposit, registration date.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Filter by Type (optional)</label>
+          <select class="form-control" id="exp-cust-type">
+            <option value="">All Types</option>
+            <option value="susu">Susu</option>
+            <option value="lending">Lending Deposit</option>
+            <option value="savings">Savings</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Filter by Status (optional)</label>
+          <select class="form-control" id="exp-cust-status">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="suspended">Suspended</option>
+          </select>
+        </div>
+        <button class="btn btn-gold" onclick="exportCustomersCSV()">
+          📥 Download CSV
+        </button>
+      </div>
+
+      <!-- IMPORT -->
+      <div class="card">
+        <div class="card-title"><span>📂</span> Import Customers</div>
+        <div class="text-muted" style="font-size:.8rem;margin-bottom:14px;line-height:1.6">
+          Import customers from a CSV file. Use the exported file as a template.
+          Existing customers with the same account number will be <strong>updated</strong>.
+          New account numbers will be <strong>added</strong>.
+        </div>
+        <div class="alert alert-warning" style="font-size:.78rem;margin-bottom:12px">
+          ⚠️ Always export first and use the exported file as the import template
+          to avoid data loss.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select CSV File</label>
+          <input type="file" class="form-control" id="imp-cust-file" accept=".csv"
+            style="padding:6px 10px">
+        </div>
+        <button class="btn btn-gold" onclick="importCustomersCSV()">📤 Import CSV</button>
+        <div id="imp-cust-result" style="margin-top:12px;font-size:.8rem"></div>
+      </div>
+    </div>`;
+}
+
+function exportCustomersCSV() {
+  const typeFilter   = document.getElementById('exp-cust-type')?.value   || '';
+  const statusFilter = document.getElementById('exp-cust-status')?.value || '';
+
+  let list = CUSTOMERS;
+  if (typeFilter)   list = list.filter(c => c.type   === typeFilter);
+  if (statusFilter) list = list.filter(c => c.status === statusFilter);
+
+  if (!list.length) return toast('No customers match the selected filters', 'warning');
+
+  const headers = [
+    'Account Number','First Name','Last Name','Gender','Type','Agent Code',
+    'Phone','Date of Birth','ID Type','ID Number','Address','Town','Occupation',
+    'Status','Balance','Initial Deposit','Registration Date'
+  ];
+
+  const rows = list.map(c => {
+    const agent = AGENTS.find(a => a.id === c.agentId);
+    return [
+      c.acctNumber || '',
+      c.firstName  || '',
+      c.lastName   || '',
+      c.gender     || '',
+      c.type       || '',
+      agent ? agent.code : '',
+      c.phone      || '',
+      c.dob        || '',
+      c.idType     || '',
+      c.idNum      || '',
+      c.address    || '',
+      c.town       || '',
+      c.occupation || '',
+      c.status     || '',
+      (c.balance   || 0).toFixed(2),
+      (c.initialDeposit || 0).toFixed(2),
+      c.dateCreated || '',
+    ].map(v => `"${String(v).replace(/"/g, '""')}"`);
+  });
+
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `customers_export_${todayISO()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`Exported ${list.length} customers ✅`, 'success');
+  logActivity('Export', `Admin exported ${list.length} customer records`, 0, 'export');
+}
+
+function importCustomersCSV() {
+  const file = document.getElementById('imp-cust-file')?.files[0];
+  if (!file) return toast('Select a CSV file first', 'error');
+
+  const resultEl = document.getElementById('imp-cust-result');
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const lines  = e.target.result.replace(/\r/g, '').split('\n').filter(l => l.trim());
+      const header = _csvParseLine(lines[0]);
+      const rows   = lines.slice(1).map(l => _csvParseLine(l));
+
+      // Map header names to indices
+      const idx = {};
+      header.forEach((h, i) => { idx[h.trim()] = i; });
+
+      let added = 0, updated = 0, skipped = 0;
+
+      rows.forEach(row => {
+        if (row.length < 2) return;
+        const acctNumber = (row[idx['Account Number']] || '').trim();
+        const firstName  = (row[idx['First Name']]     || '').trim();
+        const lastName   = (row[idx['Last Name']]      || '').trim();
+        if (!acctNumber || !firstName || !lastName) { skipped++; return; }
+
+        const balance = parseFloat(row[idx['Balance']] || '0') || 0;
+        const initDep = parseFloat(row[idx['Initial Deposit']] || '0') || 0;
+
+        // Find agent by code
+        const agentCode = (row[idx['Agent Code']] || '').trim();
+        const agent     = AGENTS.find(a => a.code === agentCode);
+
+        const existing = CUSTOMERS.find(c => c.acctNumber === acctNumber);
+        if (existing) {
+          // Update fields (preserve transactions and ID)
+          existing.firstName      = firstName;
+          existing.lastName       = lastName;
+          existing.gender         = (row[idx['Gender']]            || existing.gender || '').trim();
+          existing.phone          = (row[idx['Phone']]             || existing.phone  || '').trim();
+          existing.dob            = (row[idx['Date of Birth']]     || existing.dob    || '').trim();
+          existing.idType         = (row[idx['ID Type']]           || existing.idType || '').trim();
+          existing.idNum          = (row[idx['ID Number']]         || existing.idNum  || '').trim();
+          existing.address        = (row[idx['Address']]           || existing.address|| '').trim();
+          existing.town           = (row[idx['Town']]              || existing.town   || '').trim();
+          existing.occupation     = (row[idx['Occupation']]        || existing.occupation||'').trim();
+          existing.status         = (row[idx['Status']]            || existing.status || 'active').trim();
+          existing.balance        = balance;
+          existing.initialDeposit = initDep;
+          if (agent) { existing.agentId = agent.id; existing.agentCode = agent.code; }
+          updated++;
+        } else {
+          // Add new customer
+          const type = (row[idx['Type']] || 'susu').trim().toLowerCase();
+          CUSTOMERS.push({
+            id           : uid(),
+            acctNumber, firstName, lastName,
+            gender       : (row[idx['Gender']]        || '').trim(),
+            type,
+            agentId      : agent?.id   || '',
+            agentCode    : agent?.code || '',
+            phone        : (row[idx['Phone']]         || '').trim(),
+            dob          : (row[idx['Date of Birth']] || '').trim(),
+            idType       : (row[idx['ID Type']]       || '').trim(),
+            idNum        : (row[idx['ID Number']]     || '').trim(),
+            address      : (row[idx['Address']]       || '').trim(),
+            town         : (row[idx['Town']]          || '').trim(),
+            occupation   : (row[idx['Occupation']]    || '').trim(),
+            status       : (row[idx['Status']]        || 'active').trim(),
+            balance, initialDeposit: initDep,
+            dateCreated  : (row[idx['Registration Date']] || todayISO()).trim(),
+            nextOfKin    : [],
+            transactions : [],
+          });
+          added++;
+        }
+      });
+
+      saveAll();
+      const msg = `✅ Import complete — <strong>${added}</strong> added, <strong>${updated}</strong> updated, <strong>${skipped}</strong> skipped.`;
+      if (resultEl) resultEl.innerHTML = `<div class="alert alert-success" style="font-size:.8rem">${msg}</div>`;
+      toast(`Import complete: ${added} added, ${updated} updated`, 'success');
+      logActivity('Import', `Admin imported customers: ${added} added, ${updated} updated`, 0, 'import');
+    } catch (err) {
+      console.error('Import error:', err);
+      if (resultEl) resultEl.innerHTML = `<div class="alert alert-danger" style="font-size:.8rem">❌ Import failed: ${err.message}</div>`;
+      toast('Import failed — check file format', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Simple CSV line parser (handles quoted fields with commas)
+function _csvParseLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) {
+      result.push(cur); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  result.push(cur);
+  return result;
 }
