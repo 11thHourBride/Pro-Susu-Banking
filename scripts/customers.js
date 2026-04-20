@@ -147,10 +147,43 @@ function getNextAcctNum(type, agentCode) {
   const vacated = (VACATED_ACCOUNTS || [])
     .filter(v => v.type === type && v.agentCode === agentCode)
     .sort((a, b) => parseInt(a.seq) - parseInt(b.seq));
-  if (vacated.length) return vacated[0].seq;   // e.g. '0001'
-  // Otherwise next sequential (excluding vacated so numbering stays correct)
-  const existing = CUSTOMERS.filter(c => c.type === type && c.agentCode === agentCode);
-  return pad4(existing.length + 1);
+  if (vacated.length) return vacated[0].seq;
+
+  // Find the highest existing sequence number for this agent+type
+  // Using max sequence (not count) prevents duplicates after deletions or imports
+  const prefix   = agentCode + '-';
+  let   maxSeq   = 0;
+  CUSTOMERS.forEach(c => {
+    if (c.agentCode === agentCode && c.type === type && c.acctNumber) {
+      const parts = c.acctNumber.split('-');
+      const seq   = parseInt(parts[parts.length - 1]);
+      if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
+    }
+  });
+  // Also scan deleted customers so restored numbers don't collide
+  (DELETED_CUSTOMERS || []).forEach(c => {
+    if (c.agentCode === agentCode && c.type === type && c.acctNumber) {
+      const parts = c.acctNumber.split('-');
+      const seq   = parseInt(parts[parts.length - 1]);
+      if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
+    }
+  });
+  return pad4(maxSeq + 1);
+}
+
+// Ensure an account number is truly unique before use
+function _ensureUniqueAcct(acctNumber) {
+  const allNums = [
+    ...CUSTOMERS.map(c => c.acctNumber),
+    ...(DELETED_CUSTOMERS || []).map(c => c.acctNumber),
+  ];
+  if (!allNums.includes(acctNumber)) return acctNumber;
+  // Collision — increment until unique
+  const parts  = acctNumber.split('-');
+  const prefix = parts.slice(0, -1).join('-') + '-';
+  let   seq    = parseInt(parts[parts.length - 1]);
+  while (allNums.includes(prefix + pad4(++seq))) { /* keep incrementing */ }
+  return prefix + pad4(seq);
 }
 
 // Remove a vacated slot once it has been used
@@ -227,7 +260,8 @@ function addCustomer(sfx) {
     const agentNum  = pad2(agent.agentNumber);
     const agentCode = pfx + agentNum;
     const seq       = getNextAcctNum(activeCustType, agentCode);
-    const acctNumber = `${agentCode}-${seq}`;
+    const rawAcct   = `${agentCode}-${seq}`;
+    const acctNumber = _ensureUniqueAcct(rawAcct);
     // Consume the vacated slot if one was used
     _consumeVacated(activeCustType, agentCode, seq);
 
@@ -777,7 +811,7 @@ function saveEditCustomer(id) {
       const curAgent   = AGENTS.find(a => a.id === (agentId || c.agentId));
       const newAgCode  = newPfx + pad2(curAgent.agentNumber);
       const newSeq     = getNextAcctNum(newType, newAgCode);
-      const newAcctNum = `${newAgCode}-${newSeq}`;
+      const newAcctNum = _ensureUniqueAcct(`${newAgCode}-${newSeq}`);
       _consumeVacated(newType, newAgCode, newSeq);
 
       c.type       = newType;
