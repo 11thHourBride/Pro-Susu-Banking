@@ -868,43 +868,87 @@ function renderCustomerList(search) {
 
   const isAgent = currentUser?.role === 'agent';
 
-  // Show Deleted tab only for admin; show Export/Import only for admin
+  // Tab visibility
   const delTab = document.getElementById('cu-deleted-tab');
   if (delTab) delTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
   const expTab = document.getElementById('cu-exportimport-tab');
   if (expTab) expTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
-
-  // Show Export/Import tab only for admin
-  const eiTab = document.getElementById('cu-exportimport-tab');
-  if (eiTab) eiTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
-
-  // Show Loans export/import tab only for admin
   const lnEiTab = document.getElementById('ln-exportimport-tab');
   if (lnEiTab) lnEiTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
 
-  // For agent role: hide "All Customers" tab, hide Add Customer tab navigation label
+  // Hide All Customers tab for agent role
   const allTab = document.querySelector('#view-customers .sub-tab[onclick*="\'list\'"]');
   if (allTab) allTab.style.display = isAgent ? 'none' : '';
 
-  // For agent role: filter to only this agent's customers
-  const sessionAgent = isAgent && typeof _getSessionAgent === 'function' ? _getSessionAgent() : null;
+  // ── Populate agent filter dropdown (admin/teller only) ──
+  const agentFilterEl = document.getElementById('cu-agent-filter');
+  if (agentFilterEl && !isAgent) {
+    const currentVal = agentFilterEl.value;
+    agentFilterEl.innerHTML =
+      '<option value="">👥 All Agents</option>' +
+      '<option value="__none__">⚠️ No Agent Assigned</option>' +
+      AGENTS.filter(a => a.status === 'active')
+        .sort((a, b) => a.code.localeCompare(b.code))
+        .map(a =>
+          `<option value="${a.id}" ${currentVal === a.id ? 'selected' : ''}>
+            ${a.code} — ${a.firstName} ${a.lastName}
+          </option>`)
+        .join('');
+    // Restore selection
+    if (currentVal) agentFilterEl.value = currentVal;
+  }
+  if (agentFilterEl) agentFilterEl.style.display = isAgent ? 'none' : '';
 
+  // ── Active filter value ──
+  const agentFilterVal = isAgent ? '' : (agentFilterEl?.value || '');
+
+  // For agent role: bind to session agent
+  const sessionAgent = isAgent && typeof _getSessionAgent === 'function' ? _getSessionAgent() : null;
+  const agentRoleFilter = sessionAgent ? (c => c.agentId === sessionAgent.id) : () => true;
+
+  // ── Badge counts (respect agent role scope) ──
   const sb  = document.getElementById('cu-susu-badge');
   const lb  = document.getElementById('cu-ld-badge');
   const svb = document.getElementById('cu-sav-badge');
-  const agentFilter = sessionAgent ? (c => c.agentId === sessionAgent.id) : () => true;
-  if (sb)  sb.textContent  = CUSTOMERS.filter(c => c.type === 'susu'    && agentFilter(c)).length + ' Susu';
-  if (lb)  lb.textContent  = CUSTOMERS.filter(c => c.type === 'lending' && agentFilter(c)).length + ' Lending';
-  if (svb) svb.textContent = CUSTOMERS.filter(c => c.type === 'savings' && agentFilter(c)).length + ' Savings';
+  const baseList = isAgent && sessionAgent
+    ? CUSTOMERS.filter(c => c.agentId === sessionAgent.id)
+    : CUSTOMERS;
+  if (sb)  sb.textContent = baseList.filter(c => c.type === 'susu').length    + ' Susu';
+  if (lb)  lb.textContent = baseList.filter(c => c.type === 'lending').length + ' Lending';
+  if (svb) svb.textContent= baseList.filter(c => c.type === 'savings').length + ' Savings';
 
+  // ── Count unassigned and show/hide button ──
+  const noAgentCount = CUSTOMERS.filter(c => !c.agentId).length;
+  const assignBtn = document.getElementById('cu-assign-noagent-btn');
+  if (assignBtn) {
+    assignBtn.style.display = (noAgentCount > 0 && !isAgent) ? '' : 'none';
+    assignBtn.textContent   = `🔗 Assign Unassigned (${noAgentCount})`;
+  }
+
+  // ── Build filtered list ──
   let list = isAgent && sessionAgent
     ? CUSTOMERS.filter(c => c.agentId === sessionAgent.id)
     : CUSTOMERS;
+
+  // Apply agent filter
+  if (agentFilterVal === '__none__') {
+    list = list.filter(c => !c.agentId);
+  } else if (agentFilterVal) {
+    list = list.filter(c => c.agentId === agentFilterVal);
+  }
+
+  // Apply search
   if (search) list = list.filter(c =>
-    `${c.firstName} ${c.lastName} ${c.acctNumber}`.toLowerCase().includes(search.toLowerCase())
-  );
+    `${c.firstName} ${c.lastName} ${c.acctNumber}`.toLowerCase()
+      .includes(search.toLowerCase()));
+
   if (!list.length) {
-    tb.innerHTML = '<tr><td colspan="9" class="text-center text-muted" style="padding:28px">No customers found</td></tr>';
+    const msg = agentFilterVal === '__none__'
+      ? 'No customers without an agent'
+      : agentFilterVal
+        ? 'No customers found for this agent'
+        : 'No customers found';
+    tb.innerHTML = `<tr><td colspan="9" class="text-center text-muted" style="padding:28px">${msg}</td></tr>`;
     return;
   }
 
@@ -2197,8 +2241,38 @@ function renderCustomerExportImport() {
         <div class="form-group">
           <label class="form-label">Select CSV File</label>
           <input type="file" class="form-control" id="imp-cust-file" accept=".csv"
-            style="padding:6px 10px">
+            style="padding:6px 10px"
+            onchange="onImportFileSelected()">
         </div>
+
+        <!-- Agent Assignment -->
+        <div class="form-group">
+          <label class="form-label">Agent Assignment</label>
+          <select class="form-control" id="imp-agent-mode"
+            onchange="onImportAgentModeChange()">
+            <option value="csv">Use agent code from CSV file</option>
+            <option value="override">Assign ALL imported customers to one agent</option>
+            <option value="new_only">Assign only customers with no agent in CSV</option>
+          </select>
+          <div class="text-muted" style="font-size:.74rem;margin-top:4px" id="imp-agent-mode-hint">
+            Agent codes in the CSV will be used as-is.
+          </div>
+        </div>
+
+        <!-- Agent picker (shown for override / new_only modes) -->
+        <div id="imp-agent-picker" style="display:none" class="form-group">
+          <label class="form-label">Select Agent</label>
+          <select class="form-control" id="imp-agent-select">
+            <option value="">— Choose an agent —</option>
+          </select>
+        </div>
+
+        <!-- Preview panel (appears after file is chosen) -->
+        <div id="imp-preview-panel" style="display:none;margin-bottom:12px;
+          padding:10px 14px;background:var(--surface2);border-radius:var(--radius);
+          font-size:.8rem;line-height:1.7;border:1px solid var(--border)">
+        </div>
+
         <button class="btn btn-gold" onclick="importCustomersCSV()">📤 Import CSV</button>
         <div id="imp-cust-result" style="margin-top:12px;font-size:.8rem"></div>
       </div>
@@ -2256,24 +2330,88 @@ function exportCustomersCSV() {
   logActivity('Export', `Admin exported ${list.length} customer records`, 0, 'export');
 }
 
+// ── Import UI helpers ─────────────────────────────────
+function onImportAgentModeChange() {
+  const mode   = document.getElementById('imp-agent-mode')?.value;
+  const picker = document.getElementById('imp-agent-picker');
+  const hint   = document.getElementById('imp-agent-mode-hint');
+  const sel    = document.getElementById('imp-agent-select');
+  const hints  = {
+    csv      : 'Agent codes in the CSV will be used as-is. Rows with no agent code will have no agent assigned.',
+    override : 'Every imported customer will be assigned to the selected agent, regardless of the CSV.',
+    new_only : 'Only rows with no agent code in the CSV will be assigned to the selected agent.',
+  };
+  if (hint) hint.textContent = hints[mode] || '';
+  const needPicker = mode === 'override' || mode === 'new_only';
+  if (picker) picker.style.display = needPicker ? '' : 'none';
+  if (needPicker && sel && sel.options.length <= 1) {
+    sel.innerHTML = '<option value="">— Choose an agent —</option>' +
+      AGENTS.filter(a => a.status === 'active')
+        .sort((a,b) => a.code.localeCompare(b.code))
+        .map(a => `<option value="${a.id}">${a.code} — ${a.firstName} ${a.lastName}</option>`)
+        .join('');
+  }
+  onImportFileSelected();
+}
+
+function onImportFileSelected() {
+  const file    = document.getElementById('imp-cust-file')?.files[0];
+  const preview = document.getElementById('imp-preview-panel');
+  if (!preview) return;
+  if (!file) { preview.style.display = 'none'; return; }
+  const reader  = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const lines = e.target.result.replace(/\r/g, '').split('\n').filter(l => l.trim());
+      const dataRows = lines.slice(1).filter(l => l.trim());
+      const header = _csvParseLine(lines[0]);
+      const idx = {};
+      header.forEach((h, i) => { idx[h.trim()] = i; });
+      let withAgent = 0, withoutAgent = 0;
+      dataRows.forEach(l => {
+        const row = _csvParseLine(l);
+        (row[idx['Agent Code']] || '').trim() ? withAgent++ : withoutAgent++;
+      });
+      const mode      = document.getElementById('imp-agent-mode')?.value || 'csv';
+      const agentSel  = document.getElementById('imp-agent-select');
+      const agentText = agentSel?.options[agentSel.selectedIndex]?.text || '';
+      const agCode    = agentText.split('—')[0].trim();
+      preview.style.display = 'block';
+      preview.innerHTML = `
+        <div style="font-weight:600;margin-bottom:6px">📋 File Preview</div>
+        <div>Rows to import: <strong>${dataRows.length}</strong></div>
+        <div>With agent code: <strong>${withAgent}</strong> &nbsp;·&nbsp;
+             Without agent code: <strong>${withoutAgent}</strong></div>
+        ${mode==='override'&&agCode?`<div style="color:var(--gold);margin-top:4px">→ All ${dataRows.length} customer(s) will be assigned to <strong>${agCode}</strong></div>`:''}
+        ${mode==='new_only'&&agCode?`<div style="color:var(--gold);margin-top:4px">→ ${withoutAgent} customer(s) without agent will be assigned to <strong>${agCode}</strong></div>`:''}`;
+    } catch(e) { if (preview) preview.style.display = 'none'; }
+  };
+  reader.readAsText(file);
+}
+
 function importCustomersCSV() {
   const file = document.getElementById('imp-cust-file')?.files[0];
   if (!file) return toast('Select a CSV file first', 'error');
 
-  const resultEl = document.getElementById('imp-cust-result');
+  const mode           = document.getElementById('imp-agent-mode')?.value || 'csv';
+  const agentSelEl     = document.getElementById('imp-agent-select');
+  const overrideAgentId = agentSelEl?.value || '';
+  if ((mode === 'override' || mode === 'new_only') && !overrideAgentId)
+    return toast('Select an agent to assign customers to', 'error');
+  const overrideAgent = AGENTS.find(a => a.id === overrideAgentId) || null;
 
-  const reader = new FileReader();
+  const resultEl = document.getElementById('imp-cust-result');
+  const reader   = new FileReader();
+
   reader.onload = function(e) {
     try {
       const lines  = e.target.result.replace(/\r/g, '').split('\n').filter(l => l.trim());
       const header = _csvParseLine(lines[0]);
       const rows   = lines.slice(1).map(l => _csvParseLine(l));
-
-      // Map header names to indices
-      const idx = {};
+      const idx    = {};
       header.forEach((h, i) => { idx[h.trim()] = i; });
 
-      let added = 0, updated = 0, skipped = 0;
+      let added = 0, updated = 0, skipped = 0, reassigned = 0;
 
       rows.forEach(row => {
         if (row.length < 2) return;
@@ -2282,63 +2420,72 @@ function importCustomersCSV() {
         const lastName   = (row[idx['Last Name']]      || '').trim();
         if (!acctNumber || !firstName || !lastName) { skipped++; return; }
 
-        const balance = parseFloat(row[idx['Balance']] || '0') || 0;
-        const initDep = parseFloat(row[idx['Initial Deposit']] || '0') || 0;
+        const balance    = parseFloat(row[idx['Balance']]          || '0') || 0;
+        const initDep    = parseFloat(row[idx['Initial Deposit']]  || '0') || 0;
+        const csvCode    = (row[idx['Agent Code']] || '').trim();
+        const csvAgent   = AGENTS.find(a => a.code === csvCode);
 
-        // Find agent by code
-        const agentCode = (row[idx['Agent Code']] || '').trim();
-        const agent     = AGENTS.find(a => a.code === agentCode);
+        let assignedAgent;
+        if (mode === 'override') {
+          assignedAgent = overrideAgent;
+          if (csvAgent && csvAgent.id !== overrideAgent?.id) reassigned++;
+        } else if (mode === 'new_only') {
+          assignedAgent = csvAgent || overrideAgent;
+          if (!csvAgent && overrideAgent) reassigned++;
+        } else {
+          assignedAgent = csvAgent;
+        }
 
         const existing = CUSTOMERS.find(c => c.acctNumber === acctNumber);
         if (existing) {
-          // Update fields (preserve transactions and ID)
           existing.firstName      = firstName;
           existing.lastName       = lastName;
-          existing.gender         = (row[idx['Gender']]            || existing.gender || '').trim();
-          existing.phone          = (row[idx['Phone']]             || existing.phone  || '').trim();
-          existing.dob            = (row[idx['Date of Birth']]     || existing.dob    || '').trim();
-          existing.idType         = (row[idx['ID Type']]           || existing.idType || '').trim();
-          existing.idNum          = (row[idx['ID Number']]         || existing.idNum  || '').trim();
-          existing.address        = (row[idx['Address']]           || existing.address|| '').trim();
-          existing.town           = (row[idx['Town']]              || existing.town   || '').trim();
-          existing.occupation     = (row[idx['Occupation']]        || existing.occupation||'').trim();
-          existing.status         = (row[idx['Status']]            || existing.status || 'active').trim();
+          existing.gender         = (row[idx['Gender']]          || existing.gender     || '').trim();
+          existing.phone          = (row[idx['Phone']]           || existing.phone      || '').trim();
+          existing.dob            = (row[idx['Date of Birth']]   || existing.dob        || '').trim();
+          existing.idType         = (row[idx['ID Type']]         || existing.idType     || '').trim();
+          existing.idNum          = (row[idx['ID Number']]       || existing.idNum      || '').trim();
+          existing.address        = (row[idx['Address']]         || existing.address    || '').trim();
+          existing.town           = (row[idx['Town']]            || existing.town       || '').trim();
+          existing.occupation     = (row[idx['Occupation']]      || existing.occupation || '').trim();
+          existing.status         = (row[idx['Status']]          || existing.status     || 'active').trim();
           existing.balance        = balance;
           existing.initialDeposit = initDep;
-          if (agent) { existing.agentId = agent.id; existing.agentCode = agent.code; }
+          if (assignedAgent) { existing.agentId = assignedAgent.id; existing.agentCode = assignedAgent.code; }
           updated++;
         } else {
-          // Add new customer
-          const type = (row[idx['Type']] || 'susu').trim().toLowerCase();
           CUSTOMERS.push({
-            id           : uid(),
-            acctNumber, firstName, lastName,
-            gender       : (row[idx['Gender']]        || '').trim(),
-            type,
-            agentId      : agent?.id   || '',
-            agentCode    : agent?.code || '',
-            phone        : (row[idx['Phone']]         || '').trim(),
-            dob          : (row[idx['Date of Birth']] || '').trim(),
-            idType       : (row[idx['ID Type']]       || '').trim(),
-            idNum        : (row[idx['ID Number']]     || '').trim(),
-            address      : (row[idx['Address']]       || '').trim(),
-            town         : (row[idx['Town']]          || '').trim(),
-            occupation   : (row[idx['Occupation']]    || '').trim(),
-            status       : (row[idx['Status']]        || 'active').trim(),
+            id: uid(), acctNumber, firstName, lastName,
+            gender      : (row[idx['Gender']]          || '').trim(),
+            type        : (row[idx['Type']]            || 'susu').trim().toLowerCase(),
+            agentId     : assignedAgent?.id   || '',
+            agentCode   : assignedAgent?.code || '',
+            phone       : (row[idx['Phone']]           || '').trim(),
+            dob         : (row[idx['Date of Birth']]   || '').trim(),
+            idType      : (row[idx['ID Type']]         || '').trim(),
+            idNum       : (row[idx['ID Number']]       || '').trim(),
+            address     : (row[idx['Address']]         || '').trim(),
+            town        : (row[idx['Town']]            || '').trim(),
+            occupation  : (row[idx['Occupation']]      || '').trim(),
+            status      : (row[idx['Status']]          || 'active').trim(),
             balance, initialDeposit: initDep,
-            dateCreated  : (row[idx['Registration Date']] || todayISO()).trim(),
-            nextOfKin    : [],
-            transactions : [],
+            dateCreated : (row[idx['Registration Date']] || todayISO()).trim(),
+            nextOfKin: [], transactions: [],
           });
           added++;
         }
       });
 
       saveAll();
-      const msg = `✅ Import complete — <strong>${added}</strong> added, <strong>${updated}</strong> updated, <strong>${skipped}</strong> skipped.`;
+      const agLabel     = overrideAgent ? ` · Assigned to <strong>${overrideAgent.code}</strong>` : '';
+      const reLabel     = reassigned > 0 ? ` · <strong>${reassigned}</strong> reassigned` : '';
+      const msg = `✅ Import complete — <strong>${added}</strong> added, <strong>${updated}</strong> updated, <strong>${skipped}</strong> skipped${agLabel}${reLabel}.`;
       if (resultEl) resultEl.innerHTML = `<div class="alert alert-success" style="font-size:.8rem">${msg}</div>`;
       toast(`Import complete: ${added} added, ${updated} updated`, 'success');
-      logActivity('Import', `Admin imported customers: ${added} added, ${updated} updated`, 0, 'import');
+      logActivity('Import', `Imported customers: ${added} added, ${updated} updated${overrideAgent ? ', assigned to ' + overrideAgent.code : ''}`, 0, 'import');
+
+      const fi = document.getElementById('imp-cust-file'); if (fi) fi.value = '';
+      const pv = document.getElementById('imp-preview-panel'); if (pv) pv.style.display = 'none';
     } catch (err) {
       console.error('Import error:', err);
       if (resultEl) resultEl.innerHTML = `<div class="alert alert-danger" style="font-size:.8rem">❌ Import failed: ${err.message}</div>`;
@@ -2347,6 +2494,7 @@ function importCustomersCSV() {
   };
   reader.readAsText(file);
 }
+
 
 // Simple CSV line parser (handles quoted fields with commas)
 function _csvParseLine(line) {
@@ -2365,4 +2513,160 @@ function _csvParseLine(line) {
   }
   result.push(cur);
   return result;
+}
+
+// ═══════════════════════════════════════════════════════
+//  ASSIGN UNASSIGNED CUSTOMERS TO AN AGENT
+// ═══════════════════════════════════════════════════════
+function openAssignNoAgentModal() {
+  const unassigned = CUSTOMERS.filter(c => !c.agentId);
+  if (!unassigned.length) return toast('All customers already have an agent', 'success');
+
+  const agents = AGENTS.filter(a => a.status === 'active')
+    .sort((a, b) => a.code.localeCompare(b.code));
+  if (!agents.length) return toast('No active agents to assign to', 'error');
+
+  // Group by type for summary
+  const byType = { susu: 0, lending: 0, savings: 0 };
+  unassigned.forEach(c => { if (byType[c.type] !== undefined) byType[c.type]++; });
+
+  // Build modal content
+  const titleEl = document.getElementById('m-conf-title');
+  const bodyEl  = document.getElementById('m-conf-body');
+  const okBtn   = document.getElementById('m-conf-ok');
+  if (!titleEl || !bodyEl || !okBtn) return;
+
+  titleEl.innerHTML = '🔗 Assign Unassigned Customers';
+  bodyEl.innerHTML = `
+    <!-- Summary -->
+    <div style="padding:12px 14px;background:var(--surface2);border-radius:var(--radius);
+      margin-bottom:16px;font-size:.82rem">
+      <div class="fw-600" style="margin-bottom:6px">
+        <span style="color:var(--danger)">⚠️</span>
+        ${unassigned.length} customer${unassigned.length !== 1 ? 's' : ''} have no agent assigned
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        ${byType.susu    ? `<span class="badge b-gold">${byType.susu} Susu</span>` : ''}
+        ${byType.lending ? `<span class="badge b-blue">${byType.lending} Lending</span>` : ''}
+        ${byType.savings ? `<span class="badge b-green">${byType.savings} Savings</span>` : ''}
+      </div>
+    </div>
+
+    <!-- Mode selector -->
+    <div class="form-group">
+      <label class="form-label">Assignment Mode</label>
+      <select class="form-control" id="noagent-mode" onchange="onNoAgentModeChange()">
+        <option value="all">Assign ALL unassigned customers to one agent</option>
+        <option value="type">Assign by account type (Susu/Lending/Savings separately)</option>
+        <option value="pick">Let me choose individually</option>
+      </select>
+    </div>
+
+    <!-- All-to-one panel -->
+    <div id="noagent-all-panel">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Select Agent</label>
+        <select class="form-control" id="noagent-agent-all">
+          <option value="">— Choose agent —</option>
+          ${agents.map(a => `<option value="${a.id}">${a.code} — ${a.firstName} ${a.lastName}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    <!-- By-type panel -->
+    <div id="noagent-type-panel" style="display:none">
+      ${['susu','lending','savings'].map(t => byType[t] > 0 ? `
+        <div class="form-group">
+          <label class="form-label" style="text-transform:capitalize">
+            ${t} Customers (${byType[t]})
+          </label>
+          <select class="form-control" id="noagent-agent-${t}">
+            <option value="">— Keep unassigned —</option>
+            ${agents.map(a => `<option value="${a.id}">${a.code} — ${a.firstName} ${a.lastName}</option>`).join('')}
+          </select>
+        </div>` : '').join('')}
+    </div>
+
+    <!-- Individual pick panel -->
+    <div id="noagent-pick-panel" style="display:none">
+      <div class="table-wrap" style="max-height:260px;overflow-y:auto">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:28px">
+                <input type="checkbox" id="noagent-check-all" title="Select all"
+                  onchange="document.querySelectorAll('.noagent-check').forEach(c=>c.checked=this.checked)">
+              </th>
+              <th>Account</th><th>Name</th><th>Type</th><th>Assign To</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${unassigned.map((c, i) => `
+              <tr>
+                <td><input type="checkbox" class="noagent-check" value="${c.id}" checked></td>
+                <td class="mono text-gold" style="font-size:.76rem">${c.acctNumber}</td>
+                <td style="font-size:.82rem">${c.firstName} ${c.lastName}</td>
+                <td><span class="badge ${c.type==='susu'?'b-gold':c.type==='lending'?'b-blue':'b-green'}">${c.type}</span></td>
+                <td>
+                  <select class="form-control" id="noagent-pick-${c.id}"
+                    style="font-size:.76rem;padding:4px 8px">
+                    <option value="">— Keep unassigned —</option>
+                    ${agents.map(a => `<option value="${a.id}">${a.code} — ${a.firstName} ${a.lastName}</option>`).join('')}
+                  </select>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  okBtn.textContent = '✅ Assign';
+  okBtn.onclick = () => {
+    const mode = document.getElementById('noagent-mode')?.value;
+    let assigned = 0;
+
+    if (mode === 'all') {
+      const agentId = document.getElementById('noagent-agent-all')?.value;
+      if (!agentId) { toast('Select an agent', 'error'); return; }
+      const agent = AGENTS.find(a => a.id === agentId);
+      unassigned.forEach(c => { c.agentId = agent.id; c.agentCode = agent.code; assigned++; });
+
+    } else if (mode === 'type') {
+      ['susu','lending','savings'].forEach(t => {
+        const agentId = document.getElementById('noagent-agent-' + t)?.value;
+        if (!agentId) return;
+        const agent = AGENTS.find(a => a.id === agentId);
+        unassigned.filter(c => c.type === t).forEach(c => {
+          c.agentId = agent.id; c.agentCode = agent.code; assigned++;
+        });
+      });
+
+    } else if (mode === 'pick') {
+      document.querySelectorAll('.noagent-check:checked').forEach(cb => {
+        const custId  = cb.value;
+        const agentId = document.getElementById('noagent-pick-' + custId)?.value;
+        if (!agentId) return;
+        const cust  = CUSTOMERS.find(c => c.id === custId);
+        const agent = AGENTS.find(a => a.id === agentId);
+        if (cust && agent) { cust.agentId = agent.id; cust.agentCode = agent.code; assigned++; }
+      });
+    }
+
+    if (!assigned) { toast('No customers were assigned — select an agent', 'warning'); return; }
+
+    saveAll();
+    logActivity('Customers', `${assigned} unassigned customer(s) assigned to agent(s)`, 0, 'assign');
+    closeModal('modal-confirm');
+    renderCustomerList(document.getElementById('cust-search')?.value || '');
+    toast(`✅ ${assigned} customer${assigned !== 1 ? 's' : ''} successfully assigned`, 'success');
+  };
+
+  openModal('modal-confirm');
+}
+
+function onNoAgentModeChange() {
+  const mode = document.getElementById('noagent-mode')?.value;
+  document.getElementById('noagent-all-panel').style.display  = mode === 'all'  ? '' : 'none';
+  document.getElementById('noagent-type-panel').style.display = mode === 'type' ? '' : 'none';
+  document.getElementById('noagent-pick-panel').style.display = mode === 'pick' ? '' : 'none';
 }
