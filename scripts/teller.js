@@ -213,21 +213,23 @@ function renderReceiveFloatUI(el) {
     (r.tellerId === currentUser?.id || !r.tellerId)
   );
 
-  const alreadyReceived = TELLER_STATE.startOfDay > 0;
+  // Float is "already received for today" only if confirmed today AND no new pending floats
+  const confirmedToday = TELLER_STATE.startOfDayDate === todayISO() && TELLER_STATE.startOfDay > 0;
+  const alreadyReceived = confirmedToday && myPending.length === 0;
 
   if (alreadyReceived) {
     el.innerHTML = `
       <div class="grid-2" style="align-items:start">
         <div class="card">
           <div class="card-title"><span>✅</span> Float Confirmed</div>
-          <div class="alert alert-info">Today's float has already been confirmed. Contact admin to adjust.</div>
+          <div class="alert alert-info">Today's float has been confirmed.</div>
           <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px;font-size:.84rem">
             <div class="flex-between">
               <span class="text-muted">Sent By</span>
               <span class="fw-600 text-gold">${TELLER_STATE.startOfDaySource || '—'}</span>
             </div>
             <div class="flex-between">
-              <span class="text-muted">Float Amount</span>
+              <span class="text-muted">Float Balance</span>
               <span class="mono text-gold fw-600" style="font-size:1.05rem">${fmt(TELLER_STATE.startOfDay)}</span>
             </div>
             <div class="flex-between">
@@ -235,6 +237,48 @@ function renderReceiveFloatUI(el) {
               <span style="font-size:.78rem">${fmtDateTime(TELLER_STATE.startOfDayTime)}</span>
             </div>
           </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>💰</span> Cash at Hand Summary</div>
+          <div id="float-summary-display">${buildCashSummaryHTML()}</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // confirmedToday but has NEW pending top-up float(s) — show them
+  if (confirmedToday && myPending.length > 0) {
+    el.innerHTML = `
+      <div class="grid-2" style="align-items:start">
+        <div class="card">
+          <div class="card-title"><span>⬆️</span> Float Top-Up Waiting</div>
+          <div class="alert alert-warning" style="margin-bottom:12px">
+            Admin sent an additional float. Confirm to top up your balance.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px;font-size:.84rem;margin-bottom:14px">
+            <div class="flex-between">
+              <span class="text-muted">Current Float Balance</span>
+              <span class="mono text-gold fw-600">${fmt(TELLER_STATE.startOfDay)}</span>
+            </div>
+          </div>
+          ${myPending.map(r => `
+            <div style="padding:12px;background:var(--surface2);border:1px solid rgba(201,168,76,.3);
+              border-radius:var(--radius);margin-bottom:10px">
+              <div class="flex-between mb-2">
+                <div>
+                  <div class="fw-600">${fmt(r.amount)} <span class="text-muted" style="font-size:.78rem">top-up</span></div>
+                  <div class="text-muted" style="font-size:.74rem">From ${r.sentBy} · ${fmtDate(r.date)}</div>
+                  ${r.notes ? `<div class="text-muted" style="font-size:.72rem">${r.notes}</div>` : ''}
+                </div>
+                <div class="text-muted" style="font-size:.72rem">${fmtDateTime(r.sentAt)}</div>
+              </div>
+              <div style="font-size:.78rem;color:var(--gold);margin-bottom:8px">
+                New balance after confirmation: <strong class="mono">${fmt(TELLER_STATE.startOfDay + r.amount)}</strong>
+              </div>
+              <button class="btn btn-gold btn-sm" onclick="confirmFloatReceipt('${r.id}')">
+                ✅ Confirm Top-Up of ${fmt(r.amount)}
+              </button>
+            </div>`).join('')}
         </div>
         <div class="card">
           <div class="card-title"><span>💰</span> Cash at Hand Summary</div>
@@ -320,25 +364,32 @@ function confirmFloatReceipt(reqId) {
   if (!TELLER_STATE.floatRequests) TELLER_STATE.floatRequests = [];
   const req = TELLER_STATE.floatRequests.find(r => r.id === reqId);
   if (!req) return toast('Float request not found', 'error');
-  if (TELLER_STATE.startOfDay > 0) return toast('Float already confirmed today', 'warning');
+  if (req.status === 'confirmed') return toast('This float has already been confirmed', 'warning');
 
-  TELLER_STATE.startOfDay       = req.amount;
+  // If a float was already confirmed today, this is a top-up — ADD to existing balance
+  const isTopUp = TELLER_STATE.startOfDayDate === todayISO() && TELLER_STATE.startOfDay > 0;
+  TELLER_STATE.startOfDay       = (isTopUp ? TELLER_STATE.startOfDay : 0) + req.amount;
   TELLER_STATE.startOfDaySource = req.sentBy;
   TELLER_STATE.startOfDayTime   = new Date().toISOString();
+  TELLER_STATE.startOfDayDate   = todayISO(); // stamp today so next check is date-aware
 
   req.status      = 'confirmed';
   req.confirmedAt = new Date().toISOString();
   req.confirmedBy = currentUser?.name || 'Teller';
 
   logActivity('Float',
-    `${fmt(req.amount)} confirmed by ${currentUser?.name} (sent by ${req.sentBy})`,
+    `${fmt(req.amount)} ${isTopUp ? 'top-up float' : 'float'} confirmed by ${currentUser?.name} (sent by ${req.sentBy})`,
     req.amount, 'confirmed'
   );
   saveAll();
   updateTellerStats();
   renderFloatPanel();
   if (typeof updateDashboard === 'function') updateDashboard();
-  toast(`${fmt(req.amount)} float confirmed from ${req.sentBy} ✅`, 'success');
+  toast(
+    `${fmt(req.amount)} float ${isTopUp ? 'top-up ' : ''}confirmed from ${req.sentBy} ✅` +
+    (isTopUp ? ` — Float balance now: ${fmt(TELLER_STATE.startOfDay)}` : ''),
+    'success'
+  );
 }
 
 // ── Cash at Hand summary HTML helper ─────────────────
