@@ -259,23 +259,143 @@ function renderUsersTable() {
                   </span>
                 </td>
                 <td style="white-space:nowrap">
-                  ${u.username !== 'admin'
-                    ? `<button class="btn btn-outline btn-xs"
-                         onclick="toggleUserStatus('${u.id}')">
-                         ${u.status === 'active' ? '⏸ Disable' : '▶ Enable'}
-                       </button>
-                       <button class="btn btn-danger btn-xs"
-                         onclick="deleteUser('${u.id}')">🗑</button>`
-                    : `<span class="badge b-gold" style="font-size:.65rem">
-                         🔒 Protected
-                       </span>`}
-                </td>
+  <button class="btn btn-outline btn-xs"
+    onclick="editUser('${u.id}')">✏️ Edit</button>
+  ${u.username !== 'admin'
+    ? `<button class="btn btn-outline btn-xs"
+         onclick="toggleUserStatus('${u.id}')">
+         ${u.status === 'active' ? '⏸ Disable' : '▶ Enable'}
+       </button>
+       <button class="btn btn-danger btn-xs"
+         onclick="deleteUser('${u.id}')">🗑</button>`
+    : `<span class="badge b-gold" style="font-size:.65rem">
+         🔒 Protected
+       </span>`}
+</td>
               </tr>`;
             }).join('')}
           </tbody>
         </table>
       </div>
     </div>`;
+}
+
+function editUser(id) {
+  const u = USERS.find(x => x.id === id);
+  if (!u) return;
+
+  const roleOptions = Object.entries(ROLE_META).map(([val, m]) =>
+    `<option value="${val}" ${u.role === val ? 'selected' : ''}>${m.emoji} ${m.label}</option>`
+  ).join('');
+
+  document.getElementById('m-agent-title').textContent = `✏️ Edit User — ${u.name}`;
+  document.getElementById('m-agent-body').innerHTML = `
+    <div style="padding:4px 0">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name <span class="req">*</span></label>
+          <input type="text" class="form-control" id="eu-name" value="${u.name}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username <span class="req">*</span></label>
+          <input type="text" class="form-control" id="eu-username"
+            value="${u.username}" ${u.username === 'admin' ? 'readonly' : ''}>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <select class="form-control" id="eu-role"
+          ${u.username === 'admin' ? 'disabled' : ''}>${roleOptions}</select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-control" id="eu-phone" value="${u.phone || ''}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="eu-email" value="${u.email || ''}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">New Password
+            <span class="text-muted"
+              style="font-size:.68rem;text-transform:none;letter-spacing:0">
+              (leave blank to keep current)
+            </span>
+          </label>
+          <input type="password" class="form-control" id="eu-pass"
+            placeholder="New password" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" class="form-control" id="eu-pass2"
+            placeholder="Repeat password">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control" id="eu-status"
+          ${u.username === 'admin' ? 'disabled' : ''}>
+          <option value="active"   ${u.status === 'active'   ? 'selected' : ''}>Active</option>
+          <option value="inactive" ${u.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:9px;justify-content:flex-end;
+        padding-top:14px;border-top:1px solid var(--border)">
+        <button class="btn btn-outline" onclick="closeModal('modal-agent')">Cancel</button>
+        <button class="btn btn-gold" onclick="saveUserEdit('${u.id}')">✅ Save Changes</button>
+      </div>
+    </div>`;
+
+  openModal('modal-agent');
+}
+
+function saveUserEdit(id) {
+  const u = USERS.find(x => x.id === id);
+  if (!u) return;
+
+  const name     = document.getElementById('eu-name')?.value.trim();
+  const username = document.getElementById('eu-username')?.value.trim();
+  const role     = document.getElementById('eu-role')?.value     || u.role;
+  const phone    = document.getElementById('eu-phone')?.value.trim();
+  const email    = document.getElementById('eu-email')?.value.trim();
+  const pass     = document.getElementById('eu-pass')?.value;
+  const pass2    = document.getElementById('eu-pass2')?.value;
+  const status   = document.getElementById('eu-status')?.value   || u.status;
+
+  if (!name)     return toast('Full name is required', 'error');
+  if (!username) return toast('Username is required', 'error');
+
+  if (USERS.find(x => x.username === username && x.id !== id))
+    return toast('Username already taken by another user', 'error');
+
+  if (pass) {
+    if (pass !== pass2)
+      return toast('Passwords do not match', 'error');
+    if (SETTINGS.strongPass &&
+        (pass.length < 8 || !/\d/.test(pass) || !/[a-zA-Z]/.test(pass)))
+      return toast('Password must be at least 8 chars with letters and numbers', 'error');
+    u.password = pass;
+  }
+
+  u.name  = name;
+  u.phone = phone;
+  u.email = email;
+  if (u.username !== 'admin') {
+    u.username = username;
+    u.role     = role;
+    u.status   = status;
+  }
+
+  const meta = getRoleMeta(u.role);
+  logActivity('User', `Edited user: ${u.username}`, 0, 'updated');
+  saveAll();
+  closeModal('modal-agent');
+  renderUsersTable();
+  renderUsersOverview();
+  toast(`${meta.emoji} "${u.name}" updated successfully`, 'success');
 }
 
 function toggleUserStatus(id) {
