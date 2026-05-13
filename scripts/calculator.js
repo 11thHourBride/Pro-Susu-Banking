@@ -471,7 +471,14 @@
 
   let calcPrecision = 4;
   let calcAngle     = 'deg';
-
+function addCommas(numStr) {
+  if (!numStr || numStr === 'Error' || numStr === '∞' || numStr === '-∞') return numStr;
+  const neg = numStr.startsWith('-');
+  const s   = neg ? numStr.slice(1) : numStr;
+  const [intPart, decPart] = s.split('.');
+  const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (neg ? '-' : '') + formatted + (decPart !== undefined ? '.' + decPart : '');
+}
   // ── Settings handlers ─────────────────────────────
   window.S_set00    = v => { S.show00 = v; };
   window.S_setPrec  = v => { calcPrecision = +v; };
@@ -517,9 +524,9 @@
     if (parseFloat(display).toString().length > 14) {
       display = parseFloat(display).toExponential(6);
     }
-    res.textContent = display;
-    res.className = 'calc-result' + (display.length > 12 ? ' small' : '');
-
+    const displayFmt = addCommas(display);
+res.textContent  = displayFmt;
+res.className    = 'calc-result' + (display.replace('-','').replace('.','').length > 12 ? ' small' : '');
     if (expr) {
       let exprStr = '';
       if (S.operand !== null && S.operator) {
@@ -537,12 +544,12 @@
     if (S.calcMode === 'programmer') updateProgBases();
   }
 
-  function fmtNum(n) {
-    if (n === null || n === undefined || isNaN(n)) return '0';
-    if (!isFinite(n)) return n > 0 ? '∞' : '-∞';
-    const str = parseFloat(n.toPrecision(14)).toString();
-    return str;
-  }
+function fmtNum(n) {
+  if (n === null || n === undefined || isNaN(n)) return '0';
+  if (!isFinite(n)) return n > 0 ? '∞' : '-∞';
+  const str = parseFloat(n.toPrecision(14)).toString();
+  return addCommas(str);
+}
 
   function formatResult(n) {
     if (!isFinite(n)) return n > 0 ? 'Infinity' : '-Infinity';
