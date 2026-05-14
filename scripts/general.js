@@ -816,6 +816,7 @@ function showView(id, el) {
     },
     investments    : () => { if (typeof renderInvestments     === 'function') renderInvestments(); },
     sheets         : () => { if (typeof renderSheetList        === 'function') renderSheetList(null); },
+    cards          : () => { if (typeof initCardReplacement    === 'function') initCardReplacement(); },
     customers      : () => { if (typeof renderCustomerList     === 'function') renderCustomerList(''); },
     agents         : () => {
       if (typeof renderAgentList === 'function') renderAgentList('');
