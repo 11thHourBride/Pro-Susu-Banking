@@ -1366,6 +1366,11 @@ details summary span{display:inline-block;transition:transform .2s}
     <button class="sub-tab" onclick="showSubTab('cu','susu',this)">🏦 Susu</button>
     <button class="sub-tab" onclick="showSubTab('cu','lending',this)">💼 Lending Deposit</button>
     <button class="sub-tab" onclick="showSubTab('cu','savings',this)">💰 Savings</button>
+    <button class="sub-tab" id="cu-dormant-tab"
+      onclick="showSubTab('cu','dormant',this);renderDormantCustomers()">
+      😴 Dormant
+      <span class="badge b-yellow" id="cu-dormant-badge" style="margin-left:4px;font-size:.6rem;display:none">0</span>
+    </button>
     <button class="sub-tab" id="cu-deleted-tab" onclick="showSubTab('cu','deleted',this);renderDeletedCustomers()" style="display:none">🗑️ Deleted</button>
     <button class="sub-tab" id="cu-exportimport-tab" onclick="showSubTab('cu','exportimport',this);renderCustomerExportImport()" style="display:none">📤 Export / Import</button>
   </div>
@@ -1561,6 +1566,11 @@ details summary span{display:inline-block;transition:transform .2s}
   <div class="teller-sub" id="cu-savings"><div id="cu-savings-content"></div></div>
   <div class="teller-sub" id="cu-deleted"><div id="cu-deleted-content"></div></div>
   <div class="teller-sub" id="cu-exportimport"><div id="cu-exportimport-content"></div></div>
+
+  <!-- Dormant Customers -->
+  <div class="teller-sub" id="cu-dormant">
+    <div id="cu-dormant-content"></div>
+  </div>
   <!-- Transaction detail — shown inline on page, not in a modal -->
   <div class="teller-sub" id="cu-txn"></div>
 </div>
@@ -2084,6 +2094,7 @@ details summary span{display:inline-block;transition:transform .2s}
     <button class="sub-tab" onclick="showReportTab('customers',this)">👥 Customers</button>
     <button class="sub-tab" onclick="showReportTab('loans',this)">📋 Loans</button>
     <button class="sub-tab" onclick="showReportTab('agents',this)">🧑‍💼 Agents</button>
+    <button class="sub-tab" onclick="showReportTab('gcsca',this);renderGCSCAReport()">🏛️ GCSCA Report</button>
   </div>
   <div id="rpt-overview" class="rpt-panel"><div id="rpt-overview-content"></div></div>
   <div id="rpt-performance" class="rpt-panel hidden"><div id="rpt-performance-content"></div></div>
@@ -2091,6 +2102,7 @@ details summary span{display:inline-block;transition:transform .2s}
   <div id="rpt-customers" class="rpt-panel hidden"><div id="rpt-customers-content"></div></div>
   <div id="rpt-loans" class="rpt-panel hidden"><div id="rpt-loans-content"></div></div>
   <div id="rpt-agents" class="rpt-panel hidden"><div id="rpt-agents-content"></div></div>
+  <div id="rpt-gcsca" class="rpt-panel hidden"><div id="rpt-gcsca-content"></div></div>
 </div>
 
 <!-- ═══════════════════════════════ USERS ═══════════════════════════════ -->
@@ -3210,7 +3222,6 @@ details summary span{display:inline-block;transition:transform .2s}
       </div>
     </div>
 
-
 <!-- ═══════════════════════════════════════════════════ -->
 <!-- JAVASCRIPT                                          -->
 <!-- ═══════════════════════════════════════════════════ -->
@@ -3237,8 +3248,7 @@ details summary span{display:inline-block;transition:transform .2s}
 <script src="scripts/collection-sheets.js"></script>
 <script src="scripts/accounting.js"></script>
 <script src="scripts/users.js"></script>
-
-<!-- Firebase Firestore Sync — loads after all app scripts -->
-<script type="module" src="scripts/firebase-sync.js"></script>
+<script src="scripts/gcsca-report.js"></script>
 </body>
 </html>
+
