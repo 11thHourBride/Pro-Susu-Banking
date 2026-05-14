@@ -268,7 +268,7 @@ function _gcscaStats() {
     // Operations
     activeAgents: activeAgents.length, totalFloat, agentStats,
     // Company
-    company: SETTINGS.companyName || 'Pro Susu Banking',
+    company: SETTINGS.companyName || '',
     address: SETTINGS.companyAddress || '',
     phone  : SETTINGS.companyPhone   || '',
     email  : SETTINGS.companyEmail   || '',
