@@ -400,7 +400,196 @@ function _applyNavRestrictions(role) {
   });
 }
 
-// ── Landing / Login screen navigation ─────────────────
+// ── Agent Registration — Assign Existing Customers ────
+function toggleAgentAssignSection() {
+  const checked = document.getElementById('ag-assign-toggle')?.checked;
+  const section = document.getElementById('ag-assign-section');
+  if (!section) return;
+
+  section.style.display = checked ? 'block' : 'none';
+
+  if (checked) {
+    // Populate the source agent selector with all existing agents
+    const sel = document.getElementById('ag-assign-source');
+    if (!sel) return;
+
+    // Group existing agent codes present in CUSTOMERS
+    const agentCodes = {};
+    AGENTS.forEach(a => {
+      const custCount = CUSTOMERS.filter(c => c.agentId === a.id).length;
+      agentCodes[a.code] = { agent: a, count: custCount };
+    });
+
+    sel.innerHTML = '<option value="">— Choose agent code —</option>' +
+      Object.entries(agentCodes)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([code, { agent, count }]) =>
+          `<option value="${agent.id}">
+            ${code} — ${agent.firstName} ${agent.lastName}
+            (${count} customer${count !== 1 ? 's' : ''})
+          </option>`)
+        .join('');
+
+    document.getElementById('ag-assign-preview').style.display = 'none';
+  }
+}
+
+function previewAgentAssign() {
+  const sel     = document.getElementById('ag-assign-source');
+  const preview = document.getElementById('ag-assign-preview');
+  if (!sel || !preview) return;
+
+  const agentId = sel.value;
+  if (!agentId) { preview.style.display = 'none'; return; }
+
+  const agent = AGENTS.find(a => a.id === agentId);
+  if (!agent) { preview.style.display = 'none'; return; }
+
+  const customers = CUSTOMERS.filter(c => c.agentId === agentId);
+  const byType = { susu: 0, lending: 0, savings: 0 };
+  customers.forEach(c => { if (byType[c.type] !== undefined) byType[c.type]++; });
+
+  preview.style.display = 'block';
+  preview.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span class="agent-code">${agent.code}</span>
+      <span class="fw-600">${agent.firstName} ${agent.lastName}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
+      <div style="padding:6px 10px;background:var(--surface2);border-radius:6px;text-align:center">
+        <div class="text-muted" style="font-size:.66rem">Susu</div>
+        <div class="fw-600">${byType.susu}</div>
+      </div>
+      <div style="padding:6px 10px;background:var(--surface2);border-radius:6px;text-align:center">
+        <div class="text-muted" style="font-size:.66rem">Lending</div>
+        <div class="fw-600">${byType.lending}</div>
+      </div>
+      <div style="padding:6px 10px;background:var(--surface2);border-radius:6px;text-align:center">
+        <div class="text-muted" style="font-size:.66rem">Savings</div>
+        <div class="fw-600">${byType.savings}</div>
+      </div>
+    </div>
+    <div style="color:var(--gold);font-size:.78rem;font-weight:600">
+      ✅ All ${customers.length} customer(s) from <strong>${agent.code}</strong>
+      will be reassigned to the new agent after registration.
+    </div>`;
+}
+
+// Called from addAgent (in agents.js) after the new agent is saved
+// to perform the actual customer reassignment
+function _applyAgentCustomerReassignment(newAgent) {
+  const toggle  = document.getElementById('ag-assign-toggle');
+  if (!toggle?.checked) return;
+
+  const sel     = document.getElementById('ag-assign-source');
+  const sourceId = sel?.value;
+  if (!sourceId) return;
+
+  const customers = CUSTOMERS.filter(c => c.agentId === sourceId);
+  if (!customers.length) return;
+
+  customers.forEach(c => {
+    c.agentId   = newAgent.id;
+    c.agentCode = newAgent.code;
+  });
+
+  saveAll();
+  logActivity('Agent',
+    `Transferred ${customers.length} customer(s) from ${sel.options[sel.selectedIndex]?.text?.split('—')[0]?.trim() || sourceId} → ${newAgent.code} (${newAgent.firstName} ${newAgent.lastName})`,
+    0, 'transfer');
+
+  toast(
+    `✅ ${customers.length} customer(s) reassigned to ${newAgent.code} — ${newAgent.firstName} ${newAgent.lastName}`,
+    'success'
+  );
+
+  // Reset the form
+  if (toggle) toggle.checked = false;
+  toggleAgentAssignSection();
+}
+
+// showView trigger already handles agents, but ensure toggle resets when switching tabs
+
+// ── Purchase Request Page ─────────────────────────────
+function showPurchaseRequestPage() {
+  const lp  = document.getElementById('landing-page');
+  const prp = document.getElementById('purchase-request-page');
+  if (!prp) return showLoginScreen(); // fallback
+  // Fade landing out, show purchase page
+  if (lp) { lp.style.opacity = '0'; }
+  setTimeout(() => {
+    if (lp) lp.style.display = 'none';
+    prp.style.display = 'block';
+    prp.scrollTop = 0;
+    requestAnimationFrame(() => { prp.style.opacity = '1'; });
+    // Clear previous entries
+    ['pr-company','pr-name','pr-phone','pr-email','pr-location','pr-ref'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    const err = document.getElementById('pr-error');
+    const suc = document.getElementById('pr-success');
+    const btn = document.getElementById('pr-submit-btn');
+    if (err) err.style.display = 'none';
+    if (suc) suc.style.display = 'none';
+    if (btn) { btn.style.display = ''; btn.disabled = false; }
+  }, 320);
+}
+
+function hidePurchaseRequestPage() {
+  const prp = document.getElementById('purchase-request-page');
+  const lp  = document.getElementById('landing-page');
+  if (!prp) return;
+  prp.style.opacity = '0';
+  setTimeout(() => {
+    prp.style.display = 'none';
+    if (lp) {
+      lp.style.display = 'flex';
+      lp.style.opacity = '0';
+      requestAnimationFrame(() => { lp.style.opacity = '1'; });
+    }
+  }, 320);
+}
+
+function submitPurchaseRequest() {
+  const company  = (document.getElementById('pr-company')?.value  || '').trim();
+  const name     = (document.getElementById('pr-name')?.value     || '').trim();
+  const phone    = (document.getElementById('pr-phone')?.value    || '').trim();
+  const email    = (document.getElementById('pr-email')?.value    || '').trim();
+  const location = (document.getElementById('pr-location')?.value || '').trim();
+  const ref      = (document.getElementById('pr-ref')?.value      || '').trim();
+
+  const errEl = document.getElementById('pr-error');
+  const show  = m => { if (errEl) { errEl.textContent = m; errEl.style.display = 'block'; } };
+  if (errEl) errEl.style.display = 'none';
+
+  if (!company)  return show('Enter your company name.');
+  if (!name)     return show('Enter the contact person\'s name.');
+  if (!phone)    return show('Enter a phone number.');
+  if (!location) return show('Enter your location / town.');
+  if (!ref)      return show('Enter the payment reference / transaction ID.');
+
+  // Store purchase request in localStorage (viewable by admin in developer mode)
+  const requests = JSON.parse(localStorage.getItem('psb_purchase_requests') || '[]');
+  requests.push({
+    id         : 'REQ-' + Date.now(),
+    company, name, phone, email, location,
+    paymentRef : ref,
+    amount     : 4000,
+    submittedAt: new Date().toISOString(),
+    status     : 'pending',
+  });
+  localStorage.setItem('psb_purchase_requests', JSON.stringify(requests));
+
+  // Show success
+  const sucEl = document.getElementById('pr-success');
+  const btnEl = document.getElementById('pr-submit-btn');
+  if (sucEl) sucEl.style.display = 'block';
+  if (btnEl) { btnEl.style.display = 'none'; }
+
+  // Scroll to success message
+  sucEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function showLoginScreen() {
   const lp = document.getElementById('landing-page');
   const lo = document.getElementById('login-overlay');
@@ -628,7 +817,14 @@ function showView(id, el) {
     investments    : () => { if (typeof renderInvestments     === 'function') renderInvestments(); },
     sheets         : () => { if (typeof renderSheetList        === 'function') renderSheetList(null); },
     customers      : () => { if (typeof renderCustomerList     === 'function') renderCustomerList(''); },
-    agents         : () => { if (typeof renderAgentList        === 'function') renderAgentList(''); },
+    agents         : () => {
+      if (typeof renderAgentList === 'function') renderAgentList('');
+      // Reset assign-customers checkbox when navigating to agents
+      const t = document.getElementById('ag-assign-toggle');
+      const s = document.getElementById('ag-assign-section');
+      if (t) t.checked = false;
+      if (s) s.style.display = 'none';
+    },
     loans          : () => {
       if (typeof updateLoanStats          === 'function') updateLoanStats();
       if (typeof populateLoanAgentSelector === 'function') populateLoanAgentSelector();
@@ -1786,12 +1982,8 @@ function lookupEntryAcct(id, val) {
   // admin password before seeing the login screen.
   const hasStoredData = !!localStorage.getItem('psb_v2');
   if (!hasStoredData && CUSTOMERS.length === 0 && AGENTS.length === 0) {
-    // Firebase sync may populate data — give it 2s before deciding
-    setTimeout(() => {
-      const stillFresh = CUSTOMERS.length === 0 && AGENTS.length === 0 &&
-                         !localStorage.getItem('psb_v2');
-      if (stillFresh) showSetupWizard();
-    }, 2000);
+    // Fresh install — show setup wizard immediately (no Firebase delay needed)
+    setTimeout(() => showSetupWizard(), 400);
   }
 
   // ── Restore session on page refresh ────────────────
