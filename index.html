@@ -1833,14 +1833,50 @@ details summary span{display:inline-block;transition:transform .2s}
   <div class="grid-2">
     <div class="card">
       <div class="card-title"><span>💳</span> Card Replacement Request</div>
-      <div class="alert alert-warning">💰 A fee of <strong id="card-fee-display">GH₵ 30.00</strong> will be deducted from the customer's account balance.</div>
+      <div class="alert alert-warning">
+        💰 A fee of <strong id="card-fee-display">GH₵ 30.00</strong> will be
+        deducted from the customer's account balance.
+      </div>
+
+      <!-- 1. Agent selector -->
+      <div class="form-group">
+        <label class="form-label">Select Agent</label>
+        <select class="form-control" id="cri-agent" onchange="crAgentChanged()">
+          <option value="">— Choose agent —</option>
+        </select>
+      </div>
+
+      <!-- 2. Account number (4-digit shortcode from selected agent) -->
       <div class="form-group">
         <label class="form-label">Account Number</label>
-        <input type="text" class="form-control" id="cri-acct" placeholder="e.g. TN01-0001" oninput="lookupAcct(this.value,'cri-fb','cri-name')">
-        <div id="cri-fb"></div>
+        <div style="position:relative">
+          <input type="text" class="form-control" id="cri-acct"
+            placeholder="Type 4-digit shortcode e.g. 0001"
+            oninput="crLookupAcct(this.value)"
+            onkeydown="if(event.key==='Enter')crLookupAcct(document.getElementById('cri-acct').value,true)">
+          <div id="cri-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;
+            background:var(--surface);border:1px solid var(--border);border-top:none;
+            border-radius:0 0 8px 8px;z-index:100;max-height:180px;overflow-y:auto"></div>
+        </div>
+        <div id="cri-fb" style="font-size:.76rem;margin-top:4px"></div>
       </div>
-      <div class="form-group"><label class="form-label">Customer Name</label><input type="text" class="form-control" id="cri-name" readonly placeholder="Auto-filled"></div>
-      <div id="cri-balance-display"></div>
+
+      <!-- Customer name (auto-filled) -->
+      <div class="form-group">
+        <label class="form-label">Customer Name</label>
+        <input type="text" class="form-control" id="cri-name"
+          readonly placeholder="Auto-filled on account lookup">
+      </div>
+
+      <!-- Balance display -->
+      <div id="cri-balance-display" style="margin-bottom:14px"></div>
+
+      <!-- 3. Date of replacement -->
+      <div class="form-group">
+        <label class="form-label">Date of Replacement</label>
+        <input type="date" class="form-control" id="cri-date">
+      </div>
+
       <div class="form-group">
         <label class="form-label">Reason for Replacement</label>
         <select class="form-control" id="cri-reason">
@@ -1850,15 +1886,37 @@ details summary span{display:inline-block;transition:transform .2s}
           <option value="other">Other</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Processed By</label><input type="text" class="form-control" id="cri-by" placeholder="Staff name"></div>
-      <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-control" id="cri-notes" placeholder="Optional"></div>
-      <button class="btn btn-gold" onclick="processCardReplacement()">💳 Process Replacement</button>
+
+      <div class="form-group">
+        <label class="form-label">Processed By</label>
+        <input type="text" class="form-control" id="cri-by" placeholder="Staff name">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-control" id="cri-notes" placeholder="Optional">
+      </div>
+
+      <button class="btn btn-gold" onclick="processCardReplacement()">
+        💳 Process Replacement
+      </button>
     </div>
+
     <div class="card">
       <div class="card-title"><span>📋</span> Replacement History</div>
       <div class="table-wrap">
-        <table><thead><tr><th>Date</th><th>Account</th><th>Customer</th><th>Reason</th><th>Fee</th><th>By</th></tr></thead>
-        <tbody id="card-replace-tbody"><tr><td colspan="6" class="text-center text-muted" style="padding:24px">No replacements</td></tr></tbody></table>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Account</th><th>Customer</th>
+              <th>Reason</th><th>Fee</th><th>By</th>
+            </tr>
+          </thead>
+          <tbody id="card-replace-tbody">
+            <tr><td colspan="6" class="text-center text-muted"
+              style="padding:24px">No replacements yet</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -2094,7 +2152,6 @@ details summary span{display:inline-block;transition:transform .2s}
     <button class="sub-tab" onclick="showReportTab('customers',this)">👥 Customers</button>
     <button class="sub-tab" onclick="showReportTab('loans',this)">📋 Loans</button>
     <button class="sub-tab" onclick="showReportTab('agents',this)">🧑‍💼 Agents</button>
-    <button class="sub-tab" onclick="showReportTab('gcsca',this);renderGCSCAReport()">🏛️ GCSCA Report</button>
   </div>
   <div id="rpt-overview" class="rpt-panel"><div id="rpt-overview-content"></div></div>
   <div id="rpt-performance" class="rpt-panel hidden"><div id="rpt-performance-content"></div></div>
@@ -2102,7 +2159,6 @@ details summary span{display:inline-block;transition:transform .2s}
   <div id="rpt-customers" class="rpt-panel hidden"><div id="rpt-customers-content"></div></div>
   <div id="rpt-loans" class="rpt-panel hidden"><div id="rpt-loans-content"></div></div>
   <div id="rpt-agents" class="rpt-panel hidden"><div id="rpt-agents-content"></div></div>
-  <div id="rpt-gcsca" class="rpt-panel hidden"><div id="rpt-gcsca-content"></div></div>
 </div>
 
 <!-- ═══════════════════════════════ USERS ═══════════════════════════════ -->
