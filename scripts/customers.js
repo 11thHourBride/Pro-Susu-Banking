@@ -1404,7 +1404,6 @@ function doDeposit(custId) {
   c.transactions.push(txn);
 
   // ── Store in MANUAL_DEPOSITS for admin audit ──────
-  if (!window.MANUAL_DEPOSITS) window.MANUAL_DEPOSITS = [];
   MANUAL_DEPOSITS.unshift({
     id          : txn.id,
     customerId  : c.id,
@@ -3070,7 +3069,7 @@ function renderManualDeposits() {
     return;
   }
 
-  const all = window.MANUAL_DEPOSITS || [];
+  const all = MANUAL_DEPOSITS || [];
 
   // Derive available years and months from data
   const years  = [...new Set(all.map(d => d.date?.slice(0,4)).filter(Boolean))].sort().reverse();
@@ -3233,7 +3232,7 @@ function exportManualDepositsCSV() {
   const monthEl = document.getElementById('md-month')?.value || '';
   const dateEl  = document.getElementById('md-date')?.value  || '';
 
-  let list = window.MANUAL_DEPOSITS || [];
+  let list = MANUAL_DEPOSITS || [];
   if (yearEl)  list = list.filter(d => (d.date||'').startsWith(yearEl));
   if (monthEl) list = list.filter(d => (d.date||'').slice(5,7) === monthEl);
   if (dateEl)  list = list.filter(d => d.date === dateEl);
