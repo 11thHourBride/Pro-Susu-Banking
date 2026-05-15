@@ -869,13 +869,13 @@ function renderCustomerList(search) {
   const isAgent = currentUser?.role === 'agent';
 
   // Tab visibility
-  const delTab = document.getElementById('cu-deleted-tab');
-  if (delTab) delTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
-  const expTab = document.getElementById('cu-exportimport-tab');
-  if (expTab) expTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
-  const lnEiTab = document.getElementById('ln-exportimport-tab');
-  if (lnEiTab) lnEiTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
-
+ // AFTER — add the manual-deposits tab alongside them:
+const delTab = document.getElementById('cu-deleted-tab');
+if (delTab) delTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
+const expTab = document.getElementById('cu-exportimport-tab');
+if (expTab) expTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
+const mdTab = document.getElementById('cu-manualdeposits-tab');
+if (mdTab) mdTab.style.display = (currentUser?.role === 'admin') ? '' : 'none';
   // Hide All Customers tab for agent role
   const allTab = document.querySelector('#view-customers .sub-tab[onclick*="\'list\'"]');
   if (allTab) allTab.style.display = isAgent ? 'none' : '';
