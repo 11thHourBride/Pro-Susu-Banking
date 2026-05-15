@@ -759,16 +759,16 @@ details summary span{display:inline-block;transition:transform .2s}
 
       <!-- Feature summary (compact) -->
       <div style="display:flex;flex-direction:column;gap:8px;max-width:320px">
-        <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.5); border-radius:8px;padding:8px 12px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3)">
+        <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.5)">
           <span>💼</span><span>Loans &amp; Collections</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.5); border-radius:8px;padding:8px 12px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3)">
+        <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.5)">
           <span>👥</span><span>Customer Accounts</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.5); border-radius:8px;padding:8px 12px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3)">
+        <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.5)">
           <span>📊</span><span>Reports &amp; Analytics</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.5); border-radius:8px;padding:8px 12px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3)">
+        <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.5)">
           <span>🔒</span><span>Secure Role-based Access</span>
         </div>
       </div>
@@ -976,8 +976,6 @@ details summary span{display:inline-block;transition:transform .2s}
       </div>
     </div>
   </div>
-   <!-- Float status widget — rendered for admin/accountant only -->
-  <div id="dash-float-widget" style="margin-top:14px;display:none"></div>
   <div class="card mt-4">
     <div class="card-title"><span>🕐</span> Recent Activity</div>
     <div class="table-wrap">
@@ -985,7 +983,8 @@ details summary span{display:inline-block;transition:transform .2s}
       <tbody id="dash-activity"><tr><td colspan="5" class="text-center text-muted" style="padding:24px">No activity yet</td></tr></tbody></table>
     </div>
   </div>
- 
+  <!-- Float status widget — rendered for admin/accountant only -->
+  <div id="dash-float-widget" style="margin-top:14px;display:none"></div>
 </div>
 
 <!-- ═══════════════════════════════ TELLER ═══════════════════════════════ -->
@@ -1372,6 +1371,11 @@ details summary span{display:inline-block;transition:transform .2s}
       😴 Dormant
       <span class="badge b-yellow" id="cu-dormant-badge" style="margin-left:4px;font-size:.6rem;display:none">0</span>
     </button>
+    <button class="sub-tab" id="cu-manualdeposits-tab"
+      onclick="showSubTab('cu','manualdeposits',this);renderManualDeposits()"
+      style="display:none">
+      💰 Manual Deposits
+    </button>
     <button class="sub-tab" id="cu-deleted-tab" onclick="showSubTab('cu','deleted',this);renderDeletedCustomers()" style="display:none">🗑️ Deleted</button>
     <button class="sub-tab" id="cu-exportimport-tab" onclick="showSubTab('cu','exportimport',this);renderCustomerExportImport()" style="display:none">📤 Export / Import</button>
   </div>
@@ -1569,9 +1573,16 @@ details summary span{display:inline-block;transition:transform .2s}
   <div class="teller-sub" id="cu-exportimport"><div id="cu-exportimport-content"></div></div>
 
   <!-- Dormant Customers -->
-  <div class="teller-sub" id="cu-dormant">
-    <div id="cu-dormant-content"></div>
-  </div>
+  <!-- AFTER (fixed) -->
+<div class="teller-sub" id="cu-dormant">
+  <div id="cu-dormant-content"></div>
+</div>
+<!--Manual Deposits- Admin Only-->
+<div class="teller-sub" id="cu-manualdeposits">
+  <div id="cu-manualdeposits-content"></div>
+</div>
+
+<div class="teller-sub" id="cu-txn"></div>
   <!-- Transaction detail — shown inline on page, not in a modal -->
   <div class="teller-sub" id="cu-txn"></div>
 </div>
@@ -2435,7 +2446,14 @@ details summary span{display:inline-block;transition:transform .2s}
         <div class="form-group"><label class="form-label">SMS Provider</label><select class="form-control" id="st-sms-provider" onchange="settingChanged('smsProvider',this.value)"><option value="arkesel">Arkesel</option><option value="mnotify">mNotify</option><option value="hubtel">Hubtel</option></select></div>
         <div class="form-group"><label class="form-label">Sender ID (max 11 chars)</label><input type="text" class="form-control" id="st-sms-sender" maxlength="11" placeholder="PROSUSU" oninput="settingChanged('smsSenderId',this.value)"></div>
       </div>
-      <div class="form-group"><label class="form-label">API Key</label><input type="text" class="form-control" id="st-sms-apikey" placeholder="Your SMS provider API key" oninput="settingChanged('smsApiKey',this.value)"></div>
+      <div class="form-group"><label class="form-label">API Key</label><input type="text" class="form-control" id="st-sms-apikey" placeholder="Your Arkesel API key" oninput="settingChanged('smsApiKey',this.value)"></div>
+      <div class="alert alert-info" style="font-size:.76rem;line-height:1.7;margin-bottom:12px">
+        🔑 <strong>How to get your Arkesel API key:</strong><br>
+        1. Sign up at <strong>app.arkesel.com</strong><br>
+        2. Go to <strong>Settings → API Keys</strong> → copy your API key<br>
+        3. Register a <strong>Sender ID</strong> (e.g. PROSUSU) under SMS → Sender IDs<br>
+        4. Paste the key above and save. SMS is sent directly — no proxy required.
+      </div>
 
       <button class="btn btn-outline btn-sm" onclick="testSMS(this)">📤 Send Test SMS</button>
 
