@@ -3303,11 +3303,13 @@ details summary span{display:inline-block;transition:transform .2s}
 <script src="scripts/transfers.js"></script>
 <script src="scripts/collaborations.js"></script>
 <script src="scripts/card-replacement.js"></script>
-<script src="scripts/collection-sheets.js"></script>
-<script src="scripts/firebase-sync.js"></script>    
+<script src="scripts/collection-sheets.js"></script> 
 <script src="scripts/accounting.js"></script>
 <script src="scripts/users.js"></script>
 <script src="scripts/gcsca-report.js"></script>
+
+ <!-- Firebase Firestore Sync — loads after all app scripts -->
+<script type="module" src="scripts/firebase-sync.js"></script>   
 </body>
 </html>
 
