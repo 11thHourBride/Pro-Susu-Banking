@@ -34,6 +34,7 @@ let SHEET_STATE = {activeSheetId:null, rows:[], newSheet:null};
 let PAYROLL = [];              // monthly payroll runs
 let ALLOWANCES_RECORDS = [];  // allowance payment history
 let AGENT_SUBMISSIONS  = [];  // agent field collections submitted to teller
+let MANUAL_DEPOSITS    = [];  // admin-entered manual deposits (customerId, amount, date, note)
 let ACTIVITY_LOG = [];
 let currentUser  = null;
 
@@ -47,7 +48,7 @@ function saveAll() {
       SETTINGS, AGENTS, CUSTOMERS, LOANS, INVESTMENTS, TRANSFERS,
       CARD_REPLACEMENTS, COLLAB_PARTNERS, COLLAB_TRANSACTIONS,
       COLLECTION_SHEETS, ACCOUNTING_ENTRIES, USERS, TELLER_STATE,
-      PAYROLL, ALLOWANCES_RECORDS, DELETED_CUSTOMERS, VACATED_ACCOUNTS, AGENT_SUBMISSIONS, ACTIVITY_LOG
+      PAYROLL, ALLOWANCES_RECORDS, DELETED_CUSTOMERS, VACATED_ACCOUNTS, AGENT_SUBMISSIONS, ACTIVITY_LOG, MANUAL_DEPOSITS
     }));
   } catch(e) {}
 }
@@ -75,6 +76,7 @@ function loadAll() {
     if(d.PAYROLL)            PAYROLL            = d.PAYROLL;
     if(d.ALLOWANCES_RECORDS) ALLOWANCES_RECORDS = d.ALLOWANCES_RECORDS;
     if(d.ACTIVITY_LOG) ACTIVITY_LOG = d.ACTIVITY_LOG;
+    if(d.MANUAL_DEPOSITS) MANUAL_DEPOSITS = d.MANUAL_DEPOSITS;
 
     // Always guarantee the default admin exists — even if a previous
     // company's data was loaded, a new company must always be able to log in.
@@ -2004,6 +2006,7 @@ function lookupEntryAcct(id, val) {
   }
 })();
 
+ 
 // ═══════════════════════════════════════════════════════
 //  LOADERS
 // ═══════════════════════════════════════════════════════
