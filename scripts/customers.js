@@ -880,6 +880,9 @@ function renderCustomerList(search) {
   const allTab = document.querySelector('#view-customers .sub-tab[onclick*="\'list\'"]');
   if (allTab) allTab.style.display = isAgent ? 'none' : '';
 
+  // Update dormant badge count
+  if (typeof updateDormantBadge === 'function') updateDormantBadge();
+
   // ── Populate agent filter dropdown (admin/teller only) ──
   const agentFilterEl = document.getElementById('cu-agent-filter');
   if (agentFilterEl && !isAgent) {
@@ -1316,43 +1319,120 @@ function backToCustomerList() {
 // ─────────────────────────────────────────────────────
 function openDepositModal(custId) {
   const c = CUSTOMERS.find(x => x.id === custId); if (!c) return;
-  document.getElementById('m-cust-title').textContent = `Deposit — ${c.firstName} ${c.lastName}`;
+  document.getElementById('m-cust-title').textContent =
+    `💰 Deposit — ${c.firstName} ${c.lastName} (${c.acctNumber})`;
   document.getElementById('m-cust-body').innerHTML = `
+    <div style="padding:10px 14px;background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);margin-bottom:14px;display:flex;
+      justify-content:space-between;align-items:center">
+      <span class="text-muted" style="font-size:.82rem">Current Balance</span>
+      <span class="mono fw-600 text-gold" style="font-size:1.05rem">${fmt(c.balance || 0)}</span>
+    </div>
     <div class="form-group">
-      <label class="form-label">Amount (GH₵)</label>
-      <input type="number" class="form-control" id="dep-amount" placeholder="0.00" min="0" step="0.01">
+      <label class="form-label">Amount (GH₵) *</label>
+      <input type="number" class="form-control" id="dep-amount"
+        placeholder="0.00" min="0.01" step="0.01"
+        oninput="depUpdatePreview('${custId}')">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deposit Date *</label>
+      <input type="date" class="form-control" id="dep-date" value="${todayISO()}">
     </div>
     <div class="form-group">
       <label class="form-label">Description</label>
-      <input type="text" class="form-control" id="dep-desc" placeholder="Deposit reason">
+      <input type="text" class="form-control" id="dep-desc"
+        placeholder="e.g. Weekly contribution">
+    </div>
+    <div id="dep-preview" style="display:none;padding:10px 14px;
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);font-size:.8rem;margin-bottom:14px">
     </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal('modal-customer')">Cancel</button>
-      <button class="btn btn-gold" onclick="doDeposit('${custId}')">✅ Deposit</button>
+      <button class="btn btn-gold" onclick="doDeposit('${custId}')">✅ Process Deposit</button>
     </div>`;
   openModal('modal-customer');
 }
 
+function depUpdatePreview(custId) {
+  const c   = CUSTOMERS.find(x => x.id === custId); if (!c) return;
+  const amt = parseFloat(document.getElementById('dep-amount')?.value) || 0;
+  const el  = document.getElementById('dep-preview');
+  if (!el) return;
+  if (amt <= 0) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+      <span class="text-muted">Balance Before</span>
+      <span class="mono">${fmt(c.balance || 0)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+      <span class="text-muted">+ Deposit</span>
+      <span class="mono text-success">+ ${fmt(amt)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);
+      padding-top:6px;font-weight:700">
+      <span>Balance After</span>
+      <span class="mono text-gold">${fmt((c.balance || 0) + amt)}</span>
+    </div>`;
+}
+
 function doDeposit(custId) {
-  const c = CUSTOMERS.find(x => x.id === custId); if (!c) return;
-  const amt  = parseFloat(document.getElementById('dep-amount').value);
-  const desc = document.getElementById('dep-desc').value.trim() || 'Manual deposit';
-  if (!amt || amt <= 0) return toast('Enter valid amount', 'error');
-  c.balance = (c.balance || 0) + amt;
+  const c    = CUSTOMERS.find(x => x.id === custId); if (!c) return;
+  const amt  = parseFloat(document.getElementById('dep-amount')?.value);
+  const date = document.getElementById('dep-date')?.value   || todayISO();
+  const desc = (document.getElementById('dep-desc')?.value  || '').trim() || 'Manual deposit';
+
+  if (!amt || amt <= 0) return toast('Enter a valid amount', 'error');
+  if (!date)            return toast('Select a deposit date', 'error');
+
+  const prevBal = c.balance || 0;
+  c.balance     = Math.round((prevBal + amt) * 100) / 100;
+
   if (!c.transactions) c.transactions = [];
-  c.transactions.push({
-    id: uid(), type: 'deposit', desc, amount: amt,
-    balance: c.balance, date: todayISO(),
-    by: currentUser?.name || 'System'
+  const txn = {
+    id      : uid(),
+    type    : 'deposit',
+    desc,
+    amount  : amt,
+    balance : c.balance,
+    date,
+    time    : new Date().toISOString(),
+    by      : currentUser?.name || 'System',
+    manual  : true,
+  };
+  c.transactions.push(txn);
+
+  // ── Store in MANUAL_DEPOSITS for admin audit ──────
+  if (!window.MANUAL_DEPOSITS) window.MANUAL_DEPOSITS = [];
+  MANUAL_DEPOSITS.unshift({
+    id          : txn.id,
+    customerId  : c.id,
+    acctNumber  : c.acctNumber,
+    customerName: `${c.firstName} ${c.lastName}`,
+    agentId     : c.agentId,
+    agentCode   : c.agentCode,
+    type        : c.type,
+    amount      : amt,
+    balanceBefore: prevBal,
+    balanceAfter : c.balance,
+    date,
+    desc,
+    processedBy : currentUser?.name || 'System',
+    processedAt : new Date().toISOString(),
   });
+
   saveAll();
   closeModal('modal-customer');
-  sendSMS(c, 'deposit', { amount: amt, balance: c.balance, date: todayISO() });
-  toast(`${fmt(amt)} deposited to ${c.acctNumber}`, 'success');
-  // Refresh txn panel if it's currently visible
+  sendSMS(c, 'deposit', { amount: amt, balance: c.balance, date });
+  logActivity('Deposit', `Manual deposit ${fmt(amt)} to ${c.acctNumber} (${c.firstName} ${c.lastName}) on ${fmtDate(date)}`, amt, 'deposit');
+  toast(`${fmt(amt)} deposited to ${c.acctNumber} ✅`, 'success');
+
   if (document.getElementById('cu-txn')?.classList.contains('active')) {
     openCustomerTxn(custId);
   }
+  // Refresh manual deposits tab if visible
+  if (typeof renderManualDeposits === 'function') renderManualDeposits();
 }
 
 // ─────────────────────────────────────────────────────
@@ -2669,4 +2749,508 @@ function onNoAgentModeChange() {
   document.getElementById('noagent-all-panel').style.display  = mode === 'all'  ? '' : 'none';
   document.getElementById('noagent-type-panel').style.display = mode === 'type' ? '' : 'none';
   document.getElementById('noagent-pick-panel').style.display = mode === 'pick' ? '' : 'none';
+}
+
+// ═══════════════════════════════════════════════════════
+//  DORMANT CUSTOMERS
+//  A customer is dormant if they have had no deposit or
+//  withdrawal transaction in the last 3 months.
+// ═══════════════════════════════════════════════════════
+
+const DORMANT_MONTHS = 3;
+
+// Returns the date of the most recent deposit/withdrawal on a customer
+function _lastActivityDate(customer) {
+  const txns = (customer.transactions || [])
+    .filter(t => t.type === 'deposit' || t.type === 'withdrawal' || t.type === 'entry')
+    .map(t => t.date || t.time?.slice(0, 10) || '')
+    .filter(Boolean)
+    .sort()
+    .reverse();
+  return txns[0] || customer.dateCreated || null;
+}
+
+// Returns true if the customer is dormant (no activity for DORMANT_MONTHS)
+function isDormant(customer) {
+  if (customer.status !== 'active') return false; // only active accounts
+  const last = _lastActivityDate(customer);
+  if (!last) {
+    // No transactions at all — check registration date
+    const reg = customer.dateCreated;
+    if (!reg) return false;
+    const regDate = new Date(reg);
+    const cutoff  = new Date();
+    cutoff.setMonth(cutoff.getMonth() - DORMANT_MONTHS);
+    return regDate < cutoff;
+  }
+  const lastDate = new Date(last);
+  const cutoff   = new Date();
+  cutoff.setMonth(cutoff.getMonth() - DORMANT_MONTHS);
+  return lastDate < cutoff;
+}
+
+// Update the dormant badge count in the subtab
+function updateDormantBadge() {
+  const count = CUSTOMERS.filter(isDormant).length;
+  const badge = document.getElementById('cu-dormant-badge');
+  if (badge) {
+    badge.textContent   = count;
+    badge.style.display = count > 0 ? '' : 'none';
+  }
+}
+
+// ── Main render function ──────────────────────────────
+function renderDormantCustomers() {
+  updateDormantBadge();
+  const el = document.getElementById('cu-dormant-content'); if (!el) return;
+
+  const dormant = CUSTOMERS.filter(isDormant);
+
+  if (!dormant.length) {
+    el.innerHTML = `
+      <div class="empty-state" style="padding:64px 0">
+        <div class="ei">😴</div>
+        <div class="et">No Dormant Accounts</div>
+        <div class="es">
+          Customers with no activity for ${DORMANT_MONTHS} months will appear here.
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Group by agent
+  const grouped = {};
+  dormant.forEach(c => {
+    const agent = AGENTS.find(a => a.id === c.agentId);
+    const key   = agent ? agent.id : '__none__';
+    if (!grouped[key]) grouped[key] = { agent, customers: [] };
+    grouped[key].customers.push(c);
+  });
+
+  // Sort groups: agents alphabetically by code, unassigned last
+  const sortedGroups = Object.values(grouped).sort((a, b) => {
+    if (!a.agent && !b.agent) return 0;
+    if (!a.agent) return 1;
+    if (!b.agent) return -1;
+    return a.agent.code.localeCompare(b.agent.code);
+  });
+
+  el.innerHTML = `
+    <!-- Toolbar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:10px;margin-bottom:20px">
+      <div>
+        <div class="fw-600" style="font-size:.95rem">😴 Dormant Accounts</div>
+        <div class="text-muted" style="font-size:.76rem;margin-top:2px">
+          ${dormant.length} customer${dormant.length !== 1 ? 's' : ''} with no activity
+          for over ${DORMANT_MONTHS} months
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select class="form-control" id="dormant-agent-filter"
+          style="width:200px;font-size:.82rem"
+          onchange="filterDormantView()">
+          <option value="all">All Agents</option>
+          <option value="__none__">No Agent</option>
+          ${AGENTS.filter(a => grouped[a.id])
+              .sort((a,b) => a.code.localeCompare(b.code))
+              .map(a => `<option value="${a.id}">${a.code} — ${a.firstName} ${a.lastName}</option>`)
+              .join('')}
+        </select>
+        <button class="btn btn-outline btn-sm"
+          onclick="reactivateDormantSelected()"
+          style="display:none" id="dormant-reactive-btn">
+          ✅ Mark Active
+        </button>
+      </div>
+    </div>
+
+    <!-- Grouped sections -->
+    <div id="dormant-sections">
+      ${sortedGroups.map(g => _buildDormantSection(g.agent, g.customers)).join('')}
+    </div>`;
+}
+
+function _buildDormantSection(agent, customers) {
+  const agentLabel = agent
+    ? `<span class="agent-code">${agent.code}</span>
+       <span class="fw-600 ml-2">${agent.firstName} ${agent.lastName}</span>`
+    : `<span class="text-muted fw-600">No Agent Assigned</span>`;
+
+  const agentId = agent ? agent.id : '__none__';
+
+  return `
+    <div class="dormant-group" data-agent="${agentId}"
+      style="margin-bottom:24px">
+      <!-- Section header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;
+        padding:8px 14px;background:var(--surface2);border:1px solid var(--border);
+        border-radius:var(--radius) var(--radius) 0 0;border-bottom:none">
+        <div style="display:flex;align-items:center;gap:10px;font-size:.86rem">
+          <span style="width:8px;height:8px;border-radius:50%;
+            background:var(--danger);display:inline-block"></span>
+          ${agentLabel}
+          <span class="badge b-yellow" style="font-size:.62rem">
+            ${customers.length} dormant
+          </span>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:.76rem;
+          color:var(--muted);cursor:pointer">
+          <input type="checkbox" class="dormant-group-check"
+            data-agent="${agentId}"
+            onchange="toggleDormantGroup('${agentId}',this.checked)"
+            style="accent-color:var(--gold)">
+          Select all
+        </label>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap" style="border-radius:0 0 var(--radius) var(--radius);
+        border:1px solid var(--border);overflow:hidden">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:28px"></th>
+              <th>Account No.</th>
+              <th>Customer Name</th>
+              <th>Type</th>
+              <th>Balance</th>
+              <th>Last Activity</th>
+              <th>Months Inactive</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${customers.map(c => {
+              const last      = _lastActivityDate(c);
+              const lastFmt   = last ? fmtDate(last) : 'Never';
+              const months    = last
+                ? Math.floor((new Date() - new Date(last)) / (30.44 * 86400000))
+                : '—';
+              const severity  = months >= 6 ? 'var(--danger)' : 'var(--warning)';
+              return `
+                <tr>
+                  <td>
+                    <input type="checkbox" class="dormant-check"
+                      data-id="${c.id}" data-agent="${agentId}"
+                      style="accent-color:var(--gold)">
+                  </td>
+                  <td class="mono text-gold" style="font-size:.78rem">${c.acctNumber}</td>
+                  <td>
+                    <span onclick="openCustomerModal('${c.id}')"
+                      style="cursor:pointer;font-size:.84rem;font-weight:600">
+                      ${c.firstName} ${c.lastName}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge ${c.type==='susu'?'b-gold':c.type==='lending'?'b-blue':'b-green'}">
+                      ${c.type}
+                    </span>
+                  </td>
+                  <td class="mono fw-600">${fmt(c.balance || 0)}</td>
+                  <td style="font-size:.78rem;color:var(--muted)">${lastFmt}</td>
+                  <td style="text-align:center">
+                    <span style="font-size:.82rem;font-weight:700;color:${severity}">
+                      ${months}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-gold btn-xs"
+                      onclick="openCustomerModal('${c.id}')">View</button>
+                    <button class="btn btn-outline btn-xs"
+                      onclick="markDormantActive('${c.id}')">✅ Activate</button>
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+// ── Filter by agent ────────────────────────────────────
+function filterDormantView() {
+  const val      = document.getElementById('dormant-agent-filter')?.value || 'all';
+  const sections = document.querySelectorAll('.dormant-group');
+  sections.forEach(sec => {
+    const agentId = sec.dataset.agent;
+    sec.style.display = (val === 'all' || val === agentId) ? '' : 'none';
+  });
+  _updateDormantReactivateBtn();
+}
+
+// ── Select all in a group ─────────────────────────────
+function toggleDormantGroup(agentId, checked) {
+  document.querySelectorAll(`.dormant-check[data-agent="${agentId}"]`)
+    .forEach(cb => cb.checked = checked);
+  _updateDormantReactivateBtn();
+}
+
+function _updateDormantReactivateBtn() {
+  const any = document.querySelectorAll('.dormant-check:checked').length > 0;
+  const btn = document.getElementById('dormant-reactive-btn');
+  if (btn) btn.style.display = any ? '' : 'none';
+}
+
+// Auto-show/hide the activate button when individual rows are checked
+document.addEventListener('change', e => {
+  if (e.target?.classList.contains('dormant-check')) _updateDormantReactivateBtn();
+});
+
+// ── Mark single customer active ───────────────────────
+function markDormantActive(custId) {
+  const c = CUSTOMERS.find(x => x.id === custId); if (!c) return;
+  showConfirm(
+    '✅ Mark as Active?',
+    `Remove dormant status for <strong>${c.firstName} ${c.lastName}</strong>?
+     <br><span class="text-muted" style="font-size:.8rem">
+       This will add a system note to their account marking reactivation today.
+     </span>`,
+    () => {
+      if (!c.transactions) c.transactions = [];
+      c.transactions.push({
+        id    : uid(),
+        type  : 'note',
+        desc  : 'Account reactivated — dormant status cleared',
+        amount: 0,
+        balance: c.balance || 0,
+        date  : todayISO(),
+        by    : currentUser?.name || 'System',
+      });
+      saveAll();
+      logActivity('Dormant', `${c.firstName} ${c.lastName} (${c.acctNumber}) reactivated`, 0, 'reactivated');
+      renderDormantCustomers();
+      toast(`${c.firstName} ${c.lastName} reactivated ✅`, 'success');
+    }
+  );
+}
+
+// ── Bulk reactivate selected ──────────────────────────
+function reactivateDormantSelected() {
+  const checked = [...document.querySelectorAll('.dormant-check:checked')];
+  if (!checked.length) return toast('Select at least one customer', 'warning');
+
+  showConfirm(
+    `✅ Reactivate ${checked.length} Customer${checked.length !== 1 ? 's' : ''}?`,
+    `This will add a reactivation note to <strong>${checked.length}</strong>
+     selected customer${checked.length !== 1 ? 's' : ''}.`,
+    () => {
+      let count = 0;
+      checked.forEach(cb => {
+        const c = CUSTOMERS.find(x => x.id === cb.dataset.id); if (!c) return;
+        if (!c.transactions) c.transactions = [];
+        c.transactions.push({
+          id     : uid(),
+          type   : 'note',
+          desc   : 'Account reactivated — dormant status cleared',
+          amount : 0,
+          balance: c.balance || 0,
+          date   : todayISO(),
+          by     : currentUser?.name || 'System',
+        });
+        count++;
+      });
+      saveAll();
+      logActivity('Dormant', `${count} dormant customer(s) reactivated`, 0, 'reactivated');
+      renderDormantCustomers();
+      toast(`${count} customer${count !== 1 ? 's' : ''} reactivated ✅`, 'success');
+    }
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+//  MANUAL DEPOSITS — Admin Audit Tab
+// ═══════════════════════════════════════════════════════
+
+function renderManualDeposits() {
+  const el = document.getElementById('cu-manualdeposits-content'); if (!el) return;
+  if (currentUser?.role !== 'admin') {
+    el.innerHTML = `<div class="empty-state" style="padding:48px 0">
+      <div class="ei">🔒</div><div class="et">Admin Only</div></div>`;
+    return;
+  }
+
+  const all = window.MANUAL_DEPOSITS || [];
+
+  // Derive available years and months from data
+  const years  = [...new Set(all.map(d => d.date?.slice(0,4)).filter(Boolean))].sort().reverse();
+  const selYear  = document.getElementById('md-year')?.value  || (years[0] || new Date().getFullYear().toString());
+  const selMonth = document.getElementById('md-month')?.value || '';
+  const selDate  = document.getElementById('md-date')?.value  || '';
+
+  // Filter
+  let list = all;
+  if (selYear)  list = list.filter(d => (d.date || '').startsWith(selYear));
+  if (selMonth) list = list.filter(d => (d.date || '').slice(5,7) === selMonth);
+  if (selDate)  list = list.filter(d => d.date === selDate);
+
+  const total = list.reduce((s, d) => s + d.amount, 0);
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  el.innerHTML = `
+    <!-- Header + filters -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;
+      flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div>
+        <div class="fw-600" style="font-size:.95rem">💰 Manual Deposits</div>
+        <div class="text-muted" style="font-size:.76rem;margin-top:2px">
+          All manual deposits processed through the customer deposit button.
+          Visible to administrators only.
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="exportManualDepositsCSV()">
+        📥 Export CSV
+      </button>
+    </div>
+
+    <!-- Filter bar -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
+      <!-- Year -->
+      <div>
+        <label class="form-label" style="margin-bottom:4px">Year</label>
+        <select class="form-control" id="md-year" style="width:110px"
+          onchange="renderManualDeposits()">
+          <option value="">All Years</option>
+          ${years.map(y => `<option value="${y}" ${y===selYear?'selected':''}>${y}</option>`).join('')}
+          ${!years.length ? `<option value="${new Date().getFullYear()}">${new Date().getFullYear()}</option>` : ''}
+        </select>
+      </div>
+      <!-- Month -->
+      <div>
+        <label class="form-label" style="margin-bottom:4px">Month</label>
+        <select class="form-control" id="md-month" style="width:130px"
+          onchange="document.getElementById('md-date').value='';renderManualDeposits()">
+          <option value="">All Months</option>
+          ${monthNames.map((m,i) => {
+            const val = String(i+1).padStart(2,'0');
+            return `<option value="${val}" ${selMonth===val?'selected':''}>${m}</option>`;
+          }).join('')}
+        </select>
+      </div>
+      <!-- Specific date -->
+      <div>
+        <label class="form-label" style="margin-bottom:4px">Specific Date</label>
+        <input type="date" class="form-control" id="md-date" style="width:160px"
+          value="${selDate}"
+          onchange="renderManualDeposits()">
+      </div>
+      ${(selYear||selMonth||selDate) ? `
+        <div style="padding-bottom:2px">
+          <button class="btn btn-outline btn-xs"
+            onclick="
+              document.getElementById('md-year').value='';
+              document.getElementById('md-month').value='';
+              document.getElementById('md-date').value='';
+              renderManualDeposits()">
+            ✕ Clear Filters
+          </button>
+        </div>` : ''}
+    </div>
+
+    <!-- Summary cards -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border);
+        border-radius:var(--radius)">
+        <div class="text-muted" style="font-size:.68rem;margin-bottom:3px">TOTAL DEPOSITS</div>
+        <div class="mono fw-600 text-gold" style="font-size:1.1rem">${fmt(total)}</div>
+      </div>
+      <div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border);
+        border-radius:var(--radius)">
+        <div class="text-muted" style="font-size:.68rem;margin-bottom:3px">TRANSACTIONS</div>
+        <div class="fw-600" style="font-size:1.1rem">${list.length}</div>
+      </div>
+      <div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border);
+        border-radius:var(--radius)">
+        <div class="text-muted" style="font-size:.68rem;margin-bottom:3px">AVERAGE DEPOSIT</div>
+        <div class="mono fw-600" style="font-size:1.1rem">
+          ${list.length ? fmt(total / list.length) : 'GH₵ 0.00'}
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    ${!list.length ? `
+      <div class="empty-state" style="padding:48px 0">
+        <div class="ei">💰</div>
+        <div class="et">No Manual Deposits Found</div>
+        <div class="es">
+          ${selYear||selMonth||selDate ? 'No deposits match the selected filters.' : 'Manual deposits will appear here once processed.'}
+        </div>
+      </div>` : `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Account No.</th>
+              <th>Customer</th>
+              <th>Agent</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Balance After</th>
+              <th>Description</th>
+              <th>Processed By</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(d => `
+              <tr>
+                <td style="white-space:nowrap;font-size:.78rem">${fmtDate(d.date)}</td>
+                <td class="mono text-gold" style="font-size:.78rem">${d.acctNumber}</td>
+                <td style="font-size:.84rem;font-weight:600">${d.customerName}</td>
+                <td>
+                  ${d.agentCode
+                    ? `<span class="agent-code" style="font-size:.72rem">${d.agentCode}</span>`
+                    : '<span class="text-muted">—</span>'}
+                </td>
+                <td>
+                  <span class="badge ${d.type==='susu'?'b-gold':d.type==='lending'?'b-blue':'b-green'}">
+                    ${d.type||'—'}
+                  </span>
+                </td>
+                <td class="mono fw-600 text-success">+ ${fmt(d.amount)}</td>
+                <td class="mono" style="font-size:.82rem">${fmt(d.balanceAfter)}</td>
+                <td style="font-size:.78rem;color:var(--muted)">${d.desc||'—'}</td>
+                <td style="font-size:.78rem">${d.processedBy}</td>
+              </tr>`).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="background:var(--surface2);font-weight:700">
+              <td colspan="5" style="padding:8px 12px">Total (${list.length} transactions)</td>
+              <td class="mono text-gold" style="padding:8px 12px">+ ${fmt(total)}</td>
+              <td colspan="3"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>`}
+  `;
+}
+
+function exportManualDepositsCSV() {
+  const el = document.getElementById('cu-manualdeposits-content');
+  const yearEl  = document.getElementById('md-year')?.value  || '';
+  const monthEl = document.getElementById('md-month')?.value || '';
+  const dateEl  = document.getElementById('md-date')?.value  || '';
+
+  let list = window.MANUAL_DEPOSITS || [];
+  if (yearEl)  list = list.filter(d => (d.date||'').startsWith(yearEl));
+  if (monthEl) list = list.filter(d => (d.date||'').slice(5,7) === monthEl);
+  if (dateEl)  list = list.filter(d => d.date === dateEl);
+  if (!list.length) return toast('No records to export', 'warning');
+
+  const headers = ['Date','Account No.','Customer','Agent','Type','Amount','Balance After','Description','Processed By'];
+  const rows    = list.map(d => [
+    d.date, d.acctNumber, d.customerName, d.agentCode||'',
+    d.type||'', d.amount.toFixed(2), d.balanceAfter.toFixed(2),
+    d.desc||'', d.processedBy,
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`));
+
+  const csv  = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a'); a.href = url;
+  a.download = `manual_deposits_${yearEl||'all'}${monthEl?'_'+monthEl:''}${dateEl?'_'+dateEl:''}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  toast(`Exported ${list.length} records ✅`, 'success');
 }
