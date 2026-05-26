@@ -2087,71 +2087,21 @@ details summary span{display:inline-block;transition:transform .2s}
 
 <!-- ═══════════════════════════════ ACCOUNTING ═══════════════════════════════ -->
 <div class="view" id="view-accounting">
-  <div class="sub-tabs">
-    <button class="sub-tab active" onclick="showSubTab('acc','journal',this)">📒 Daily Journal</button>
-    <button class="sub-tab" onclick="showSubTab('acc','income',this)">📥 Income</button>
-    <button class="sub-tab" onclick="showSubTab('acc','expense',this)">📤 Expense</button>
-    <button class="sub-tab" onclick="showSubTab('acc','balance',this);renderTrialBalance()">⚖️ Trial Balance</button>
+  <div class="sub-tabs" id="acc-subtabs">
+    <button class="sub-tab active" onclick="showAccTab('overview',this)">📊 Overview</button>
+    <button class="sub-tab" onclick="showAccTab('journal',this)">📒 Journal</button>
+    <button class="sub-tab" onclick="showAccTab('income',this)">💰 Income</button>
+    <button class="sub-tab" onclick="showAccTab('expenses',this)">💸 Expenses</button>
+    <button class="sub-tab" onclick="showAccTab('cards',this)">💳 Card Accounts</button>
+    <button class="sub-tab" onclick="showAccTab('loans',this)">🏦 Loan Ledger</button>
+    <button class="sub-tab" onclick="showAccTab('trial',this)">⚖️ Trial Balance</button>
+    <button class="sub-tab" onclick="showAccTab('pl',this)">📈 P&amp;L</button>
+    <button class="sub-tab" onclick="showAccTab('coa',this)">🗂️ Chart of Accounts</button>
   </div>
-
-  <!-- Journal -->
-  <div class="teller-sub active" id="acc-journal">
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title"><span>📒</span> Record Journal Entry</div>
-        <div class="form-group"><label class="form-label">Entry Type</label><select class="form-control" id="acci-type"><option value="income">Income</option><option value="expense">Expense</option><option value="asset">Asset</option><option value="liability">Liability</option><option value="equity">Equity</option></select></div>
-        <div class="form-group"><label class="form-label">Category</label>
-          <select class="form-control" id="acci-cat">
-            <option value="collections">Collections</option>
-            <option value="loan_repayment">Loan Repayment</option>
-            <option value="interest_income">Interest Income</option>
-            <option value="investment_returns">Investment Returns</option>
-            <option value="staff_salary">Staff Salary</option>
-            <option value="rent">Rent/Utilities</option>
-            <option value="stationery">Stationery</option>
-            <option value="transport">Transport</option>
-            <option value="loan_disbursement">Loan Disbursement</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-control" id="acci-desc" placeholder="Entry description"></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Amount (GH₵)</label><input type="number" class="form-control" id="acci-amount" placeholder="0.00" min="0" step="0.01"></div>
-          <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-control" id="acci-date"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Reference No.</label><input type="text" class="form-control" id="acci-ref" placeholder="Receipt or reference number"></div>
-        <button class="btn btn-gold" onclick="addAccountingEntry()">✅ Record Entry</button>
-      </div>
-      <div class="card">
-        <div class="card-title"><span>📊</span> Financial Summary</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div class="flex-between" style="padding:9px 13px;background:rgba(46,204,138,.08);border:1px solid rgba(46,204,138,.18);border-radius:8px"><span class="text-muted" style="font-size:.82rem">Total Income</span><span class="mono text-success fw-600" id="acc-income">GH₵ 0.00</span></div>
-          <div class="flex-between" style="padding:9px 13px;background:rgba(232,93,93,.08);border:1px solid rgba(232,93,93,.18);border-radius:8px"><span class="text-muted" style="font-size:.82rem">Total Expenses</span><span class="mono text-danger fw-600" id="acc-expense">GH₵ 0.00</span></div>
-          <div class="flex-between" style="padding:9px 13px;background:var(--gold-dim);border:1px solid var(--border);border-radius:8px"><span class="fw-600" style="font-size:.84rem">Net Balance</span><span class="mono text-gold fw-600" id="acc-net">GH₵ 0.00</span></div>
-        </div>
-        <div class="table-wrap mt-4" style="max-height:280px;overflow-y:auto">
-          <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead>
-          <tbody id="acc-journal-tbody"><tr><td colspan="5" class="text-center text-muted" style="padding:20px">No entries</td></tr></tbody></table>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="teller-sub" id="acc-income">
-    <div class="table-wrap"><table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Reference</th><th>Amount</th></tr></thead>
-    <tbody id="acc-income-tbody"><tr><td colspan="5" class="text-center text-muted" style="padding:24px">No income entries</td></tr></tbody></table></div>
-  </div>
-  <div class="teller-sub" id="acc-expense">
-    <div class="table-wrap"><table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Reference</th><th>Amount</th></tr></thead>
-    <tbody id="acc-expense-tbody"><tr><td colspan="5" class="text-center text-muted" style="padding:24px">No expense entries</td></tr></tbody></table></div>
-  </div>
-  <div class="teller-sub" id="acc-balance">
-    <div class="card">
-      <div class="card-title"><span>⚖️</span> Trial Balance</div>
-      <div id="trial-balance-content"></div>
-    </div>
-  </div>
+  <div id="acc-tab-content" style="padding-top:4px"></div>
 </div>
 
+  
 <!-- ═══════════════════════════════ REPORTS ═══════════════════════════════ -->
 <div id="view-reports" class="view">
   <div class="view-header">
@@ -2164,6 +2114,7 @@ details summary span{display:inline-block;transition:transform .2s}
     <button class="sub-tab" onclick="showReportTab('customers',this)">👥 Customers</button>
     <button class="sub-tab" onclick="showReportTab('loans',this)">📋 Loans</button>
     <button class="sub-tab" onclick="showReportTab('agents',this)">🧑‍💼 Agents</button>
+    <button class="sub-tab" onclick="showReportTab('gcsca',this)">🏛️ GCSCA Returns</button> 
   </div>
   <div id="rpt-overview" class="rpt-panel"><div id="rpt-overview-content"></div></div>
   <div id="rpt-performance" class="rpt-panel hidden"><div id="rpt-performance-content"></div></div>
@@ -2171,6 +2122,7 @@ details summary span{display:inline-block;transition:transform .2s}
   <div id="rpt-customers" class="rpt-panel hidden"><div id="rpt-customers-content"></div></div>
   <div id="rpt-loans" class="rpt-panel hidden"><div id="rpt-loans-content"></div></div>
   <div id="rpt-agents" class="rpt-panel hidden"><div id="rpt-agents-content"></div></div>
+  <div id="rpt-gcsca" class="rpt-panel hidden"><div id="rpt-gcsca-content"></div></div> 
 </div>
 
 <!-- ═══════════════════════════════ USERS ═══════════════════════════════ -->
