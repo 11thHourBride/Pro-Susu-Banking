@@ -22,20 +22,16 @@
     // History (array of {expr, val})
     history    : [],
     // Settings
-    show00     : true,         // show 00/000 hold feature
-    theme      : 'dark',       // for future light mode
+    show00     : true,         // show dedicated 00/000 buttons
+    theme      : 'dark',
     // Programmer mode
     progBase   : 16,           // HEX | DEC | OCT | BIN
-    // Long-press for 00/000
-    lpTimer    : null,
-    lpStart    : null,
   };
 
   // ── Converter data tables ─────────────────────────
   const CONV = {
     currency: {
       units: ['GHS','USD','EUR','GBP','NGN','KES','ZAR','XOF','GHC'],
-      // Rates relative to GHS (Ghana Cedi) — approximate
       rates: { GHS:1, USD:0.069, EUR:0.063, GBP:0.054, NGN:113, KES:9.05, ZAR:1.29, XOF:41.3, GHC:1 }
     },
     volume: {
@@ -52,7 +48,6 @@
     },
     temperature: {
       units: ['Celsius','Fahrenheit','Kelvin'],
-      // Special conversion — handled separately
     },
     energy: {
       units: ['Joule','Kilojoule','Calorie','Kilocalorie','Watt-hour','kWh','BTU','Electronvolt'],
@@ -88,8 +83,107 @@
     }
   };
 
+  // ── Inject Styles ─────────────────────────────────
+  function injectStyles() {
+    if (document.getElementById('calc-custom-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'calc-custom-styles';
+    style.textContent = `
+      /* ── Expanded panel width ── */
+      #calc-panel { width: 390px !important; }
+
+      /* ── Display top row: live result (left) + memory (right) ── */
+      .calc-display-toprow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 14px 2px;
+        min-height: 28px;
+      }
+      .calc-live-result {
+        font-size: .9rem;
+        font-weight: 700;
+        color: var(--accent, #c9a84c);
+        font-family: var(--font-mono, 'Courier New', monospace);
+        letter-spacing: .02em;
+        min-width: 60px;
+        transition: opacity .12s;
+        /* Subtle pulse when updated */
+      }
+      .calc-live-result.updated {
+        animation: lrPulse .2s ease;
+      }
+      @keyframes lrPulse {
+        0%   { opacity: .4; }
+        100% { opacity: 1; }
+      }
+      /* Override calc-memory-indicator to lose its old top-padding when inside toprow */
+      .calc-display-toprow .calc-memory-indicator {
+        padding: 0;
+        margin: 0;
+        font-size: .72rem;
+      }
+
+      /* ── Session tape / running log ── */
+      .calc-log-area {
+        max-height: 96px;
+        overflow-y: auto;
+        padding: 5px 14px;
+        border-top: 1px solid var(--border, rgba(255,255,255,.1));
+        border-bottom: 1px solid var(--border, rgba(255,255,255,.08));
+        background: var(--surface2, rgba(0,0,0,.14));
+        scrollbar-width: thin;
+        scrollbar-color: var(--border, rgba(255,255,255,.15)) transparent;
+      }
+      .calc-log-area::-webkit-scrollbar { width: 3px; }
+      .calc-log-area::-webkit-scrollbar-thumb {
+        background: var(--border, rgba(255,255,255,.2));
+        border-radius: 2px;
+      }
+      .calc-log-entry {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 2px 0;
+        font-size: .69rem;
+        color: var(--muted, rgba(255,255,255,.4));
+        border-bottom: 1px dotted var(--border, rgba(255,255,255,.05));
+        gap: 8px;
+      }
+      .calc-log-entry:last-child {
+        border-bottom: none;
+        color: var(--text, #e8e8e8);
+        font-size: .73rem;
+        font-weight: 500;
+      }
+      .calc-log-entry .log-expr { flex: 1; }
+      .calc-log-entry .log-val {
+        color: var(--accent, #c9a84c);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      /* ── 00 / 000 dedicated button row ── */
+      .calc-00-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 0 10px 8px;
+      }
+      .calc-00-row .calc-key {
+        font-size: .84rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        opacity: .88;
+      }
+      .calc-00-row .calc-key:hover { opacity: 1; }
+    `;
+    document.head.appendChild(style);
+  }
+
   // ── Build the Panel HTML ──────────────────────────
   function buildPanel() {
+    injectStyles();
     const panel = document.createElement('div');
     panel.id = 'calc-panel';
     panel.innerHTML = `
@@ -117,12 +211,27 @@
           <button class="calc-subtab" onclick="calcMode('date',this)">Date</button>
         </div>
 
-        <!-- Display -->
+        <!-- ──────────────────────────────────────────
+             DISPLAY
+             Top-left:  live "= result" preview
+             Top-right: memory indicator
+             Mid-right: expression being built (e.g. "2 + 2")
+             Bottom:    current number, large
+        ─────────────────────────────────────────── -->
         <div class="calc-display">
-          <div class="calc-memory-indicator" id="calc-mem-ind"></div>
+          <div class="calc-display-toprow">
+            <div class="calc-live-result" id="calc-live-result"></div>
+            <div class="calc-memory-indicator" id="calc-mem-ind"></div>
+          </div>
           <div class="calc-expr" id="calc-expr"></div>
           <div class="calc-result" id="calc-result">0</div>
         </div>
+
+        <!-- ── SESSION TAPE ───────────────────────
+             Shows completed calculations for this
+             session. Hidden when empty.
+        ─────────────────────────────────────────── -->
+        <div class="calc-log-area" id="calc-log-area" style="display:none"></div>
 
         <!-- ── Standard ── -->
         <div id="calc-std" class="calc-view active">
@@ -148,11 +257,14 @@
             <button class="calc-key num" onclick="calcNum('3')">3</button>
             <button class="calc-key op" onclick="calcOp('+')">+</button>
             <button class="calc-key num" onclick="calcNeg()">+/−</button>
-            <button class="calc-key num zero-hold"
-              onmousedown="lpStart(event)" onmouseup="lpEnd()" ontouchstart="lpStart(event)" ontouchend="lpEnd()"
-              onclick="calcNum('0')">0<span class="hold-hint">00/000</span></button>
+            <button class="calc-key num" onclick="calcNum('0')">0</button>
             <button class="calc-key num" onclick="calcDot()">.</button>
             <button class="calc-key eq" onclick="calcEval()">=</button>
+          </div>
+          <!-- ── Dedicated 00 / 000 buttons ── -->
+          <div class="calc-00-row" id="std-00-row">
+            <button class="calc-key num calc-00-btn" onclick="calcNum('00')">00</button>
+            <button class="calc-key num calc-000-btn" onclick="calcNum('000')">000</button>
           </div>
         </div>
 
@@ -195,12 +307,15 @@
             <button class="calc-key num" onclick="calcNum('1')">1</button>
             <button class="calc-key num" onclick="calcNum('2')">2</button>
             <button class="calc-key num" onclick="calcNum('3')">3</button>
-            <button class="calc-key num zero-hold span2"
-              onmousedown="lpStart(event)" onmouseup="lpEnd()" ontouchstart="lpStart(event)" ontouchend="lpEnd()"
-              onclick="calcNum('0')">0<span class="hold-hint">00/000</span></button>
+            <button class="calc-key num span2" onclick="calcNum('0')">0</button>
             <button class="calc-key num" onclick="calcDot()">.</button>
             <button class="calc-key num" onclick="calcNeg()">+/−</button>
             <button class="calc-key eq span2" onclick="calcEval()">=</button>
+          </div>
+          <!-- ── Dedicated 00 / 000 buttons ── -->
+          <div class="calc-00-row" id="sci-00-row">
+            <button class="calc-key num calc-00-btn" onclick="calcNum('00')">00</button>
+            <button class="calc-key num calc-000-btn" onclick="calcNum('000')">000</button>
           </div>
         </div>
 
@@ -241,7 +356,6 @@
             <button class="calc-key fn" onclick="calcProgOp('>>')">RSH</button>
             <button class="calc-key ac" onclick="calcAC()">AC</button>
             <button class="calc-key ac" onclick="calcDel()">⌫</button>
-            <!-- Hex digits -->
             <button class="calc-key fn" id="pk-A" onclick="calcProgHex('A')">A</button>
             <button class="calc-key fn" id="pk-B" onclick="calcProgHex('B')">B</button>
             <button class="calc-key fn" id="pk-C" onclick="calcProgHex('C')">C</button>
@@ -345,7 +459,7 @@
           <div class="calc-settings-row">
             <div>
               <div class="calc-settings-label">00 / 000 Keys</div>
-              <div class="calc-settings-desc">Hold the 0 key 1s for 00, 2s for 000</div>
+              <div class="calc-settings-desc">Show dedicated 00 and 000 buttons on the keypad</div>
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="calc-set-00" checked onchange="S_set00(this.checked)">
@@ -471,16 +585,24 @@
 
   let calcPrecision = 4;
   let calcAngle     = 'deg';
-function addCommas(numStr) {
-  if (!numStr || numStr === 'Error' || numStr === '∞' || numStr === '-∞') return numStr;
-  const neg = numStr.startsWith('-');
-  const s   = neg ? numStr.slice(1) : numStr;
-  const [intPart, decPart] = s.split('.');
-  const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return (neg ? '-' : '') + formatted + (decPart !== undefined ? '.' + decPart : '');
-}
+
+  function addCommas(numStr) {
+    if (!numStr || numStr === 'Error' || numStr === '∞' || numStr === '-∞') return numStr;
+    const neg = numStr.startsWith('-');
+    const s   = neg ? numStr.slice(1) : numStr;
+    const [intPart, decPart] = s.split('.');
+    const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (neg ? '-' : '') + formatted + (decPart !== undefined ? '.' + decPart : '');
+  }
+
   // ── Settings handlers ─────────────────────────────
-  window.S_set00    = v => { S.show00 = v; };
+  window.S_set00 = v => {
+    S.show00 = v;
+    // Show or hide all calc-00-row elements across all keypad modes
+    document.querySelectorAll('.calc-00-row').forEach(el => {
+      el.style.display = v ? 'grid' : 'none';
+    });
+  };
   window.S_setPrec  = v => { calcPrecision = +v; };
   window.S_setAngle = v => { calcAngle = v; };
 
@@ -494,7 +616,14 @@ function addCommas(numStr) {
     if (sec) sec.classList.add('active');
     if (name === 'history')   renderHistory();
     if (name === 'memory')    renderMemory();
-    if (name === 'converter') { calcConvMode(S.convMode, document.querySelector('.calc-conv-tabs .calc-subtab.active') || document.querySelector('#calc-conv-tabs .calc-subtab')); }
+    if (name === 'calculator') renderSessionLog();
+    if (name === 'converter') {
+      calcConvMode(
+        S.convMode,
+        document.querySelector('.calc-conv-tabs .calc-subtab.active') ||
+        document.querySelector('#calc-conv-tabs .calc-subtab')
+      );
+    }
   };
 
   // ── Calculator mode switching ─────────────────────
@@ -515,58 +644,114 @@ function addCommas(numStr) {
 
   // ── Display update ────────────────────────────────
   function updateDisplay() {
-    const res = document.getElementById('calc-result');
-    const expr = document.getElementById('calc-expr');
+    const res    = document.getElementById('calc-result');
+    const expr   = document.getElementById('calc-expr');
     const memInd = document.getElementById('calc-mem-ind');
+    const liveEl = document.getElementById('calc-live-result');
     if (!res) return;
 
+    // ── Main number (bottom, large, right-aligned) ──
     let display = S.input;
     if (parseFloat(display).toString().length > 14) {
       display = parseFloat(display).toExponential(6);
     }
     const displayFmt = addCommas(display);
-res.textContent  = displayFmt;
-res.className    = 'calc-result' + (display.replace('-','').replace('.','').length > 12 ? ' small' : '');
+    res.textContent = displayFmt;
+    res.className   = 'calc-result' + (display.replace('-','').replace('.','').length > 12 ? ' small' : '');
+
+    // ── Expression (mid, right-aligned) ─────────────
+    // Shows: "operand operator [input_so_far]"  e.g. "2 + 2"
     if (expr) {
       let exprStr = '';
       if (S.operand !== null && S.operator) {
-        exprStr = fmtNum(S.operand) + ' ' + S.operator + (S.justEvaled ? '' : ' ' + S.input);
+        exprStr = fmtNum(S.operand) + ' ' + S.operator + (S.justEvaled ? '' : ' ' + addCommas(S.input));
       } else if (S.justEvaled && S.result !== null) {
         exprStr = S.expr;
       }
       expr.textContent = exprStr;
     }
 
+    // ── Memory indicator (top-right) ────────────────
     if (memInd) {
       memInd.textContent = S.memory.length ? `M: ${fmtNum(S.memory[S.memory.length-1])}` : '';
+    }
+
+    // ── Live result preview (top-left) ──────────────
+    // While the user is mid-calculation (has operand + operator + current input),
+    // show the running result in the top-left corner as a preview ("= 4").
+    // When = is pressed, this clears and the result takes the main display.
+    if (liveEl) {
+      let liveText = '';
+      if (S.operand !== null && S.operator && !S.justEvaled) {
+        const val = parseFloat(S.input);
+        if (!isNaN(val)) {
+          const liveRes = doCalc(S.operand, S.operator, val);
+          if (isFinite(liveRes) && !isNaN(liveRes)) {
+            liveText = '= ' + fmtNum(liveRes);
+          }
+        }
+      }
+      if (liveEl.textContent !== liveText) {
+        liveEl.textContent = liveText;
+        // Brief pulse animation when value changes
+        liveEl.classList.remove('updated');
+        void liveEl.offsetWidth; // force reflow for animation restart
+        if (liveText) liveEl.classList.add('updated');
+      }
     }
 
     if (S.calcMode === 'programmer') updateProgBases();
   }
 
-function fmtNum(n) {
-  if (n === null || n === undefined || isNaN(n)) return '0';
-  if (!isFinite(n)) return n > 0 ? '∞' : '-∞';
-  const str = parseFloat(n.toPrecision(14)).toString();
-  return addCommas(str);
-}
+  function fmtNum(n) {
+    if (n === null || n === undefined || isNaN(n)) return '0';
+    if (!isFinite(n)) return n > 0 ? '∞' : '-∞';
+    const str = parseFloat(n.toPrecision(14)).toString();
+    return addCommas(str);
+  }
 
   function formatResult(n) {
     if (!isFinite(n)) return n > 0 ? 'Infinity' : '-Infinity';
     if (isNaN(n)) return 'Error';
-    // Round to precision
     const rounded = parseFloat(n.toPrecision(10));
     let s = rounded.toString();
-    // Trim trailing zeros after decimal
     if (s.includes('.')) s = s.replace(/\.?0+$/, '');
     return s;
   }
 
+  // ── Session tape rendering ────────────────────────
+  // Shows the last N completed calculations in a scrollable
+  // strip between the display and the keypad.
+  function renderSessionLog() {
+    const el = document.getElementById('calc-log-area');
+    if (!el) return;
+    if (!S.history.length) {
+      el.style.display = 'none';
+      return;
+    }
+    el.style.display = '';
+    // Show last 10 entries, oldest at top → newest at bottom
+    const entries = S.history.slice(0, 10).reverse();
+    el.innerHTML = entries.map(h => `
+      <div class="calc-log-entry">
+        <span class="log-expr">${h.expr}</span>
+        <span class="log-val">= ${h.val}</span>
+      </div>`).join('');
+    // Auto-scroll to newest (bottom)
+    el.scrollTop = el.scrollHeight;
+  }
+
   // ── Core calculator logic ─────────────────────────
   window.calcNum = function (n) {
-
     if (S.justEvaled) { S.input = '0'; S.justEvaled = false; }
-    if (S.input === '0' && n !== '.') {
+
+    if (n === '00' || n === '000') {
+      // Dedicated multi-zero buttons
+      if (S.input === '0') return; // Don't turn a bare zero into 000
+      const digLen = S.input.replace(/^-/, '').replace('.', '').length;
+      if (digLen + n.length > 16) return;
+      S.input += n;
+    } else if (S.input === '0' && n !== '.') {
       S.input = n;
     } else {
       if (S.input.replace('-','').replace('.','').length >= 16) return;
@@ -576,26 +761,22 @@ function fmtNum(n) {
   };
 
   window.calcDot = function () {
-
     if (S.justEvaled) { S.input = '0'; S.justEvaled = false; }
     if (!S.input.includes('.')) S.input += '.';
     updateDisplay();
   };
 
   window.calcNeg = function () {
-
     if (S.input === '0') return;
     S.input = S.input.startsWith('-') ? S.input.slice(1) : '-' + S.input;
     updateDisplay();
   };
 
   window.calcOp = function (op) {
-
     const val = parseFloat(S.input);
     if (isNaN(val)) return;
 
     if (S.operand !== null && S.operator && !S.justEvaled) {
-      // Chain operations
       const res = doCalc(S.operand, S.operator, val);
       S.operand = res;
       S.input   = formatResult(res);
@@ -614,7 +795,6 @@ function fmtNum(n) {
   };
 
   window.calcEval = function () {
-
     const val = parseFloat(S.input);
     if (isNaN(val)) return;
 
@@ -647,14 +827,12 @@ function fmtNum(n) {
   }
 
   window.calcAC = function () {
-
     S.input = '0'; S.operand = null; S.operator = null;
     S.expr = ''; S.result = null; S.justEvaled = false;
     updateDisplay();
   };
 
   window.calcDel = function () {
-
     if (S.justEvaled) { calcAC(); return; }
     S.input = S.input.length > 1 ? S.input.slice(0,-1) : '0';
     updateDisplay();
@@ -662,7 +840,6 @@ function fmtNum(n) {
 
   // ── Scientific functions ──────────────────────────
   window.calcSci = function (fn) {
-
     let val = parseFloat(S.input);
     if (isNaN(val)) return;
 
@@ -720,7 +897,6 @@ function fmtNum(n) {
 
   // ── Memory ────────────────────────────────────────
   window.calcMemory = function (op) {
-
     const val = parseFloat(S.input);
     switch (op) {
       case 'mc': S.memory = []; break;
@@ -752,17 +928,14 @@ function fmtNum(n) {
     S.progBase = base;
     document.querySelectorAll('.calc-prog-btab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    // Enable/disable hex buttons
     ['A','B','C','D','E','F'].forEach(h => {
       const el = document.getElementById('pk-' + h);
       if (el) el.disabled = base < 16;
     });
-    // Disable 8,9 in binary/octal
     updateProgBases();
   };
 
   window.calcProgHex = function (ch) {
-
     if (S.justEvaled) { S.input = '0'; S.justEvaled = false; }
     if (S.input === '0') S.input = ch;
     else S.input += ch;
@@ -770,7 +943,6 @@ function fmtNum(n) {
   };
 
   window.calcProgOp = function (op) {
-
     const val = parseInt(S.input);
     if (isNaN(val)) return;
     if (op === 'NOT') {
@@ -808,7 +980,6 @@ function fmtNum(n) {
     const W = canvas.width, H = canvas.height;
     const fnStr = (document.getElementById('calc-graph-fn')?.value || 'sin(x)').trim();
 
-    // Safe eval
     function evalFn(x) {
       try {
         const safeStr = fnStr
@@ -823,7 +994,6 @@ function fmtNum(n) {
       } catch { return NaN; }
     }
 
-    // Sample
     const samples = 280;
     const xMin = -10, xMax = 10;
     const points = [];
@@ -841,13 +1011,11 @@ function fmtNum(n) {
     function toCanvasX(x) { return (x - xMin) / (xMax - xMin) * W; }
     function toCanvasY(y) { return H - (y - yMin) / (yMax - yMin) * H; }
 
-    // Draw
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = isDark ? '#0d1b2e' : '#f5f5f0';
     ctx.fillRect(0, 0, W, H);
 
-    // Grid
     ctx.strokeStyle = isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
     ctx.lineWidth = 1;
     for (let x = Math.ceil(xMin); x <= xMax; x++) {
@@ -859,14 +1027,12 @@ function fmtNum(n) {
       ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
     }
 
-    // Axes
     ctx.strokeStyle = isDark ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.25)';
     ctx.lineWidth = 1.5;
     const cx0 = toCanvasX(0), cy0 = toCanvasY(0);
     ctx.beginPath(); ctx.moveTo(cx0, 0); ctx.lineTo(cx0, H); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, cy0); ctx.lineTo(W, cy0); ctx.stroke();
 
-    // Curve
     ctx.beginPath();
     ctx.strokeStyle = '#c9a84c';
     ctx.lineWidth = 2;
@@ -1018,6 +1184,8 @@ function fmtNum(n) {
   function addHistory(expr, val) {
     S.history.unshift({ expr, val, time: new Date().toLocaleTimeString() });
     if (S.history.length > 50) S.history.pop();
+    // Refresh the session tape immediately after each completed calc
+    renderSessionLog();
   }
 
   function renderHistory() {
@@ -1049,6 +1217,7 @@ function fmtNum(n) {
   window.calcClearHistory = function () {
     S.history = [];
     renderHistory();
+    renderSessionLog();
   };
 
   // ── Memory render ─────────────────────────────────
@@ -1085,49 +1254,9 @@ function fmtNum(n) {
     }
   };
 
-  // ── Long-press 00/000 ─────────────────────────────
-  window.lpStart = function (e) {
-    if (!S.show00) return;
-    S.lpStart = Date.now();
-    const btn = e.currentTarget;
-
-    // Show progress bar
-    btn.classList.add('longpress-progress');
-    btn.style.setProperty('--lp-dur', '1s');
-
-    S.lpTimer = setTimeout(() => {
-      // 1 second → 00
-      S.input = (S.input === '0') ? '00' : S.input + '00';
-      updateDisplay();
-      // Wait another 1s → 000
-      btn.style.setProperty('--lp-dur', '1s');
-      btn.classList.remove('longpress-progress');
-      void btn.offsetWidth; // reflow
-      btn.classList.add('longpress-progress');
-
-      S.lpTimer = setTimeout(() => {
-        S.input = (S.input.endsWith('00')) ? S.input + '0' : S.input + '000';
-        updateDisplay();
-        btn.classList.remove('longpress-progress');
-        S.lpTimer = null;
-      }, 1000);
-    }, 1000);
-  };
-
-  window.lpEnd = function () {
-    if (S.lpTimer) {
-      clearTimeout(S.lpTimer);
-      S.lpTimer = null;
-    }
-    const btn = document.querySelector('.zero-hold');
-    if (btn) btn.classList.remove('longpress-progress');
-  };
-
   // ── Ripple effect ─────────────────────────────────
   function ripple(e) {
     if (!e) return;
-    // Only ripple on genuine pointer/touch events — never on keyboard events.
-    // KeyboardEvent type is 'keydown'/'keyup'/'keypress'; those must be ignored.
     if (!e.type || e.type.startsWith('key')) return;
     const btn = (e.currentTarget instanceof HTMLElement && e.currentTarget.classList.contains('calc-key'))
       ? e.currentTarget
@@ -1153,11 +1282,10 @@ function fmtNum(n) {
     if (open) {
       updateDisplay();
       renderConverter(S.convMode);
-      // Give panel a tabindex so it can receive focus, then focus it
+      renderSessionLog();
       panel.setAttribute('tabindex', '-1');
       panel.focus({ preventScroll: true });
     } else {
-      // Return focus to body so the rest of the app works normally
       document.body.focus();
     }
   };
@@ -1178,24 +1306,18 @@ function fmtNum(n) {
   }
 
   // ── Re-focus panel after clicking a calc key ─────
-  // This ensures keyboard still works after touchscreen/mouse use
   document.addEventListener('click', function (e) {
     const panel = document.getElementById('calc-panel');
     if (!panel?.classList.contains('open')) return;
     if (e.target?.closest('#calc-panel')) {
-      // Clicked inside panel — re-focus the panel itself so keyboard keeps working
-      // (unless the click landed on an input/select inside the panel)
       const tag = document.activeElement?.tagName;
       if (tag !== 'INPUT' && tag !== 'SELECT' && tag !== 'TEXTAREA') {
         panel.focus({ preventScroll: true });
       }
     }
-  }, true); // capture phase
+  }, true);
 
   // ── Keyboard handler ──────────────────────────────
-  // Uses capture phase (true) so nothing else can block it.
-  // Checks the panel is open; does NOT filter on e.target so it
-  // works whether focus is on the panel, a button, or body.
   document.addEventListener('keydown', function (e) {
 
     // ── Global: Ctrl+K toggles calculator ─────────
@@ -1208,8 +1330,6 @@ function fmtNum(n) {
     const panel = document.getElementById('calc-panel');
     if (!panel?.classList.contains('open')) return;
 
-    // If focus is on a text input INSIDE the calculator (graph fn, conv val, etc.)
-    // let the key go through to that input normally — except Escape
     const active = document.activeElement;
     const insideCalcInput = active &&
       (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA') &&
@@ -1219,8 +1339,6 @@ function fmtNum(n) {
       return;
     }
 
-    // If focus is outside the calc panel entirely (e.g. in a form field in the main app)
-    // don't intercept keys — the user is typing in the app
     if (active && active !== document.body && active !== panel && !active.closest('#calc-panel')) {
       return;
     }
@@ -1242,7 +1360,6 @@ function fmtNum(n) {
       }
     }
 
-    // Only process calculator keys when on calculator section
     if (S.section !== 'calculator') return;
 
     const shift = e.shiftKey;
@@ -1333,12 +1450,11 @@ function fmtNum(n) {
       return;
     }
 
-  }, true); // ← capture phase ensures nothing else blocks this
+  }, true);
 
   // ── Init ──────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
     buildPanel();
-    // Set default dates
     const today = new Date().toISOString().split('T')[0];
     const d1 = document.getElementById('calc-d1');
     const d2 = document.getElementById('calc-d2');
@@ -1349,7 +1465,6 @@ function fmtNum(n) {
     if (d3) d3.value = today;
     if (ddob) ddob.value = today;
 
-    // Initial graph
     setTimeout(calcDrawGraph, 200);
   });
 
