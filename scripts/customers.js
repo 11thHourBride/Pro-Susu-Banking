@@ -1146,7 +1146,7 @@ function openCustomerTxn(custId) {
     const el = document.getElementById(id);
     if (el) el.classList.remove('open');
   });
-
+ 
   // Navigate to customers view
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const custView = document.getElementById('view-customers');
@@ -1155,25 +1155,25 @@ function openCustomerTxn(custId) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const custNav = document.querySelector('.nav-item[onclick*="\'customers\'"]');
   if (custNav) custNav.classList.add('active');
-
+ 
   // Switch to cu-txn sub-panel (deactivate all others first)
   document.querySelectorAll('#view-customers .teller-sub').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('#view-customers .sub-tab').forEach(b => b.classList.remove('active'));
-
+ 
   const txnPanel = document.getElementById('cu-txn');
   if (!txnPanel) return;
   txnPanel.classList.add('active');
-
+ 
   const c = CUSTOMERS.find(x => x.id === custId);
   if (!c) { txnPanel.innerHTML = '<div class="empty-state"><div class="ei">❌</div><div class="et">Customer not found</div></div>'; return; }
-
+ 
   // Sort transactions ascending (oldest → newest)
   const txns = [...(c.transactions || [])].sort((a, b) => {
     const da = new Date((a.date || '') + 'T' + (a.time ? a.time.slice(11,19) : '00:00:00'));
     const db = new Date((b.date || '') + 'T' + (b.time ? b.time.slice(11,19) : '00:00:00'));
     return da - db;
   });
-
+ 
   const typeLabels = {
     deposit      : { label: 'Deposit',      badge: 'b-green',  sign: '+', color: 'text-success' },
     withdrawal   : { label: 'Withdrawal',   badge: 'b-red',    sign: '−', color: 'text-danger'  },
@@ -1184,7 +1184,7 @@ function openCustomerTxn(custId) {
     transfer_out : { label: 'Transfer Out',  badge: 'b-purple', sign: '−', color: 'text-danger'  },
     entry        : { label: 'Collection',    badge: 'b-green',  sign: '+', color: 'text-success' },
   };
-
+ 
   const photoHTML = c.photo
     ? `<img src="${c.photo}"
          style="width:44px;height:44px;border-radius:50%;object-fit:cover;
@@ -1196,12 +1196,12 @@ function openCustomerTxn(custId) {
          font-size:1rem;font-weight:700;color:#08142a;flex-shrink:0">
          ${c.firstName[0]}${c.lastName[0]}
        </div>`;
-
+ 
   const totalIn  = txns.filter(t => ['deposit','transfer_in','entry'].includes(t.type))
     .reduce((s,t) => s + t.amount, 0);
   const totalOut = txns.filter(t => ['withdrawal','fee','advance','commission','transfer_out'].includes(t.type))
     .reduce((s,t) => s + t.amount, 0);
-
+ 
   txnPanel.innerHTML = `
     <!-- Back bar -->
     <div class="flex-between mb-4" style="flex-wrap:wrap;gap:8px">
@@ -1214,7 +1214,7 @@ function openCustomerTxn(custId) {
         <button class="btn btn-info btn-xs" onclick="openCustomerModal('${custId}')">👤 View Profile</button>
       </div>
     </div>
-
+ 
     <!-- Customer header -->
     <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;
       background:var(--surface);border:1px solid var(--border);
@@ -1231,7 +1231,7 @@ function openCustomerTxn(custId) {
         <div class="mono text-gold fw-600" style="font-size:1.15rem">${fmt(c.balance || 0)}</div>
       </div>
     </div>
-
+ 
     <!-- Summary strip -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px">
       <div style="padding:10px 12px;background:rgba(46,204,138,.08);
@@ -1250,10 +1250,14 @@ function openCustomerTxn(custId) {
         <div class="mono text-gold fw-600">${txns.length}</div>
       </div>
     </div>
-
+ 
     <!-- Transaction table -->
     ${txns.length
       ? `<div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:8px 14px;background:var(--surface2);
+            border-bottom:1px solid var(--border);font-size:.72rem;color:var(--muted)">
+            💡 Click any transaction row to edit or delete it
+          </div>
           <div class="table-wrap">
             <table>
               <thead><tr>
@@ -1265,9 +1269,9 @@ function openCustomerTxn(custId) {
                   // Commission rows are suppressed as standalone rows — merged
                   // into the preceding withdrawal row's amount cell instead.
                   if (t.type === 'commission') return '';
-
+ 
                   const meta = typeLabels[t.type] || { label: t.type, badge: 'b-gray', sign: '', color: '' };
-
+ 
                   // For withdrawals, look ahead for an adjacent commission on the same date.
                   let commissionLine = '';
                   if (t.type === 'withdrawal') {
@@ -1279,8 +1283,11 @@ function openCustomerTxn(custId) {
                         '<span style="opacity:.7;margin-left:4px">commission</span></div>';
                     }
                   }
-
-                  return '<tr>' +
+ 
+                  return `<tr onclick="openTxnEditModal('${custId}','${t.id}')"
+                    style="cursor:pointer;transition:background .15s"
+                    onmouseover="this.style.background='rgba(201,168,76,.06)'"
+                    onmouseout="this.style.background=''">` +
                     '<td class="text-muted" style="font-size:.74rem">' + (i + 1) + '</td>' +
                     '<td style="font-size:.76rem;white-space:nowrap">' + fmtDate(t.date) + '</td>' +
                     '<td><span class="badge ' + meta.badge + '" style="font-size:.62rem">' + meta.label + '</span></td>' +
@@ -1303,7 +1310,7 @@ function openCustomerTxn(custId) {
          </div>`
     }`;
 }
-
+ 
 // Navigate back from transactions panel to customer list
 function backToCustomerList() {
   document.querySelectorAll('#view-customers .teller-sub').forEach(s => s.classList.remove('active'));
@@ -1313,6 +1320,220 @@ function backToCustomerList() {
   const firstTab = document.querySelector('#view-customers .sub-tab');
   if (firstTab) firstTab.classList.add('active');
 }
+
+// ═══════════════════════════════════════════════════════
+//  TRANSACTION EDIT / DELETE MODAL
+// ═══════════════════════════════════════════════════════
+function openTxnEditModal(custId, txnId) {
+  const c = CUSTOMERS.find(x => x.id === custId); if (!c) return;
+  const t = (c.transactions || []).find(x => x.id === txnId); if (!t) return;
+ 
+  // Admins and accountants can edit/delete; agents and tellers cannot
+  const canEdit = ['admin','accountant','accounting_clerk'].includes(currentUser?.role);
+ 
+  const typeLabels = {
+    deposit       : 'Deposit',
+    withdrawal    : 'Withdrawal',
+    entry         : 'Collection Entry',
+    fee           : 'Fee',
+    advance       : 'Advance',
+    commission    : 'Commission',
+    transfer_in   : 'Transfer In',
+    transfer_out  : 'Transfer Out',
+    card_replacement: 'Card Replacement',
+    note          : 'Note',
+  };
+  const typeLabel = typeLabels[t.type] || t.type;
+  const isCredit  = ['deposit','transfer_in','entry'].includes(t.type);
+  const amtColor  = isCredit ? 'var(--success)' : 'var(--danger)';
+  const amtSign   = isCredit ? '+' : '−';
+ 
+  // Build and open the modal
+  const titleEl = document.getElementById('m-cust-title');
+  const bodyEl  = document.getElementById('m-cust-body');
+  if (!titleEl || !bodyEl) return;
+ 
+  titleEl.innerHTML = `📋 Transaction — ${c.firstName} ${c.lastName}`;
+  bodyEl.innerHTML = `
+    <!-- Transaction summary -->
+    <div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);margin-bottom:16px">
+      <div class="flex-between mb-2">
+        <span class="text-muted" style="font-size:.78rem">Type</span>
+        <span class="badge ${isCredit?'b-green':'b-red'}" style="font-size:.7rem">${typeLabel}</span>
+      </div>
+      <div class="flex-between mb-2">
+        <span class="text-muted" style="font-size:.78rem">Amount</span>
+        <span class="mono fw-600" style="color:${amtColor}">${amtSign} ${fmt(t.amount)}</span>
+      </div>
+      <div class="flex-between mb-2">
+        <span class="text-muted" style="font-size:.78rem">Balance After</span>
+        <span class="mono text-gold">${fmt(t.balance)}</span>
+      </div>
+      <div class="flex-between mb-2">
+        <span class="text-muted" style="font-size:.78rem">Date</span>
+        <span style="font-size:.82rem">${fmtDate(t.date)}</span>
+      </div>
+      <div class="flex-between">
+        <span class="text-muted" style="font-size:.78rem">Processed By</span>
+        <span style="font-size:.82rem">${t.by || '—'}</span>
+      </div>
+    </div>
+ 
+    ${canEdit ? `
+    <!-- Edit form -->
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input type="date" class="form-control" id="txn-edit-date" value="${t.date || ''}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount (GH₵)</label>
+      <input type="number" class="form-control" id="txn-edit-amount"
+        value="${t.amount}" min="0.01" step="0.01">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input type="text" class="form-control" id="txn-edit-desc"
+        value="${t.desc || ''}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Edit Reason (for audit log) *</label>
+      <input type="text" class="form-control" id="txn-edit-reason"
+        placeholder="Why is this transaction being edited?">
+    </div>
+    <div class="alert alert-warning" style="font-size:.76rem;margin-bottom:14px">
+      ⚠️ Editing a transaction will <strong>recalculate the running balance</strong>
+      for all subsequent transactions on this account.
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="saveTxnEdit('${custId}','${txnId}')">
+        ✅ Save Changes
+      </button>
+      <button class="btn btn-danger" onclick="deleteTxn('${custId}','${txnId}')">
+        🗑 Delete Transaction
+      </button>
+      <button class="btn btn-outline" onclick="closeModal('modal-customer')">
+        Cancel
+      </button>
+    </div>` : `
+    <div class="alert alert-info" style="font-size:.78rem">
+      🔒 Only administrators and accounting clerks can edit or delete transactions.
+    </div>
+    <button class="btn btn-outline" onclick="closeModal('modal-customer')">Close</button>`}
+  `;
+ 
+  openModal('modal-customer');
+}
+ 
+// ── Save edits ────────────────────────────────────────
+function saveTxnEdit(custId, txnId) {
+  const c = CUSTOMERS.find(x => x.id === custId); if (!c) return;
+  const t = (c.transactions || []).find(x => x.id === txnId); if (!t) return;
+ 
+  const newDate   = document.getElementById('txn-edit-date')?.value;
+  const newAmount = parseFloat(document.getElementById('txn-edit-amount')?.value);
+  const newDesc   = (document.getElementById('txn-edit-desc')?.value || '').trim();
+  const reason    = (document.getElementById('txn-edit-reason')?.value || '').trim();
+ 
+  if (!newDate)              return toast('Select a date', 'error');
+  if (!newAmount || newAmount <= 0) return toast('Enter a valid amount', 'error');
+  if (!reason)               return toast('Enter a reason for this edit (required for audit)', 'error');
+ 
+  const oldAmount = t.amount;
+  const oldDate   = t.date;
+ 
+  // Apply edits to the transaction
+  t.amount    = Math.round(newAmount * 100) / 100;
+  t.date      = newDate;
+  t.desc      = newDesc || t.desc;
+  t.editedAt  = new Date().toISOString();
+  t.editedBy  = currentUser?.name || 'System';
+  t.editReason= reason;
+  t.original  = t.original || { amount: oldAmount, date: oldDate, desc: t.desc };
+ 
+  // Recalculate running balances for all transactions after sorting by date
+  _recalcBalances(c);
+ 
+  saveAll();
+  logActivity('Transaction Edit',
+    `Edited txn on ${c.acctNumber} — was ${fmt(oldAmount)} on ${fmtDate(oldDate)}, ` +
+    `now ${fmt(newAmount)} on ${fmtDate(newDate)}. Reason: ${reason}`,
+    newAmount, 'edited');
+  closeModal('modal-customer');
+  openCustomerTxn(custId);
+  toast('Transaction updated ✅', 'success');
+}
+ 
+// ── Delete transaction ────────────────────────────────
+function deleteTxn(custId, txnId) {
+  const c = CUSTOMERS.find(x => x.id === custId); if (!c) return;
+  const t = (c.transactions || []).find(x => x.id === txnId); if (!t) return;
+ 
+  const typeLabels = { deposit:'Deposit', withdrawal:'Withdrawal', entry:'Collection', fee:'Fee' };
+  const label = typeLabels[t.type] || t.type;
+ 
+  closeModal('modal-customer');
+ 
+  showConfirm(
+    '🗑 Delete Transaction?',
+    `Delete this <strong>${label}</strong> of
+     <strong class="mono">${fmt(t.amount)}</strong>
+     on <strong>${fmtDate(t.date)}</strong>?
+     <br><br>
+     <div class="alert alert-warning" style="font-size:.76rem;margin-top:8px">
+       ⚠️ This will permanently remove the transaction and
+       <strong>recalculate all subsequent balances</strong> on this account.
+       This action cannot be undone.
+     </div>`,
+    () => {
+      const idx = c.transactions.findIndex(x => x.id === txnId);
+      if (idx < 0) return;
+ 
+      const deleted = c.transactions.splice(idx, 1)[0];
+ 
+      // Recalculate balances after deletion
+      _recalcBalances(c);
+ 
+      saveAll();
+      logActivity('Transaction Delete',
+        `Deleted ${label} of ${fmt(deleted.amount)} on ${fmtDate(deleted.date)} ` +
+        `from ${c.acctNumber} (${c.firstName} ${c.lastName})`,
+        deleted.amount, 'deleted');
+      openCustomerTxn(custId);
+      toast(`Transaction deleted — balances recalculated ✅`, 'success');
+    }
+  );
+}
+ 
+// ── Recalculate running balances ──────────────────────
+// After an edit or delete, rebuild balance column from scratch
+function _recalcBalances(customer) {
+  if (!customer.transactions?.length) { customer.balance = customer.initialDeposit || 0; return; }
+ 
+  // Sort by date ascending
+  customer.transactions.sort((a, b) => {
+    const da = new Date((a.date || '1970-01-01') + 'T00:00:00');
+    const db = new Date((b.date || '1970-01-01') + 'T00:00:00');
+    return da - db || (a.time || '').localeCompare(b.time || '');
+  });
+ 
+  // Find the initial deposit as starting balance
+  let running = customer.initialDeposit || 0;
+ 
+  // Determine if each txn is credit or debit
+  const credits  = new Set(['deposit','transfer_in','entry']);
+  const debits   = new Set(['withdrawal','fee','advance','commission','transfer_out','card_replacement']);
+ 
+  customer.transactions.forEach(t => {
+    if (credits.has(t.type))       running = Math.round((running + t.amount) * 100) / 100;
+    else if (debits.has(t.type))   running = Math.round((running - t.amount) * 100) / 100;
+    // note/system entries don't change balance
+    t.balance = running;
+  });
+ 
+  customer.balance = running;
+}
+ 
 
 // ─────────────────────────────────────────────────────
 //  DEPOSIT / WITHDRAW MODALS
