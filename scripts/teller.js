@@ -6,29 +6,46 @@
 if (!TELLER_STATE.floatRequests) TELLER_STATE.floatRequests = [];
 
 function updateTellerStats() {
-  const ts  = TELLER_STATE;
-  const coll = ts.collections.reduce((s, c) => s + c.amount, 0);
-  const wd   = ts.withdrawals.filter(w => w.status === 'paid').reduce((s, w) => s + w.amount, 0);
-  const exp  = ts.expenses.reduce((s, e) => s + e.amount, 0);
-  const cash = Math.max(0, ts.startOfDay + coll - wd - exp);
+  const ts    = TELLER_STATE;
+  const today = ts.startOfDayDate || todayISO();
+
+  // Only count TODAY's collections, withdrawals and expenses
+  const coll = ts.collections
+    .filter(c => (c.collectionDate || c.time?.slice(0,10) || '') === today)
+    .reduce((s, c) => s + c.amount, 0);
+  const wd   = ts.withdrawals
+    .filter(w => w.status === 'paid' && (w.date || w.paidAt?.slice(0,10) || '') === today)
+    .reduce((s, w) => s + w.amount, 0);
+  const exp  = ts.expenses
+    .filter(e => (e.date || '') === today)
+    .reduce((s, e) => s + e.amount, 0);
+  const cash = Math.max(0, (ts.startOfDay || 0) + coll - wd - exp);
   const pend = ts.withdrawals.filter(w => w.status === 'pending');
+
   const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  setTxt('t-sod',    fmt(ts.startOfDay));
+  setTxt('t-sod',    fmt(ts.startOfDay || 0));
   setTxt('t-sod-s',  ts.startOfDayTime ? 'Received at ' + fmtTime(ts.startOfDayTime) : 'Not received');
   setTxt('t-cash',   fmt(cash));
-  setTxt('t-coll',   ts.collections.length);
-  setTxt('t-coll-s', fmt(coll) + ' total');
+  setTxt('t-coll',   ts.collections.filter(c => (c.collectionDate || c.time?.slice(0,10) || '') === today).length);
+  setTxt('t-coll-s', fmt(coll) + ' today');
   setTxt('t-pend',   pend.length);
   setTxt('t-pend-s', fmt(pend.reduce((s, w) => s + w.amount, 0)) + ' total');
 }
 
 function cashAtHand() {
-  const ts = TELLER_STATE;
+  const ts    = TELLER_STATE;
+  const today = ts.startOfDayDate || todayISO();
   return Math.max(0,
-    ts.startOfDay
-    + ts.collections.reduce((s, c) => s + c.amount, 0)
-    - ts.withdrawals.filter(w => w.status === 'paid').reduce((s, w) => s + w.amount, 0)
-    - ts.expenses.reduce((s, e) => s + e.amount, 0)
+    (ts.startOfDay || 0)
+    + ts.collections
+        .filter(c => (c.collectionDate || c.time?.slice(0,10) || '') === today)
+        .reduce((s, c) => s + c.amount, 0)
+    - ts.withdrawals
+        .filter(w => w.status === 'paid' && (w.date || w.paidAt?.slice(0,10) || '') === today)
+        .reduce((s, w) => s + w.amount, 0)
+    - ts.expenses
+        .filter(e => (e.date || '') === today)
+        .reduce((s, e) => s + e.amount, 0)
   );
 }
 
@@ -394,28 +411,56 @@ function confirmFloatReceipt(reqId) {
 
 // ── Cash at Hand summary HTML helper ─────────────────
 function buildCashSummaryHTML() {
-  const ts = TELLER_STATE;
+  const ts    = TELLER_STATE;
+  const today = ts.startOfDayDate || todayISO();
+
   if (!ts.startOfDay) {
     return `<div class="empty-state" style="padding:24px 0">
       <div class="ei">🏦</div><div class="et">No Float Received</div></div>`;
   }
-  const coll = ts.collections.reduce((s, c) => s + c.amount, 0);
-  const wd   = ts.withdrawals.filter(w => w.status === 'paid').reduce((s, w) => s + w.amount, 0);
-  const exp  = ts.expenses.reduce((s, e) => s + e.amount, 0);
+
+  const coll = ts.collections
+    .filter(c => (c.collectionDate || c.time?.slice(0,10) || '') === today)
+    .reduce((s, c) => s + c.amount, 0);
+  const wd   = ts.withdrawals
+    .filter(w => w.status === 'paid' && (w.date || w.paidAt?.slice(0,10) || '') === today)
+    .reduce((s, w) => s + w.amount, 0);
+  const exp  = ts.expenses
+    .filter(e => (e.date || '') === today)
+    .reduce((s, e) => s + e.amount, 0);
+
   return `<div style="display:flex;flex-direction:column;gap:10px;font-size:.85rem">
-    <div class="flex-between"><span class="text-muted">Start of Day</span><span class="mono text-gold">${fmt(ts.startOfDay)}</span></div>
-    <div class="flex-between"><span class="text-muted">+ Collections</span><span class="mono text-success">+ ${fmt(coll)}</span></div>
-    <div class="flex-between"><span class="text-muted">− Withdrawals Paid</span><span class="mono text-danger">− ${fmt(wd)}</span></div>
-    <div class="flex-between"><span class="text-muted">− Expenses</span><span class="mono text-danger">− ${fmt(exp)}</span></div>
+    <div style="font-size:.7rem;color:var(--muted);margin-bottom:2px">
+      Date: <strong>${fmtDate(today)}</strong>
+    </div>
+    <div class="flex-between">
+      <span class="text-muted">Start of Day Float</span>
+      <span class="mono text-gold">${fmt(ts.startOfDay)}</span>
+    </div>
+    <div class="flex-between">
+      <span class="text-muted">+ Collections Today</span>
+      <span class="mono text-success">+ ${fmt(coll)}</span>
+    </div>
+    <div class="flex-between">
+      <span class="text-muted">− Withdrawals Paid Today</span>
+      <span class="mono text-danger">− ${fmt(wd)}</span>
+    </div>
+    <div class="flex-between">
+      <span class="text-muted">− Expenses Today</span>
+      <span class="mono text-danger">− ${fmt(exp)}</span>
+    </div>
     <hr class="divider" style="margin:4px 0">
     <div class="flex-between fw-600">
       <span>Cash at Hand</span>
       <span class="mono text-gold" style="font-size:1.05rem">${fmt(cashAtHand())}</span>
     </div>
-    <div style="padding:9px 12px;background:var(--gold-dim);border:1px solid var(--border);border-radius:8px;margin-top:4px">
-      <div class="text-muted" style="font-size:.7rem">FROM</div>
+    <div style="padding:9px 12px;background:var(--gold-dim);border:1px solid var(--border);
+      border-radius:8px;margin-top:4px">
+      <div class="text-muted" style="font-size:.7rem">FLOAT FROM</div>
       <div class="fw-600">${ts.startOfDaySource || '—'}</div>
-      <div class="text-muted" style="font-size:.7rem;margin-top:2px">${fmtDateTime(ts.startOfDayTime)}</div>
+      <div class="text-muted" style="font-size:.7rem;margin-top:2px">
+        ${fmtDateTime(ts.startOfDayTime)}
+      </div>
     </div>
   </div>`;
 }
